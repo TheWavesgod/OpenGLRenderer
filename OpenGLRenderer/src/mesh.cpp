@@ -9,6 +9,8 @@ mesh* mesh::GenerateTriangle()
 		{ 0.5f, -0.5f, 0.0f},
 		{ 0.0f,  0.5f, 0.0f}
 	};
+
+	return m;
 }
 
 void mesh::BufferData()
