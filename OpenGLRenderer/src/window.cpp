@@ -6,7 +6,6 @@ window* window::CreateGLFWWindow(uint32_t width, uint32_t height, const std::str
     return &w;
 }
 
-
 window::window(uint32_t width, uint32_t height, const std::string& title, bool bFullScreen)
 {
 	glfwInit();
@@ -46,11 +45,6 @@ bool window::Update()
 		return false;
 	}
 
-
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glfwSwapBuffers(glfwWindow);
 	glfwPollEvents();
 
 	return true;
