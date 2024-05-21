@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\GLRenderer.cpp" />
@@ -150,14 +151,17 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\GLRenderer.h" />
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\Window.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\Transform.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

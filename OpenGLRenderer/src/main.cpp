@@ -1,6 +1,7 @@
 #include "window.h"
 #include "glRenderer.h"
 #include "shader.h"
+#include "Camera.h"
 
 int main()
 {
@@ -16,7 +17,8 @@ int main()
 		return -1;
 	}
 
-	while (w->Update())
+	float deltaT;
+	while (w->Update(deltaT))
 	{
 		if (w->GetInputState(GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		{

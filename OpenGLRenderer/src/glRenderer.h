@@ -7,11 +7,13 @@ class window;
 class shader;
 class mesh;
 class texture;
+class Camera;
 
 class glRenderer
 {
 public:
 	glRenderer(window* w);
+	~glRenderer(void);
 
 	void Render();
 
@@ -29,6 +31,8 @@ private:
 	mesh* quad;
 
 	texture* tex;
+
+	Camera* camera;
 
 public:
 	inline bool HasInitialized() { return bHasInitilized; }

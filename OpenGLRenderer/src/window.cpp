@@ -1,8 +1,16 @@
 #include "window.h"
 
+window* window::windowPtr = nullptr;
+
+float window::lastMouseX = 0.0f;
+float window::lastMouseY = 0.0f;
+float window::mouseInputX = 0.0f;
+float window::mouseInputY = 0.0f;
+
 window* window::CreateGLFWWindow(uint32_t width, uint32_t height, const std::string& title, bool bFullScreen)
 {
 	static window w(width, height, title, bFullScreen);
+	windowPtr = &w;
     return &w;
 }
 
@@ -23,6 +31,9 @@ window::window(uint32_t width, uint32_t height, const std::string& title, bool b
 	glfwMakeContextCurrent(w);
 	glfwWindow = w;
 
+	glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(w, mouse_callback);
+
 	// Initialize GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -31,6 +42,10 @@ window::window(uint32_t width, uint32_t height, const std::string& title, bool b
 	}
 
 	glViewport(0, 0, width, height);
+	this->width = width;
+	this->height = height;
+	lastMouseX = width * 0.5f;
+	lastMouseY = height * 0.5f;
 }
 
 bool window::HasInitialized()
@@ -38,12 +53,18 @@ bool window::HasInitialized()
 	return glfwWindow != nullptr;
 }
 
-bool window::Update()
+bool window::Update(float& deltaT)
 {
 	if (glfwWindowShouldClose(glfwWindow))
 	{
 		return false;
 	}
+
+	// Calculate delta time
+	float currentFrame = glfwGetTime();
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
+	deltaT = deltaTime;
 
 	glfwPollEvents();
 
@@ -52,7 +73,7 @@ bool window::Update()
 
 int window::GetInputState(int key)
 {
-	return glfwGetKey(glfwWindow, key);
+	return glfwGetKey(windowPtr->GetGLFWWindow(), key);
 }
 
 void window::SetWindowShouldClose(bool bShouldClose)
@@ -63,4 +84,16 @@ void window::SetWindowShouldClose(bool bShouldClose)
 void window::CloseWindow()
 {
 	glfwTerminate();
+}
+
+void window::mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	mouseInputX = xpos - lastMouseX;
+	mouseInputY = lastMouseY - ypos; // reversed since y-coordinates range from bottom to top
+	lastMouseX = xpos;
+	lastMouseY = ypos;
+
+	const float sensitivity = 0.1f;
+	mouseInputX *= sensitivity;
+	mouseInputY *= sensitivity;
 }
