@@ -1,11 +1,13 @@
 #include "mesh.h"
+
+#include "Shader.h"
 #include <iostream>
 
-mesh* mesh::GenerateTriangle()
+Mesh* Mesh::GenerateTriangle()
 {
-	mesh* m = new mesh;
+	Mesh* m = new Mesh;
 	
-	m->vertices = {
+	/*m->vertices = {
 		glm::vec3(-0.5f, -0.5f, 0.0f),
 		glm::vec3( 0.5f, -0.5f, 0.0f),
 		glm::vec3( 0.0f,  0.5f, 0.0f)
@@ -15,7 +17,7 @@ mesh* mesh::GenerateTriangle()
 		glm::vec2(0.0f, 0.0f),
 		glm::vec2(1.0f, 0.0f),
 		glm::vec2(0.5f, 1.0f)
-	};
+	};*/
 
 	m->BufferData();
 
@@ -24,11 +26,11 @@ mesh* mesh::GenerateTriangle()
 	return m;
 }
 
-mesh* mesh::GenerateQuad()
+Mesh* Mesh::GenerateQuad()
 {
-	mesh* m = new mesh;
+	Mesh* m = new Mesh;
 
-	m->vertices = {
+	/*m->vertices = {
 		glm::vec3( 0.5f,  0.5f, 0.0f),
 		glm::vec3( 0.5f, -0.5f, 0.0f),
 		glm::vec3(-0.5f, -0.5f, 0.0f),
@@ -40,7 +42,7 @@ mesh* mesh::GenerateQuad()
 		glm::vec3(0.0f, 1.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 1.0f),
 		glm::vec3(1.0f, 0.0f, 1.0f)
-	};
+	};*/
 
 	m->indices = {
 		0, 1, 3, // first triangle
@@ -53,12 +55,12 @@ mesh* mesh::GenerateQuad()
 	return m;
 }
 
-mesh::mesh()
+Mesh::Mesh()
 {
 
 }
 
-void mesh::Draw()
+void Mesh::Draw(Shader& shader)
 {
 	glBindVertexArray(VertexArrayID);
 	if (indices.empty())
@@ -72,14 +74,14 @@ void mesh::Draw()
 	glBindVertexArray(0);
 }
 
-void mesh::BufferData()
+void Mesh::BufferData()
 {
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
 	BufferAttribute(&VBOs[VERTEX_BUFFER], vertices.size(), sizeof(glm::vec3), 3, VERTEX_BUFFER, vertices.data());
 
-	if (!colors.empty())
+	/*if (!colors.empty())
 	{
 		BufferAttribute(&VBOs[COLOUR_BUFFER], vertices.size(), sizeof(glm::vec3), 3, COLOUR_BUFFER, colors.data());
 	}
@@ -87,7 +89,7 @@ void mesh::BufferData()
 	if (!texCoords.empty())
 	{
 		BufferAttribute(&VBOs[TEXTURE_BUFFER], vertices.size(), sizeof(glm::vec2), 2, TEXTURE_BUFFER, texCoords.data());
-	}
+	}*/
 
 	if (!indices.empty())
 	{
@@ -96,7 +98,7 @@ void mesh::BufferData()
 
 }
 
-void mesh::BufferAttribute(GLuint* VBO, unsigned int numVertex, unsigned int dataSize, int attribSize, int attribID, void* pointer)
+void Mesh::BufferAttribute(GLuint* VBO, unsigned int numVertex, unsigned int dataSize, int attribSize, int attribID, void* pointer)
 {
 	glGenBuffers(1, VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
@@ -107,7 +109,7 @@ void mesh::BufferAttribute(GLuint* VBO, unsigned int numVertex, unsigned int dat
 	glEnableVertexAttribArray(attribID);
 }
 
-void mesh::BufferIndices(GLuint* EBO, unsigned int numIndex, void* pointer)
+void Mesh::BufferIndices(GLuint* EBO, unsigned int numIndex, void* pointer)
 {
 	glGenBuffers(1, EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);

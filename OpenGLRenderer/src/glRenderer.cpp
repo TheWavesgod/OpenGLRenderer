@@ -14,18 +14,20 @@
 
 #include <cmath>
 
+using namespace XGL;
+
 glRenderer::glRenderer(window* w)
 {
 	currentWindow = w;
 
 	bHasInitilized = CreateShaderPrograms();
 
-	triangle = mesh::GenerateTriangle();
-	quad = mesh::GenerateQuad();
+	triangle = Mesh::GenerateTriangle();
+	quad = Mesh::GenerateQuad();
 
 	camera = new Camera();
 
-	tex = new texture("../Resources/Textures/brick.tga");
+	tex = new XGL::Texture("../Resources/Textures/brick.tga");
 }
 
 glRenderer::~glRenderer(void)
@@ -60,7 +62,7 @@ void glRenderer::Render()
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
 
-	triangle->Draw();
+	triangle->Draw(*shaders[0]);
 	//quad->Draw();
 
 	glfwSwapBuffers(currentWindow->GetGLFWWindow());
@@ -68,7 +70,7 @@ void glRenderer::Render()
 
 bool glRenderer::CreateShaderPrograms()
 {
-	shader* s = new shader("../Shaders/vertex.glsl", "../Shaders/fragment.glsl");
+	Shader* s = new Shader("../Shaders/vertex.glsl", "../Shaders/fragment.glsl");
 	if (!s->HasInitialized()) return false;
 	shaders.push_back(s);
 

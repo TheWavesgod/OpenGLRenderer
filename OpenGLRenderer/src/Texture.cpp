@@ -5,7 +5,16 @@
 
 #include <iostream>
 
-texture::texture(const std::string& fileLoc)
+using namespace XGL;
+
+Texture::Texture()
+{
+	textureID = 0;
+	type = "";
+	path = "";
+}
+
+Texture::Texture(const std::string& fileLoc)
 {
 	
 	glGenTextures(1, &textureID);
@@ -29,4 +38,8 @@ texture::texture(const std::string& fileLoc)
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
+}
+
+void Texture::LoadFromFile(const std::string& fileLoc)
+{
 }

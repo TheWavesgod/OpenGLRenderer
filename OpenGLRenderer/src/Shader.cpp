@@ -4,12 +4,12 @@
 #include <fstream>
 #include <sstream>
 
-shader::shader(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc)
+Shader::Shader(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc)
 {
 	bCreateSuccess = BuildShaderProgram(vertexShaderLoc, fragmentShaderLoc);
 }
 
-bool shader::BuildShaderProgram(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc)
+bool Shader::BuildShaderProgram(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc)
 {
 	shaderProgramID = glCreateProgram();
 
@@ -46,7 +46,7 @@ bool shader::BuildShaderProgram(const std::string& vertexShaderLoc, const std::s
 	return true;
 }
 
-bool shader::ReadAndCompileShader(const std::string& fileLocation, shaderType type, GLuint* shaderID)
+bool Shader::ReadAndCompileShader(const std::string& fileLocation, shaderType type, GLuint* shaderID)
 {
 	using namespace std;
 

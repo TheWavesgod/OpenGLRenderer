@@ -3,10 +3,10 @@
 #include "glad/glad.h"
 #include<string>
 
-class shader
+class Shader
 {
 public:
-	shader(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc);
+	Shader(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc);
 
 	enum shaderType : uint32_t
 	{

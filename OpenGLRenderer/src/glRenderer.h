@@ -4,10 +4,14 @@
 
 
 class window;
-class shader;
-class mesh;
-class texture;
+class Shader;
+class Mesh;
 class Camera;
+
+namespace XGL
+{
+	class Texture;
+}
 
 class glRenderer
 {
@@ -21,16 +25,16 @@ protected:
 	bool CreateShaderPrograms();
 
 private:
-	std::vector<shader*> shaders;
+	std::vector<Shader*> shaders;
 
 	window* currentWindow;
 
 	bool bHasInitilized;
 
-	mesh* triangle;
-	mesh* quad;
+	Mesh* triangle;
+	Mesh* quad;
 
-	texture* tex;
+	XGL::Texture* tex;
 
 	Camera* camera;
 

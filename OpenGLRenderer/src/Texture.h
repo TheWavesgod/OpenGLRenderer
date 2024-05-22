@@ -3,17 +3,31 @@
 #include "glad/glad.h"
 #include <string>
 
-class texture
+namespace XGL 
 {
-public:
-	texture(const std::string& fileLoc);
+	class Texture
+	{
+	public:
+		Texture();
 
-protected:
-	GLuint textureID;
+		Texture(const std::string& fileLoc);
 
-private:
+		~Texture() {}
 
-public:
-	inline GLuint TextureID() const { return textureID; }
-};
+		void LoadFromFile(const std::string& fileLoc);
+
+		std::string type;
+		std::string path;
+
+	protected:
+		GLuint textureID;
+
+	private:
+
+	public:
+		inline GLuint TextureID() const { return textureID; }
+	};
+}
+
+
 
