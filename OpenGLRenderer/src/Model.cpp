@@ -2,10 +2,7 @@
 
 #include "Mesh.h"
 #include "Texture.h"
-
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include "Shader.h"
 
 #include <iostream>
 #include <cstring>
@@ -43,7 +40,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
 	for (unsigned int i = 0; i < node->mNumMeshes; ++i)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.emplace_back(ProcessMesh(mesh, scene));
+		meshes.push_back(ProcessMesh(mesh, scene));
 	}
 
 	// then do the same for each of its children
@@ -94,18 +91,18 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	if (mesh->mMaterialIndex >= 0)
 	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-		std::vector<XGL::Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+		std::vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-		std::vector<XGL::Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+		std::vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
 
 	return Mesh();
 }
 
-std::vector<XGL::Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
-	std::vector<XGL::Texture> textures;
+	std::vector<Texture> textures;
 
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); ++i)
 	{
@@ -123,7 +120,7 @@ std::vector<XGL::Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTexture
 		}
 		if (!skip)
 		{
-			XGL::Texture texture;
+			Texture texture;
 			texture.LoadFromFile(directory + std::string(str.C_Str()));
 			texture.type = typeName;
 			texture.path = std::string(str.C_Str());

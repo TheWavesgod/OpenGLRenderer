@@ -14,7 +14,6 @@
 
 #include <cmath>
 
-using namespace XGL;
 
 glRenderer::glRenderer(window* w)
 {
@@ -27,7 +26,7 @@ glRenderer::glRenderer(window* w)
 
 	camera = new Camera();
 
-	tex = new XGL::Texture("../Resources/Textures/brick.tga");
+	tex = new Texture("../Resources/Textures/brick.tga");
 }
 
 glRenderer::~glRenderer(void)
@@ -62,7 +61,7 @@ void glRenderer::Render()
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
 
-	triangle->Draw(*shaders[0]);
+	//triangle->Draw(*shaders[0]);
 	//quad->Draw();
 
 	glfwSwapBuffers(currentWindow->GetGLFWWindow());

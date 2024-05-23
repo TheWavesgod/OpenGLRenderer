@@ -11,23 +11,6 @@
 class Shader;
 class Texture;
 
-// A handy enumerator, to determine which member of the bufferObject array
-//holds which data
-enum MeshBuffer {
-	VERTEX_BUFFER,
-	COLOUR_BUFFER,
-	TEXTURE_BUFFER,
-	NORMAL_BUFFER,
-	TANGENT_BUFFER,
-
-	WEIGHTVALUE_BUFFER,		//new this year, weight values of vertices
-	WEIGHTINDEX_BUFFER,		//new this year, indices of weights
-
-	INDEX_BUFFER,
-
-	MAX_BUFFER
-};
-
 class Mesh
 {
 public:
@@ -35,34 +18,22 @@ public:
 	static Mesh* GenerateQuad();
 
 	Mesh();
-
-
+	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 
 	void Draw(Shader& shader);
 
-	void BufferData();
-
 protected:
-	GLuint drawShader;
-
-	GLuint VertexArrayID;
-	
-	GLuint VBOs[MAX_BUFFER];
-
 	// Mesh attributes
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures; 
+	std::vector<glm::vec3> colors;
 
-	void BufferAttribute(GLuint* VBO, unsigned int numVertex, unsigned int dataSize, int attribSize, int attribID, void* pointer);
-	void BufferIndices(GLuint* EBO, unsigned int numIndex, void* pointer);
+	void SetupMesh();
+
 private:
 	GLuint VAO;
 	GLuint VBO;
 	GLuint EBO;
-
-public:
-	inline GLuint DrawShader() const { return drawShader; }
-	inline GLuint VertexArrayObj() const { return VertexArrayID; }
 };
 

@@ -7,11 +7,8 @@ class window;
 class Shader;
 class Mesh;
 class Camera;
+class Texture;
 
-namespace XGL
-{
-	class Texture;
-}
 
 class glRenderer
 {
@@ -34,7 +31,7 @@ private:
 	Mesh* triangle;
 	Mesh* quad;
 
-	XGL::Texture* tex;
+	Texture* tex;
 
 	Camera* camera;
 

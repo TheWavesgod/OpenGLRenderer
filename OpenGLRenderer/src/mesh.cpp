@@ -1,5 +1,5 @@
 #include "mesh.h"
-
+#include "Texture.h"
 #include "Shader.h"
 #include <iostream>
 
@@ -7,21 +7,13 @@ Mesh* Mesh::GenerateTriangle()
 {
 	Mesh* m = new Mesh;
 	
-	/*m->vertices = {
-		glm::vec3(-0.5f, -0.5f, 0.0f),
-		glm::vec3( 0.5f, -0.5f, 0.0f),
-		glm::vec3( 0.0f,  0.5f, 0.0f)
+	m->vertices = {
+		{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(0.0f), glm::vec2(1.0f, 0.0f)},
+		{glm::vec3( 0.0f,  0.5f, 0.0f), glm::vec3(0.0f), glm::vec2(0.5f, 1.0f)}
 	};
 
-	m->texCoords = {
-		glm::vec2(0.0f, 0.0f),
-		glm::vec2(1.0f, 0.0f),
-		glm::vec2(0.5f, 1.0f)
-	};*/
-
-	m->BufferData();
-
-	m->drawShader = 0;
+	m->SetupMesh();
 
 	return m;
 }
@@ -44,13 +36,11 @@ Mesh* Mesh::GenerateQuad()
 		glm::vec3(1.0f, 0.0f, 1.0f)
 	};*/
 
-	m->indices = {
-		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
-	};
-
-	m->BufferData();
-	m->drawShader = 0;
+	//m->indices = {
+	//	0, 1, 3, // first triangle
+	//	1, 2, 3  // second triangle
+	//};
+	m->SetupMesh();
 
 	return m;
 }
@@ -60,9 +50,18 @@ Mesh::Mesh()
 
 }
 
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
+{
+	this->vertices = vertices;
+	this->indices = indices;
+	this->textures = textures;
+
+
+}
+
 void Mesh::Draw(Shader& shader)
 {
-	glBindVertexArray(VertexArrayID);
+	glBindVertexArray(VAO);
 	if (indices.empty())
 	{
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
@@ -74,44 +73,31 @@ void Mesh::Draw(Shader& shader)
 	glBindVertexArray(0);
 }
 
-void Mesh::BufferData()
+void Mesh::SetupMesh()
 {
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
 
-	BufferAttribute(&VBOs[VERTEX_BUFFER], vertices.size(), sizeof(glm::vec3), 3, VERTEX_BUFFER, vertices.data());
+	glBindVertexArray(VAO);
 
-	/*if (!colors.empty())
-	{
-		BufferAttribute(&VBOs[COLOUR_BUFFER], vertices.size(), sizeof(glm::vec3), 3, COLOUR_BUFFER, colors.data());
-	}
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
-	if (!texCoords.empty())
-	{
-		BufferAttribute(&VBOs[TEXTURE_BUFFER], vertices.size(), sizeof(glm::vec2), 2, TEXTURE_BUFFER, texCoords.data());
-	}*/
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),indices.data(), GL_STATIC_DRAW);
 
-	if (!indices.empty())
-	{
-		BufferIndices(&VBOs[INDEX_BUFFER], indices.size(), indices.data());
-	}
+	// vertex positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 
-}
+	// vertex normals
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
 
-void Mesh::BufferAttribute(GLuint* VBO, unsigned int numVertex, unsigned int dataSize, int attribSize, int attribID, void* pointer)
-{
-	glGenBuffers(1, VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-	// Transfer Data to the buffer, GL_STATIC_DRAW define the type of buffer (memory)
-	glBufferData(GL_ARRAY_BUFFER, numVertex * dataSize, pointer, GL_STATIC_DRAW);
+	// vertex texture coords
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
 
-	glVertexAttribPointer(attribID, attribSize, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(attribID);
-}
-
-void Mesh::BufferIndices(GLuint* EBO, unsigned int numIndex, void* pointer)
-{
-	glGenBuffers(1, EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndex * sizeof(unsigned int), pointer, GL_STATIC_DRAW);
+	glBindVertexArray(0);
 }
