@@ -27,9 +27,8 @@ private:
 	window* currentWindow;
 
 	bool bHasInitilized;
-
-	Mesh* triangle;
-	Mesh* quad;
+	
+	Mesh* cube;
 
 	Texture* tex;
 

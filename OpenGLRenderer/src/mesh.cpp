@@ -22,24 +22,59 @@ Mesh* Mesh::GenerateQuad()
 {
 	Mesh* m = new Mesh;
 
-	/*m->vertices = {
-		glm::vec3( 0.5f,  0.5f, 0.0f),
-		glm::vec3( 0.5f, -0.5f, 0.0f),
-		glm::vec3(-0.5f, -0.5f, 0.0f),
-		glm::vec3(-0.5f,  0.5f, 0.0f)
+	m->vertices = {
+		{glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)}
 	};
 
-	m->colors = {
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 1.0f),
-		glm::vec3(1.0f, 0.0f, 1.0f)
-	};*/
+	m->indices = {
+		0, 1, 3, // first triangle
+		1, 2, 3  // second triangle
+	};
 
-	//m->indices = {
-	//	0, 1, 3, // first triangle
-	//	1, 2, 3  // second triangle
-	//};
+	m->SetupMesh();
+
+	return m;
+}
+
+Mesh* Mesh::GenerateCube()
+{
+	Mesh* m = new Mesh;
+
+	m->vertices = {
+		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)}
+	};
+
+	m->indices = {
+		// front
+		4, 5, 6,
+		4, 6, 7,
+		// back
+		0, 3, 2,
+		0, 2, 1,
+		// left
+		0, 7, 3,
+		0, 4, 7,
+		// right
+		1, 2, 6,
+		1, 6, 5,
+		// Top
+		3, 7, 6,
+		3, 6, 2,
+		// Bottom
+		0, 1, 5,
+		0, 5, 4
+	};
+
 	m->SetupMesh();
 
 	return m;
@@ -50,13 +85,13 @@ Mesh::Mesh()
 
 }
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
+Mesh::Mesh(std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<Texture>&& textures)
 {
 	this->vertices = vertices;
 	this->indices = indices;
 	this->textures = textures;
 
-
+	SetupMesh();
 }
 
 void Mesh::Draw(Shader& shader)

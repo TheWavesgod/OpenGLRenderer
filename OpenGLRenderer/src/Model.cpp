@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <utility>
 
 void Model::Draw(Shader& shader)
 {
@@ -40,7 +41,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
 	for (unsigned int i = 0; i < node->mNumMeshes; ++i)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(ProcessMesh(mesh, scene));
+		meshes.emplace_back(ProcessMesh(mesh, scene));
 	}
 
 	// then do the same for each of its children
@@ -78,7 +79,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 			vertex.texCoords.y = mesh->mTextureCoords[0][i].y;
 		}
 
-		vertices.push_back(vertex);
+		vertices.emplace_back(vertex);
 	}
 
 	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
@@ -97,7 +98,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
 
-	return Mesh();
+	return Mesh(std::move(vertices), std::move(indices), std::move(textures));
 }
 
 std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)

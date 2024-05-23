@@ -21,8 +21,7 @@ glRenderer::glRenderer(window* w)
 
 	bHasInitilized = CreateShaderPrograms();
 
-	triangle = Mesh::GenerateTriangle();
-	quad = Mesh::GenerateQuad();
+	cube = Mesh::GenerateQuad();
 
 	camera = new Camera();
 
@@ -31,8 +30,7 @@ glRenderer::glRenderer(window* w)
 
 glRenderer::~glRenderer(void)
 {
-	delete triangle;
-	delete quad;
+	delete cube;
 	delete camera;
 }
 
@@ -55,14 +53,12 @@ void glRenderer::Render()
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera->BuildViewMatrix()));
 
 	glm::mat4 model = glm::mat4(1.0f);
-	//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(0.0, 0.0, 1.0));
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -3.0f));
 
 	GLuint modelLoc = glGetUniformLocation(shaders[0]->GetShaderProgram(), "model");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-
-	//triangle->Draw(*shaders[0]);
-	//quad->Draw();
+	cube->Draw(*shaders[0]);
 
 	glfwSwapBuffers(currentWindow->GetGLFWWindow());
 }
