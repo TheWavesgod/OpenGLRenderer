@@ -1,6 +1,10 @@
 #pragma once
 
 #include "glad/glad.h"
+#include "glm.hpp"
+#include "gtc/matrix_transform.hpp"
+#include "gtc/type_ptr.hpp"
+
 #include<string>
 
 class Shader
@@ -15,6 +19,12 @@ public:
 
 		E_MAX
 	};
+
+	// Set Shader Uniform Values
+	void SetUniformVec3(const std::string& variable, float x, float y, float z);
+	void SetUniformFloat(const std::string& variable, float val);
+	void SetUniformMat4(const std::string& variable, const glm::mat4& val);
+	void SetUniformInt(const std::string& variable, GLuint val);
 
 protected:
 	GLuint shaderProgramID;

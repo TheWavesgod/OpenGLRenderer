@@ -66,9 +66,16 @@ bool window::Update(float& deltaT)
 	lastFrame = currentFrame;
 	deltaT = deltaTime;
 
+	UpdateInput();
 	glfwPollEvents();
 
 	return true;
+}
+
+void window::UpdateInput()
+{
+	mouseInputX = 0.0f;
+	mouseInputY = 0.0f;
 }
 
 int window::GetInputState(int key)
@@ -88,7 +95,7 @@ void window::CloseWindow()
 
 void window::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	mouseInputX = xpos - lastMouseX;
+	mouseInputX = lastMouseX - xpos;
 	mouseInputY = lastMouseY - ypos; // reversed since y-coordinates range from bottom to top
 	lastMouseX = xpos;
 	lastMouseY = ypos;

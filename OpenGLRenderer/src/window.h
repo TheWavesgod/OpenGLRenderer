@@ -43,6 +43,8 @@ private:
 	
 	window(uint32_t width, uint32_t height, const std::string& title, bool bFullScreen);
 
+	void UpdateInput();
+
 public:
 	inline GLFWwindow* GetGLFWWindow() const { return glfwWindow; }
 	inline GLuint GetWindowWidth() const { return width; }

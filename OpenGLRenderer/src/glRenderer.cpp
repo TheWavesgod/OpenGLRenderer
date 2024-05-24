@@ -32,6 +32,11 @@ glRenderer::~glRenderer(void)
 {
 	delete cube;
 	delete camera;
+
+	for (auto shader : shaders)
+	{
+		delete shader;
+	}
 }
 
 void glRenderer::Render()
@@ -46,17 +51,12 @@ void glRenderer::Render()
 	glUseProgram(shaders[0]->GetShaderProgram());
 	glBindTexture(GL_TEXTURE_2D, tex->TextureID());
 	
-	GLuint projLoc = glGetUniformLocation(shaders[0]->GetShaderProgram(), "projection");
-	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera->BuildProjectionMatrix()));
-
-	GLuint viewLoc = glGetUniformLocation(shaders[0]->GetShaderProgram(), "view");
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera->BuildViewMatrix()));
+	shaders[0]->SetUniformMat4("projection", camera->BuildProjectionMatrix());
+	shaders[0]->SetUniformMat4("view", camera->BuildViewMatrix());
 
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -3.0f));
-
-	GLuint modelLoc = glGetUniformLocation(shaders[0]->GetShaderProgram(), "model");
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+	shaders[0]->SetUniformMat4("model", model);
 
 	cube->Draw(*shaders[0]);
 
@@ -66,6 +66,10 @@ void glRenderer::Render()
 bool glRenderer::CreateShaderPrograms()
 {
 	Shader* s = new Shader("../Shaders/vertex.glsl", "../Shaders/fragment.glsl");
+	if (!s->HasInitialized()) return false;
+	shaders.push_back(s);
+
+	s = new Shader("../Shaders/vertPhoneLight.glsl", "../Shaders/fragPhonLight.glsl");
 	if (!s->HasInitialized()) return false;
 	shaders.push_back(s);
 

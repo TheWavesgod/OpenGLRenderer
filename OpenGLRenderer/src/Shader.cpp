@@ -95,3 +95,47 @@ bool Shader::ReadAndCompileShader(const std::string& fileLocation, shaderType ty
 
 	return success;
 }
+
+void Shader::SetUniformVec3(const std::string& variable, float x, float y, float z)
+{
+	GLuint valLoc = glGetUniformLocation(shaderProgramID, variable.c_str());
+	if (valLoc == -1)
+	{
+		std::cerr << "Couldn't find uniform variable " << variable << std::endl;
+		return;
+	}
+	glUniform3f(valLoc, x, y, z);
+}
+
+void Shader::SetUniformFloat(const std::string& variable, float val)
+{
+	GLuint valLoc = glGetUniformLocation(shaderProgramID, variable.c_str());
+	if (valLoc == -1)
+	{
+		std::cerr << "Couldn't find uniform variable " << variable << std::endl;
+		return;
+	}
+	glUniform1f(valLoc, val);
+}
+
+void Shader::SetUniformMat4(const std::string& variable, const glm::mat4& val)
+{
+	GLuint valLoc = glGetUniformLocation(shaderProgramID, variable.c_str());
+	if (valLoc == -1)
+	{
+		std::cerr << "Couldn't find uniform variable " << variable << std::endl;
+		return;
+	}
+	glUniformMatrix4fv(valLoc, 1, GL_FALSE, glm::value_ptr(val));
+}
+
+void Shader::SetUniformInt(const std::string& variable, GLuint val)
+{
+	GLuint valLoc = glGetUniformLocation(shaderProgramID, variable.c_str());
+	if (valLoc == -1)
+	{
+		std::cerr << "Couldn't find uniform variable " << variable << std::endl;
+		return;
+	}
+	glUniform1i(valLoc, val);
+}
