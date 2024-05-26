@@ -24,10 +24,24 @@ void Camera::UpdateCamera(float dt)
 
 	float speed = cameraMoveSpeed * dt;
 
-	if (window::GetInputState(GLFW_KEY_W) == GLFW_PRESS) {}
-	if (window::GetInputState(GLFW_KEY_S) == GLFW_PRESS) {}
-	if (window::GetInputState(GLFW_KEY_A) == GLFW_PRESS) {}
-	if (window::GetInputState(GLFW_KEY_D) == GLFW_PRESS) {}
+	glm::vec3 moveDir = glm::vec3(0.0f);
+	if (window::GetInputState(GLFW_KEY_W) == GLFW_PRESS) { moveDir += transform.GetForwardVector(); }
+	if (window::GetInputState(GLFW_KEY_S) == GLFW_PRESS) { moveDir += -transform.GetForwardVector(); }
+	if (window::GetInputState(GLFW_KEY_A) == GLFW_PRESS) { moveDir += -transform.GetRightVector(); }
+	if (window::GetInputState(GLFW_KEY_D) == GLFW_PRESS) { moveDir += transform.GetRightVector(); }
+	if (glm::length(moveDir) != 0.0f)
+	{
+		glm::vec3 moveDistance = glm::normalize(moveDir) * speed;
+		transform.SetPosition(transform.GetPosition() + moveDistance);
+	}
+	moveDir = glm::vec3(0.0f);
+	if (window::GetInputState(GLFW_KEY_Q) == GLFW_PRESS) { moveDir += -transform.GetUpVector(); }
+	if (window::GetInputState(GLFW_KEY_E) == GLFW_PRESS) { moveDir += transform.GetUpVector(); }
+	if (glm::length(moveDir) != 0.0f)
+	{
+		glm::vec3 moveDistance = glm::normalize(moveDir) * speed;
+		transform.SetPosition(transform.GetPosition() + moveDistance);
+	}
 }
 
 glm::mat4 Camera::BuildViewMatrix()
@@ -39,8 +53,8 @@ glm::mat4 Camera::BuildViewMatrix()
 
 glm::mat4 Camera::BuildProjectionMatrix()
 {
-	float width = window::GetWindowPointer()->GetWindowWidth();
-	float height = window::GetWindowPointer()->GetWindowHeight();
+	float width = window::GetWindowPointer()->GetWidth();
+	float height = window::GetWindowPointer()->GetHeight();
 
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), width / height, 0.1f, 1000.0f);
 	return projection;

@@ -9,11 +9,6 @@
 
 class Shader;
 class Mesh;
-//class aiNode;
-//class aiMesh;
-//class aiScene;
-//class aiMaterial;
-//enum aiTextureType;
 class Texture;
 
 class Model

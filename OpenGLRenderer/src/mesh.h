@@ -28,6 +28,7 @@ protected:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures; 
+
 	std::vector<glm::vec3> colors;
 
 	void SetupMesh();

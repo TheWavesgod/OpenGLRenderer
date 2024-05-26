@@ -23,7 +23,6 @@ class DirLight : public Light
 {
 public:
 
-
 };
 
 class PointLight : public Light

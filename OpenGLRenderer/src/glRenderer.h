@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include "glad/glad.h"
+#include "glfw3.h"
 
 class window;
 class Shader;
@@ -19,7 +21,14 @@ public:
 	void Render();
 
 protected:
+	void InitializeRenderer();
+	void GenerateScreenQuad();
+
 	bool CreateShaderPrograms();
+
+	void CreateFrameBuffer();
+
+	void DrawScene();
 
 private:
 	std::vector<Shader*> shaders;
@@ -32,10 +41,12 @@ private:
 
 	Texture* tex;
 
-	Camera* camera;
+	GLuint framebuffer;
+	GLuint textureColorbuffer;
+	GLuint screenQuadVAO;
 
 public:
 	inline bool HasInitialized() { return bHasInitilized; }
-
+	Camera* camera;
 };
 

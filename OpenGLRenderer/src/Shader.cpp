@@ -64,7 +64,7 @@ bool Shader::ReadAndCompileShader(const std::string& fileLocation, shaderType ty
 
 	shaderText = buffer.str();
 
-	cout << shaderText << endl;
+	//cout << shaderText << endl;
 
 	shaderFile.close();
 
@@ -88,7 +88,7 @@ bool Shader::ReadAndCompileShader(const std::string& fileLocation, shaderType ty
 	if (!success)
 	{
 		glGetShaderInfoLog(*shaderID, 512, nullptr, infoLog);
-		std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << endl;
+		cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << endl << endl;
 		return false;
 	}
 	shaderText.clear();

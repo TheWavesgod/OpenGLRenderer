@@ -47,8 +47,8 @@ private:
 
 public:
 	inline GLFWwindow* GetGLFWWindow() const { return glfwWindow; }
-	inline GLuint GetWindowWidth() const { return width; }
-	inline GLuint GetWindowHeight() const { return height; }
+	inline GLuint GetWidth() const { return width; }
+	inline GLuint GetHeight() const { return height; }
 };
 
 
