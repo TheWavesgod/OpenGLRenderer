@@ -49,6 +49,152 @@ void glRenderer::InitializeRenderer()
 {
 	GenerateScreenQuad();
 	CreateFrameBuffer();
+	CreateUniformBuffer();
+
+	glEnable(GL_MULTISAMPLE);
+
+	// Send projection Mat4 to uniform buffer once
+	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(camera->BuildProjectionMatrix()));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void glRenderer::Render()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, FBOMultiSample);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	DrawScene();
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, FBOMultiSample);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBOPostProcess);
+	glBlitFramebuffer(0, 0, currentWindow->GetWidth(), currentWindow->GetHeight(), 0, 0, currentWindow->GetWidth(), currentWindow->GetHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glUseProgram(shaders[2]->GetShaderProgram());
+	shaders[2]->SetUniformInt("screenTexture", 0);
+	shaders[2]->SetUniformInt("gammaCorrection", false);
+	glBindVertexArray(screenQuadVAO);
+	glDisable(GL_DEPTH_TEST);
+	glBindTexture(GL_TEXTURE_2D, colorTexPostProcess);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glfwSwapBuffers(currentWindow->GetGLFWWindow());
+}
+
+void glRenderer::DrawScene()
+{
+	// Send view mat4 to uniform buffer every frame before drawing
+	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera->BuildViewMatrix()));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glUseProgram(shaders[0]->GetShaderProgram());
+	glBindTexture(GL_TEXTURE_2D, tex->TextureID());
+
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -3.0f));
+	shaders[0]->SetUniformMat4("model", model);
+
+	cube->Draw(*shaders[0]);
+
+	// Draw Skybox
+	glUseProgram(shaders[3]->GetShaderProgram());
+	skybox->Draw(*shaders[3]);
+}
+
+bool glRenderer::CreateShaderPrograms()
+{
+	Shader* s = new Shader("../Shaders/vertex.glsl", "../Shaders/fragment.glsl");
+	if (!s->HasInitialized()) return false;
+	shaders.push_back(s);
+
+	s = new Shader("../Shaders/vertPhoneLight.glsl", "../Shaders/fragPhonLight.glsl");
+	if (!s->HasInitialized()) return false;
+	shaders.push_back(s);
+
+	s = new Shader("../Shaders/vertPostProcessing.glsl", "../Shaders/fragPostProcessing.glsl");
+	if (!s->HasInitialized()) return false;
+	shaders.push_back(s);
+
+	s = new Shader("../Shaders/vertCubemap.glsl", "../Shaders/fragCubemap.glsl");
+	if (!s->HasInitialized()) return false;
+	shaders.push_back(s);
+
+	return true;
+}
+
+void glRenderer::CreateFrameBuffer()
+{
+	glGenFramebuffers(1, &FBOPostProcess);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBOPostProcess);
+
+	// Generate texture
+	glGenTextures(1, &colorTexPostProcess);
+	glBindTexture(GL_TEXTURE_2D, colorTexPostProcess);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, currentWindow->GetWidth(), currentWindow->GetHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Attach it to currently bound framebuffer object
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexPostProcess, 0);
+
+	GLuint rbo;
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, currentWindow->GetWidth(), currentWindow->GetHeight());
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout << "ERROR::FRAMEBUFFER::POSTPROCESSING Framebuffer is not complete!" << std::endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+	// Multisample framebuffer
+	glGenFramebuffers(1, &FBOMultiSample);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBOMultiSample);
+
+	glGenTextures(1, &colorTexMultiSample);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, colorTexMultiSample);
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, currentWindow->GetWidth(), currentWindow->GetHeight(), GL_TRUE);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, colorTexMultiSample, 0);
+
+	GLuint rboMultisample;
+	glGenRenderbuffers(1, &rboMultisample);
+	glBindRenderbuffer(GL_RENDERBUFFER, rboMultisample);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, currentWindow->GetWidth(), currentWindow->GetHeight());
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboMultisample);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout<<"ERROR::FRAMEBUFFER::MULTISAMPLE Framebuffer is not complete!" << std::endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void glRenderer::CreateUniformBuffer()
+{
+	glGenBuffers(1, &uboMatrices);
+	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
 }
 
 void glRenderer::GenerateScreenQuad()
@@ -69,7 +215,7 @@ void glRenderer::GenerateScreenQuad()
 	glGenBuffers(1, &screenQuadVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, screenQuadVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(screenQuadVertices), &screenQuadVertices, GL_STATIC_DRAW);
-	
+
 	glGenVertexArrays(1, &screenQuadVAO);
 	glBindVertexArray(screenQuadVAO);
 	glEnableVertexAttribArray(0);
@@ -77,101 +223,4 @@ void glRenderer::GenerateScreenQuad()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
-}
-
-void glRenderer::Render()
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	DrawScene();
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glUseProgram(shaders[2]->GetShaderProgram());
-	shaders[2]->SetUniformInt("screenTexture", 0);
-	glBindVertexArray(screenQuadVAO);
-	glDisable(GL_DEPTH_TEST);
-	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-
-	glfwSwapBuffers(currentWindow->GetGLFWWindow());
-}
-
-void glRenderer::DrawScene()
-{
-	glUseProgram(shaders[0]->GetShaderProgram());
-	glBindTexture(GL_TEXTURE_2D, tex->TextureID());
-
-	shaders[0]->SetUniformMat4("projection", camera->BuildProjectionMatrix());
-	shaders[0]->SetUniformMat4("view", camera->BuildViewMatrix());
-
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -3.0f));
-	shaders[0]->SetUniformMat4("model", model);
-
-	cube->Draw(*shaders[0]);
-
-	// Draw Skybox
-	glUseProgram(shaders[3]->GetShaderProgram());
-	shaders[3]->SetUniformMat4("projection", camera->BuildProjectionMatrix());
-	shaders[3]->SetUniformMat4("view", glm::mat4(glm::mat3(camera->BuildViewMatrix())));
-	skybox->Draw(*shaders[3]);
-}
-
-bool glRenderer::CreateShaderPrograms()
-{
-	Shader* s = new Shader("../Shaders/vertex.glsl", "../Shaders/fragment.glsl");
-	if (!s->HasInitialized()) return false;
-	shaders.push_back(s);
-
-	s = new Shader("../Shaders/vertPhoneLight.glsl", "../Shaders/fragPhonLight.glsl");
-	if (!s->HasInitialized()) return false;
-	shaders.push_back(s);
-
-	s = new Shader("../Shaders/vertFB.glsl", "../Shaders/fragFB.glsl");
-	if (!s->HasInitialized()) return false;
-	shaders.push_back(s);
-
-	s = new Shader("../Shaders/vertCubemap.glsl", "../Shaders/fragCubemap.glsl");
-	if (!s->HasInitialized()) return false;
-	shaders.push_back(s);
-
-	return true;
-}
-
-void glRenderer::CreateFrameBuffer()
-{
-	glGenFramebuffers(1, &framebuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-	// Generate texture
-	glGenTextures(1, &textureColorbuffer);
-	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, currentWindow->GetWidth(), currentWindow->GetHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// Attach it to currently bound framebuffer object
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
-
-	GLuint rbo;
-	glGenRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, currentWindow->GetWidth(), currentWindow->GetHeight());
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	{
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

@@ -80,6 +80,10 @@ uniform Material material;
 uniform samplerCube skybox;
 vec3 CalcSkybox(vec3 normal, vec3 viewDir);
 
+// TODO: Set Uniform value bool blinn;
+bool blinn = true;
+float CalSpec(vec3 lightDir, vec3 normal, vec3 viewDir);
+
 void main()
 {
    // properties
@@ -105,12 +109,27 @@ void main()
     FragColor = vec4(result, 1.0);
 }
 
+float CalSpec(vec3 lightDir, vec3 normal, vec3 viewDir)
+{
+    float spec = 0;
+    if(blinn)
+    {
+        vec3 halfwayDir = normalize(lightDir + viewDir);
+        spec = pow(max(dot(halfwayDir, normal), 0.0), material.shininess * 4.0f);
+    }
+    else
+    {
+        vec3 reflectDir = reflect(-lightDir, normal);
+        spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    }
+    return spec;
+}
+
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0f);
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    float spec = CalSpec(lightDir, normal, viewDir);
     vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, TexCoord));
     vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoord));
     vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoord));
@@ -123,8 +142,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0f);
     // specular shading
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
+    float spec = CalSpec(lightDir, normal, viewDir);
     // attenuation
     float distance = length(light.position - fragPos);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
@@ -149,8 +167,7 @@ vec3 CalcSpotLight(spotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0f);
     // specular shading
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
+    float spec = CalSpec(lightDir, normal, viewDir);
     // attenuation
     float distance = length(light.position - fragPos);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
@@ -166,6 +183,7 @@ vec3 CalcSpotLight(spotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     return (ambient + diffuse + specular);
 }
 
+// TODO: Set Ambient reflection
 vec3 CalcSkybox(vec3 normal, vec3 viewDir)
 {
     vec3 I = -viewDir;

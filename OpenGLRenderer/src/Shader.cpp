@@ -139,3 +139,5 @@ void Shader::SetUniformInt(const std::string& variable, GLuint val)
 	}
 	glUniform1i(valLoc, val);
 }
+
+

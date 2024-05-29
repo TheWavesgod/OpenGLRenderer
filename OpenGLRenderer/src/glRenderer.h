@@ -23,11 +23,12 @@ public:
 
 protected:
 	void InitializeRenderer();
-	void GenerateScreenQuad();
 
 	bool CreateShaderPrograms();
 
+	void GenerateScreenQuad();
 	void CreateFrameBuffer();
+	void CreateUniformBuffer();
 
 	void DrawScene();
 
@@ -44,9 +45,15 @@ private:
 
 	CubeMap* skybox;
 
-	GLuint framebuffer;
-	GLuint textureColorbuffer;
+	GLuint FBOPostProcess;
+	GLuint colorTexPostProcess;
+	
+	GLuint FBOMultiSample;
+	GLuint colorTexMultiSample;
+
 	GLuint screenQuadVAO;
+
+	GLuint uboMatrices;
 
 public:
 	inline bool HasInitialized() { return bHasInitilized; }
