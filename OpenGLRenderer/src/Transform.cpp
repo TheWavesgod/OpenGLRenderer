@@ -18,6 +18,15 @@ void Transform::SetScale(const glm::vec3& scl)
 	updateTransformMatrix();
 }
 
+const Transform& Transform::operator*(const Transform& other) const
+{
+	Transform result;
+	result.position = position + rotation * (scale * other.position);
+	result.rotation = rotation * other.rotation;
+	result.scale = scale * other.scale;
+	return result;
+}
+
 void Transform::updateTransformMatrix()
 {
 	transformMatrix = glm::mat4(1.0f);

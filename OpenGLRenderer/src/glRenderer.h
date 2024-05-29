@@ -10,6 +10,7 @@ class Shader;
 class Mesh;
 class Camera;
 class Texture;
+class CubeMap;
 
 
 class glRenderer
@@ -40,6 +41,8 @@ private:
 	Mesh* cube;
 
 	Texture* tex;
+
+	CubeMap* skybox;
 
 	GLuint framebuffer;
 	GLuint textureColorbuffer;

@@ -12,7 +12,7 @@ public:
 
 	~Texture() {}
 
-	void LoadFromFile(const std::string& fileLoc);
+	virtual void LoadFromFile(const std::string& fileLoc);
 
 	std::string type;
 	std::string path;
@@ -25,7 +25,6 @@ private:
 public:
 	inline GLuint TextureID() const { return textureID; }
 };
-
 
 
 

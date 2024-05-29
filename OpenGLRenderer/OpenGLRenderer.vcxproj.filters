@@ -48,6 +48,12 @@
     <ClCompile Include="src\Light.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\SceneNode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CubeMap.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Window.h">
@@ -81,6 +87,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Light.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SceneNode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CubeMap.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

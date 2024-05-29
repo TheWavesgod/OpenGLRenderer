@@ -1,7 +1,6 @@
 #include "Model.h"
 
 #include "Mesh.h"
-#include "Texture.h"
 #include "Shader.h"
 
 #include <iostream>

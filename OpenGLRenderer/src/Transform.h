@@ -30,6 +30,9 @@ public:
 	inline const glm::vec3& GetForwardVector() const { return glm::normalize(rotation * glm::vec3(0.0f, 0.0f, -1.0f)); }
 	inline const glm::vec3& GetRightVector() const { return glm::normalize(rotation * glm::vec3(1.0f, 0.0f, 0.0f)); }
 	inline const glm::vec3& GetUpVector() const { return glm::normalize(rotation * glm::vec3(0.0f, 1.0f, 0.0f)); }
+
+	const Transform& operator*(const Transform& other) const;
+
 private:
 	void updateTransformMatrix();
 

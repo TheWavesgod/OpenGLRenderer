@@ -5,6 +5,7 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "CubeMap.h"
 
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
@@ -22,6 +23,15 @@ glRenderer::glRenderer(window* w)
 	cube = Mesh::GenerateCube();
 
 	tex = new Texture("../Resources/Textures/brick.tga");
+
+	skybox = new CubeMap(
+		"../Resources/CubeMap/evening_right.jpg",
+		"../Resources/CubeMap/evening_left.jpg",
+		"../Resources/CubeMap/evening_top.jpg",
+		"../Resources/CubeMap/evening_bottom.jpg",
+		"../Resources/CubeMap/evening_front.jpg",
+		"../Resources/CubeMap/evening_back.jpg"
+	);
 
 	InitializeRenderer();
 }
@@ -105,6 +115,12 @@ void glRenderer::DrawScene()
 	shaders[0]->SetUniformMat4("model", model);
 
 	cube->Draw(*shaders[0]);
+
+	// Draw Skybox
+	glUseProgram(shaders[3]->GetShaderProgram());
+	shaders[3]->SetUniformMat4("projection", camera->BuildProjectionMatrix());
+	shaders[3]->SetUniformMat4("view", glm::mat4(glm::mat3(camera->BuildViewMatrix())));
+	skybox->Draw(*shaders[3]);
 }
 
 bool glRenderer::CreateShaderPrograms()
@@ -118,6 +134,10 @@ bool glRenderer::CreateShaderPrograms()
 	shaders.push_back(s);
 
 	s = new Shader("../Shaders/vertFB.glsl", "../Shaders/fragFB.glsl");
+	if (!s->HasInitialized()) return false;
+	shaders.push_back(s);
+
+	s = new Shader("../Shaders/vertCubemap.glsl", "../Shaders/fragCubemap.glsl");
 	if (!s->HasInitialized()) return false;
 	shaders.push_back(s);
 

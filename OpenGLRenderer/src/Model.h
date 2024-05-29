@@ -7,9 +7,10 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "Texture.h"
+
 class Shader;
 class Mesh;
-class Texture;
 
 class Model
 {

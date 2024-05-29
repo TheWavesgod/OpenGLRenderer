@@ -77,6 +77,9 @@ layout(std430, binding = 0) buffer LightBuffer
 
 uniform Material material;
 
+uniform samplerCube skybox;
+vec3 CalcSkybox(vec3 normal, vec3 viewDir);
+
 void main()
 {
    // properties
@@ -161,4 +164,14 @@ vec3 CalcSpotLight(spotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     diffuse  *= intensity;
     specular *= intensity;
     return (ambient + diffuse + specular);
+}
+
+vec3 CalcSkybox(vec3 normal, vec3 viewDir)
+{
+    vec3 I = -viewDir;
+    vec3 R = reflect(I, normal);
+
+    vec3 color = texture(skybox, R).rgb;
+
+    return color;
 }
