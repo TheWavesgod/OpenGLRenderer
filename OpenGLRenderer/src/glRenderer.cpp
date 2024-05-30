@@ -79,10 +79,11 @@ void glRenderer::Render()
 	glUseProgram(shaders[2]->GetShaderProgram());
 	shaders[2]->SetUniformInt("screenTexture", 0);
 	shaders[2]->SetUniformInt("gammaCorrection", false);
+	shaders[2]->SetUniformFloat("exposure", 1.0f);
 	glBindVertexArray(screenQuadVAO);
 	glDisable(GL_DEPTH_TEST);
 	glBindTexture(GL_TEXTURE_2D, colorTexPostProcess);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	glfwSwapBuffers(currentWindow->GetGLFWWindow());
 }
@@ -137,7 +138,7 @@ void glRenderer::CreateFrameBuffer()
 	// Generate texture
 	glGenTextures(1, &colorTexPostProcess);
 	glBindTexture(GL_TEXTURE_2D, colorTexPostProcess);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, currentWindow->GetWidth(), currentWindow->GetHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, currentWindow->GetWidth(), currentWindow->GetHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -203,13 +204,9 @@ void glRenderer::GenerateScreenQuad()
 		// positions   // texCoords
 		-1.0f,  1.0f,  0.0f, 1.0f,
 		-1.0f, -1.0f,  0.0f, 0.0f,
+		 1.0f,  1.0f,  1.0f, 1.0f,
 		 1.0f, -1.0f,  1.0f, 0.0f,
-
-		-1.0f,  1.0f,  0.0f, 1.0f,
-		 1.0f, -1.0f,  1.0f, 0.0f,
-		 1.0f,  1.0f,  1.0f, 1.0f
 	};
-
 
 	GLuint screenQuadVBO;
 	glGenBuffers(1, &screenQuadVBO);

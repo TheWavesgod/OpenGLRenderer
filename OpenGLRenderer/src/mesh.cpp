@@ -166,3 +166,7 @@ void Mesh::SetupMesh()
 
 	glBindVertexArray(0);
 }
+
+void Mesh::UploadAttribute()
+{
+}
