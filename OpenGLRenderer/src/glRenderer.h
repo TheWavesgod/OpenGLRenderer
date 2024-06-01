@@ -46,10 +46,13 @@ private:
 	CubeMap* skybox;
 
 	GLuint FBOPostProcess;
-	GLuint colorTexPostProcess;
+	GLuint colorTexPostProcess[2];
 	
 	GLuint FBOMultiSample;
 	GLuint colorTexMultiSample;
+
+	GLuint FBOpingpong[2];
+	GLuint colorTexPingpong[2];
 
 	GLuint screenQuadVAO;
 

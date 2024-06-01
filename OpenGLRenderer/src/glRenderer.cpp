@@ -72,6 +72,20 @@ void glRenderer::Render()
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBOPostProcess);
 	glBlitFramebuffer(0, 0, currentWindow->GetWidth(), currentWindow->GetHeight(), 0, 0, currentWindow->GetWidth(), currentWindow->GetHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
+	// Gaussian Blur
+	bool horizontal = true, first_iteration = true;
+	int amount = 10;
+	glUseProgram(shaders[2]->GetShaderProgram());
+	for (unsigned int i = 0; i < amount; ++i)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, FBOpingpong[horizontal]);
+		//shaders[2]->SetUniformInt("horizontal", horizontal);
+		glBindTexture(GL_TEXTURE_2D, first_iteration ? colorTexPostProcess[1] : colorTexPingpong[!horizontal]); // First iteration bind the bright Texture From last render
+		// Draw
+		horizontal = !horizontal;
+		if (first_iteration) first_iteration = false;
+	}
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -82,7 +96,7 @@ void glRenderer::Render()
 	shaders[2]->SetUniformFloat("exposure", 1.0f);
 	glBindVertexArray(screenQuadVAO);
 	glDisable(GL_DEPTH_TEST);
-	glBindTexture(GL_TEXTURE_2D, colorTexPostProcess);
+	glBindTexture(GL_TEXTURE_2D, colorTexPostProcess[0]);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	glfwSwapBuffers(currentWindow->GetGLFWWindow());
@@ -136,15 +150,20 @@ void glRenderer::CreateFrameBuffer()
 	glBindFramebuffer(GL_FRAMEBUFFER, FBOPostProcess);
 
 	// Generate texture
-	glGenTextures(1, &colorTexPostProcess);
-	glBindTexture(GL_TEXTURE_2D, colorTexPostProcess);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, currentWindow->GetWidth(), currentWindow->GetHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// Attach it to currently bound framebuffer object
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexPostProcess, 0);
+	glGenTextures(2, colorTexPostProcess);
+	for(int i = 0; i < 2; ++i)
+	{
+		// Create texture for color buffer and bright color buffer of bloom
+		glBindTexture(GL_TEXTURE_2D, colorTexPostProcess[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, currentWindow->GetWidth(), currentWindow->GetHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		// Attach it to currently bound framebuffer object
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorTexPostProcess[i], 0);
+	}
 
 	GLuint rbo;
 	glGenRenderbuffers(1, &rbo);
@@ -162,13 +181,13 @@ void glRenderer::CreateFrameBuffer()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-	// Multisample framebuffer
-	glGenFramebuffers(1, &FBOMultiSample);
+	// Multisample framebuffer		// TODO: Check Multisample has any effect on HDR
+	glGenFramebuffers(1, &FBOMultiSample); 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBOMultiSample);
 
 	glGenTextures(1, &colorTexMultiSample);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, colorTexMultiSample);
-	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, currentWindow->GetWidth(), currentWindow->GetHeight(), GL_TRUE);
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB16F, currentWindow->GetWidth(), currentWindow->GetHeight(), GL_TRUE);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, colorTexMultiSample, 0);
@@ -187,6 +206,22 @@ void glRenderer::CreateFrameBuffer()
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// For blurring an image, create ping-pong buffer
+	glGenFramebuffers(2, FBOpingpong);
+	glGenTextures(2, colorTexPingpong);
+	for (unsigned int i = 0; i < 2; ++i)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, FBOpingpong[i]);
+		glBindTexture(GL_TEXTURE_2D, colorTexPingpong[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, currentWindow->GetWidth(), currentWindow->GetHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexPingpong[i], 0);
+	}
 }
 
 void glRenderer::CreateUniformBuffer()

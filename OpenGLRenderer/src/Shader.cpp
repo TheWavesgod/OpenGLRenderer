@@ -34,7 +34,7 @@ bool Shader::BuildShaderProgram(const std::string& vertexShaderLoc, const std::s
 	if (!success)
 	{
 		glGetProgramInfoLog(shaderProgramID, 512, nullptr, infoLog);
-		std::cout << "ERROR::SHADER::LINK_FAILED\n" << infoLog << std::endl;
+		std::cout << "ERROR::SHADER::LINK_FAILED from " << vertexShaderLoc << " and " << fragmentShaderLoc << std::endl << infoLog << std::endl;
 		return false;
 	}
 
