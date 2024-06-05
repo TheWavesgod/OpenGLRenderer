@@ -1,7 +1,7 @@
 #include "window.h"
 #include "glRenderer.h"
 #include "shader.h"
-#include "Camera.h"
+#include "Level.h"
 
 int main()
 {
@@ -17,8 +17,7 @@ int main()
 		return -1;
 	}
 
-	Camera camera(0.0f, 0.0f, glm::vec3(0.0f, 0.0f, 3.0f));
-	renderer->camera = &camera;
+	Level level(renderer);
 
 	float deltaT;
 	while (w->Update(deltaT))
@@ -28,8 +27,7 @@ int main()
 			w->SetWindowShouldClose(true);
 		}
 
-		camera.UpdateCamera(deltaT);
-		renderer->Render();
+		level.Update(deltaT);
 	}
 
 	w->CloseWindow();

@@ -4,12 +4,12 @@
 #include <fstream>
 #include <sstream>
 
-Shader::Shader(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc)
+Shader::Shader(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc, const std::string& geometryShaderLoc)
 {
-	bCreateSuccess = BuildShaderProgram(vertexShaderLoc, fragmentShaderLoc);
+	bCreateSuccess = BuildShaderProgram(vertexShaderLoc, fragmentShaderLoc, geometryShaderLoc);
 }
 
-bool Shader::BuildShaderProgram(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc)
+bool Shader::BuildShaderProgram(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc, const std::string& geometryShaderLoc)
 {
 	shaderProgramID = glCreateProgram();
 
@@ -24,6 +24,11 @@ bool Shader::BuildShaderProgram(const std::string& vertexShaderLoc, const std::s
 	{
 		if (!ReadAndCompileShader(fragmentShaderLoc, E_FRAGMENT, &shaderIDs[E_FRAGMENT])) return false;
 		glAttachShader(shaderProgramID, shaderIDs[E_FRAGMENT]);
+	}
+	if (!geometryShaderLoc.empty())
+	{
+		if (!ReadAndCompileShader(geometryShaderLoc, E_GEOMETRY, &shaderIDs[E_GEOMETRY])) return false;
+		glAttachShader(shaderProgramID, shaderIDs[E_GEOMETRY]);
 	}
 
 	glLinkProgram(shaderProgramID);
@@ -76,6 +81,10 @@ bool Shader::ReadAndCompileShader(const std::string& fileLocation, shaderType ty
 
 	case E_FRAGMENT:
 		*shaderID = glCreateShader(GL_FRAGMENT_SHADER);
+		break;
+
+	case E_GEOMETRY:
+		*shaderID = glCreateShader(GL_GEOMETRY_SHADER);
 		break;
 	}
 	const char* shaderSource = shaderText.c_str();

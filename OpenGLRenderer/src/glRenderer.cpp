@@ -2,7 +2,6 @@
 
 #include "Window.h"
 #include "Shader.h"
-#include "Mesh.h"
 #include "Texture.h"
 #include "Camera.h"
 #include "CubeMap.h"
@@ -20,25 +19,11 @@ glRenderer::glRenderer(window* w)
 
 	bHasInitilized = CreateShaderPrograms();
 
-	cube = Mesh::GenerateCube();
-
-	tex = new Texture("../Resources/Textures/brick.tga");
-
-	skybox = new CubeMap(
-		"../Resources/CubeMap/evening_right.jpg",
-		"../Resources/CubeMap/evening_left.jpg",
-		"../Resources/CubeMap/evening_top.jpg",
-		"../Resources/CubeMap/evening_bottom.jpg",
-		"../Resources/CubeMap/evening_front.jpg",
-		"../Resources/CubeMap/evening_back.jpg"
-	);
-
 	InitializeRenderer();
 }
 
 glRenderer::~glRenderer(void)
 {
-	delete cube;
 	for (auto shader : shaders)
 	{
 		delete shader;
@@ -52,27 +37,27 @@ void glRenderer::InitializeRenderer()
 	CreateUniformBuffer();
 
 	glEnable(GL_MULTISAMPLE);
-
-	// Send projection Mat4 to uniform buffer once
-	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(camera->BuildProjectionMatrix()));
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void glRenderer::Render()
+void glRenderer::SetSceneBufferReady()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, FBOMultiSample);
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	DrawScene();
+}
 
+void glRenderer::MultiSample()
+{
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, FBOMultiSample);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FBOPostProcess);
 	glBlitFramebuffer(0, 0, currentWindow->GetWidth(), currentWindow->GetHeight(), 0, 0, currentWindow->GetWidth(), currentWindow->GetHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+}
 
-	// Gaussian Blur
+void glRenderer::PostProcess()
+{
+	// Gaussian Blur for Bloom
 	bool horizontal = true, first_iteration = true;
 	int amount = 10;
 	glUseProgram(shaders[2]->GetShaderProgram());
@@ -102,25 +87,9 @@ void glRenderer::Render()
 	glfwSwapBuffers(currentWindow->GetGLFWWindow());
 }
 
-void glRenderer::DrawScene()
+GLuint glRenderer::GetShaderProgramByIndex(int i) const
 {
-	// Send view mat4 to uniform buffer every frame before drawing
-	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera->BuildViewMatrix()));
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	glUseProgram(shaders[0]->GetShaderProgram());
-	glBindTexture(GL_TEXTURE_2D, tex->TextureID());
-
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -3.0f));
-	shaders[0]->SetUniformMat4("model", model);
-
-	cube->Draw(*shaders[0]);
-
-	// Draw Skybox
-	glUseProgram(shaders[3]->GetShaderProgram());
-	skybox->Draw(*shaders[3]);
+	return shaders[i]->GetShaderProgram();
 }
 
 bool glRenderer::CreateShaderPrograms()

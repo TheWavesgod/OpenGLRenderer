@@ -12,16 +12,19 @@ class SceneNode
 {
 
 public:
-	SceneNode(Model* m = nullptr);
-	SceneNode(Mesh* m = nullptr);
+	SceneNode();
+	SceneNode(Model* m);
+	SceneNode(Mesh* m);
 	~SceneNode();
 
 	void AddChild(SceneNode* sn);
 
-	virtual void Draw(Shader* s);
+	virtual void Draw(Shader& s);
 	virtual void Update(float dt);
 
-private:
+	static bool CompareByCameraDistance(const SceneNode* a, const SceneNode* b) { return (a->distanceFromCamera < b->distanceFromCamera) ? true : false; }
+
+protected:
 	SceneNode* parent;
 
 	Model* model;
@@ -32,18 +35,31 @@ private:
 
 	std::vector<SceneNode*> children;
 
+	float distanceFromCamera = 0.0f;
+	float boundingRadius = 1.0f;
+	bool bIsTransparent = false;
+
 public:
 	inline void SetWorldTransform(const Transform& val) { worldTransform = val; }
-	inline const Transform& GetWorldTransform() const { return worldTransform; }
+	inline Transform& GetWorldTransform() { return worldTransform; }
 
-	inline void SetLocalTransform(const Transform& val) { localTransform = val; }
-	inline const Transform& GetLocalTransform() const { return localTransform; }
+	inline void SetTransform(const Transform& val) { localTransform = val; }
+	inline Transform& GetTransform() { return localTransform; }
 
 	inline void SetModel(Model* val) { model = val; }
 	inline Model* GetModel() const { return model; }
 
 	inline void SetMesh(Mesh* val) { mesh = val; }
 	inline Mesh* GetMesh() const { return mesh; }
+
+	inline void SetBoundingRadius(float val) { boundingRadius = val; }
+	inline float GetBoundingRadius() const { return boundingRadius; }
+
+	inline void SetCameraDistance(float val) { distanceFromCamera = val; }
+	inline float GetCameraDistance() const { return distanceFromCamera; }
+
+	inline void SetIsTransparent(bool val) { bIsTransparent = val; }
+	inline bool GetIsTransparent() const { return bIsTransparent; }
 
 	std::vector<SceneNode*>::const_iterator GetChildIteratorStart() { return children.begin(); }
 	std::vector<SceneNode*>::const_iterator GetChildIteratorEnd() { return children.end(); }

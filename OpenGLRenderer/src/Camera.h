@@ -1,5 +1,6 @@
 #pragma once
 
+#include "glad/glad.h"
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
@@ -39,6 +40,9 @@ public:
 	void SetCameraPitch(const float& p) { pitch = p; }
 	
 	inline Transform& GetCameraTransform() { return transform; }
+
+	void UploadProjectionMatrix(GLuint uniformBuffer);
+	void UploadViewMatrix(GLuint uniformBuffer);
 
 protected:
 	float yaw;

@@ -151,6 +151,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Level.cpp" />
+    <ClCompile Include="src\Frustum.cpp" />
     <ClCompile Include="src\CubeMap.cpp" />
     <ClCompile Include="src\SceneNode.cpp" />
     <ClCompile Include="src\Light.cpp" />
@@ -166,6 +168,8 @@
     <ClCompile Include="src\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Level.h" />
+    <ClInclude Include="src\Frustum.h" />
     <ClInclude Include="src\CubeMap.h" />
     <ClInclude Include="src\SceneNode.h" />
     <ClInclude Include="src\Light.h" />

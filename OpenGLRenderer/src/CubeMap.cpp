@@ -17,17 +17,6 @@ CubeMap::CubeMap(const std::string& right, const std::string& left, const std::s
 	LoadCubeMap();
 }
 
-void CubeMap::Draw(Shader& s)
-{
-	glDepthFunc(GL_LEQUAL);
-	glBindVertexArray(SkyboxVAO);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
-	glDepthFunc(GL_LESS);
-}
-
 void CubeMap::CreateCubeMapMesh()
 {
 	float skyboxVertices[] = {
@@ -110,4 +99,16 @@ void CubeMap::LoadCubeMap()
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+}
+
+void CubeMap::Draw(GLuint shaderProgram)
+{
+	glUseProgram(shaderProgram);
+	glDepthFunc(GL_LEQUAL);
+	glBindVertexArray(SkyboxVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	glDepthFunc(GL_LESS);
 }

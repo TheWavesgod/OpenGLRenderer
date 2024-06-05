@@ -59,3 +59,19 @@ glm::mat4 Camera::BuildProjectionMatrix()
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), width / height, 0.1f, 1000.0f);
 	return projection;
 }
+
+void Camera::UploadProjectionMatrix(GLuint uniformBuffer)
+{
+	// Send projection Mat4 to uniform buffer once
+	glBindBuffer(GL_UNIFORM_BUFFER, uniformBuffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(this->BuildProjectionMatrix()));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void Camera::UploadViewMatrix(GLuint uniformBuffer)
+{
+	// Send view mat4 to uniform buffer every frame before drawing
+	glBindBuffer(GL_UNIFORM_BUFFER, uniformBuffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(this->BuildViewMatrix()));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}

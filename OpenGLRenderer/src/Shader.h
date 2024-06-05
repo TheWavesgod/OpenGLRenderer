@@ -10,15 +10,18 @@
 class Shader
 {
 public:
-	Shader(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc);
+	Shader(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc, const std::string& geometryShaderLoc = "");
 
 	enum shaderType : uint32_t
 	{
 		E_VERTEX = 0,
 		E_FRAGMENT,
+		E_GEOMETRY,
 
 		E_MAX
 	};
+
+	inline void Use() { glUseProgram(shaderProgramID); }
 
 	// Set Shader Uniform Values
 	void SetUniformVec3(const std::string& variable, float x, float y, float z);
@@ -34,7 +37,7 @@ private:
 	
 	bool bCreateSuccess;
 
-	bool BuildShaderProgram(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc);
+	bool BuildShaderProgram(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc, const std::string& geometryShaderLoc);
 	bool ReadAndCompileShader(const std::string& fileLocation, shaderType type, GLuint* shaderID);
 
 public:

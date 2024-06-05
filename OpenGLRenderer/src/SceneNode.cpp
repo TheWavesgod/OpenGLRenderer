@@ -3,6 +3,15 @@
 #include "mesh.h"
 #include "Shader.h"
 
+SceneNode::SceneNode()
+{
+	model = nullptr;
+	mesh = nullptr;
+	localTransform = Transform();
+	worldTransform = Transform();
+	parent = nullptr;
+}
+
 SceneNode::SceneNode(Model* m)
 {
 	model = m;
@@ -35,15 +44,15 @@ void SceneNode::AddChild(SceneNode* child)
 	child->parent = this;
 }
 
-void SceneNode::Draw(Shader* s)
+void SceneNode::Draw(Shader& s)
 {
 	if (mesh)
 	{
-		mesh->Draw(*s);
+		mesh->Draw(s);
 	}
 	if (model)
 	{
-		model->Draw(*s);
+		model->Draw(s);
 	}
 }
 

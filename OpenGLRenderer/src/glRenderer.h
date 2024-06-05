@@ -7,11 +7,7 @@
 
 class window;
 class Shader;
-class Mesh;
-class Camera;
-class Texture;
-class CubeMap;
-
+class Level;
 
 class glRenderer
 {
@@ -19,7 +15,10 @@ public:
 	glRenderer(window* w);
 	~glRenderer(void);
 
-	void Render();
+	void SetSceneBufferReady();
+	void MultiSample();
+	void PostProcess();
+	GLuint GetShaderProgramByIndex(int i) const;
 
 protected:
 	void InitializeRenderer();
@@ -30,20 +29,12 @@ protected:
 	void CreateFrameBuffer();
 	void CreateUniformBuffer();
 
-	void DrawScene();
-
 private:
 	std::vector<Shader*> shaders;
 
 	window* currentWindow;
 
 	bool bHasInitilized;
-	
-	Mesh* cube;
-
-	Texture* tex;
-
-	CubeMap* skybox;
 
 	GLuint FBOPostProcess;
 	GLuint colorTexPostProcess[2];
@@ -60,6 +51,7 @@ private:
 
 public:
 	inline bool HasInitialized() { return bHasInitilized; }
-	Camera* camera;
+	inline GLuint GetUboMatrices() const { return uboMatrices; }
+	inline Shader* GetShaderPtrByIndex(int i) const { return shaders[i]; }
 };
 
