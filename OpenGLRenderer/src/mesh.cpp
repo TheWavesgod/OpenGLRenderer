@@ -8,9 +8,21 @@ Mesh* Mesh::GenerateTriangle()
 	Mesh* m = new Mesh;
 	
 	m->vertices = {
-		{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(0.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3( 0.0f,  0.5f, 0.0f), glm::vec3(0.0f), glm::vec2(0.5f, 1.0f)}
+		glm::vec3(-0.5f, -0.5f, 0.0f),
+		glm::vec3( 0.5f, -0.5f, 0.0f), 
+		glm::vec3( 0.0f,  0.5f, 0.0f)
+	};
+
+	m->colors = {
+		glm::vec4(0.0f),
+		glm::vec4(0.0f),
+		glm::vec4(0.0f)
+	};
+
+	m->texCoords = {
+		glm::vec2(0.0f, 0.0f),
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(0.5f, 1.0f)
 	};
 
 	m->SetupMesh();
@@ -23,10 +35,24 @@ Mesh* Mesh::GenerateQuad()
 	Mesh* m = new Mesh;
 
 	m->vertices = {
-		{glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(1.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)}
+		glm::vec3( 0.5f,  0.5f, 0.0f), 
+		glm::vec3( 0.5f, -0.5f, 0.0f), 
+		glm::vec3(-0.5f, -0.5f, 0.0f), 
+		glm::vec3(-0.5f,  0.5f, 0.0f)
+	};
+
+	m->colors = {
+		glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
+		glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
+		glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
+		glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)
+	};
+
+	m->texCoords = {
+		glm::vec2(0.0f, 0.0f),
+		glm::vec2(0.0f, 0.0f),
+		glm::vec2(0.0f, 0.0f),
+		glm::vec2(0.0f, 0.0f)
 	};
 
 	m->indices = {
@@ -44,47 +70,173 @@ Mesh* Mesh::GenerateCube()
 	Mesh* m = new Mesh;
 
 	m->vertices = {
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 1.0f)},
+		glm::vec3(-0.5f, -0.5f, -0.5f),
+		glm::vec3( 0.5f,  0.5f, -0.5f), 
+		glm::vec3( 0.5f, -0.5f, -0.5f), 
+		glm::vec3( 0.5f,  0.5f, -0.5f), 
+		glm::vec3(-0.5f, -0.5f, -0.5f),
+		glm::vec3(-0.5f,  0.5f, -0.5f), 
 
-		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f,  1.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f,  1.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f,  1.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f,  1.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f, 0.0f,  1.0f), glm::vec2(0.0f, 1.0f)},
-		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, 0.0f,  1.0f), glm::vec2(0.0f, 0.0f)},
+		glm::vec3(-0.5f, -0.5f,  0.5f), 
+		glm::vec3( 0.5f, -0.5f,  0.5f), 
+		glm::vec3( 0.5f,  0.5f,  0.5f), 
+		glm::vec3( 0.5f,  0.5f,  0.5f), 
+		glm::vec3(-0.5f,  0.5f,  0.5f), 
+		glm::vec3(-0.5f, -0.5f,  0.5f), 
 
-		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
+		glm::vec3(-0.5f,  0.5f,  0.5f), 
+		glm::vec3(-0.5f,  0.5f, -0.5f), 
+		glm::vec3(-0.5f, -0.5f, -0.5f), 
+		glm::vec3(-0.5f, -0.5f, -0.5f), 
+		glm::vec3(-0.5f, -0.5f,  0.5f), 
+		glm::vec3(-0.5f,  0.5f,  0.5f),
 
-		{glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3( 1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3( 1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-		{glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3( 1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3( 1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-		{glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3( 1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3( 1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
+		glm::vec3( 0.5f,  0.5f,  0.5f), 
+		glm::vec3( 0.5f, -0.5f, -0.5f),
+		glm::vec3( 0.5f,  0.5f, -0.5f), 
+		glm::vec3( 0.5f, -0.5f, -0.5f), 
+		glm::vec3( 0.5f,  0.5f,  0.5f), 
+		glm::vec3( 0.5f, -0.5f,  0.5f), 
 
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-		{glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
+		glm::vec3(-0.5f, -0.5f, -0.5f),
+		glm::vec3( 0.5f, -0.5f, -0.5f), 
+		glm::vec3( 0.5f, -0.5f,  0.5f),
+		glm::vec3( 0.5f, -0.5f,  0.5f),
+		glm::vec3(-0.5f, -0.5f,  0.5f),
+		glm::vec3(-0.5f, -0.5f, -0.5f), 
 
-		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  1.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-		{glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  1.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  1.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  1.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.0f,  1.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-		{glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.0f,  1.0f, 0.0f), glm::vec2(0.0f, 0.0f)}
+		glm::vec3(-0.5f,  0.5f, -0.5f), 
+		glm::vec3( 0.5f,  0.5f,  0.5f), 
+		glm::vec3( 0.5f,  0.5f, -0.5f), 
+		glm::vec3( 0.5f,  0.5f,  0.5f), 
+		glm::vec3(-0.5f,  0.5f, -0.5f),
+		glm::vec3(-0.5f,  0.5f,  0.5f)
+	};
+
+	m->colors =
+	{
+		glm::vec4(0.0f, 0.0f, -1.0f, 1.0f), 
+		glm::vec4(0.0f, 0.0f, -1.0f, 1.0f),
+		glm::vec4(0.0f, 0.0f, -1.0f, 1.0f),
+		glm::vec4(0.0f, 0.0f, -1.0f, 1.0f),
+		glm::vec4(0.0f, 0.0f, -1.0f, 1.0f),
+		glm::vec4(0.0f, 0.0f, -1.0f, 1.0f),
+		
+		glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
+		glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
+		glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
+		glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
+		glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
+		glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
+
+		glm::vec4(-1.0f, 0.0f, 0.0f, 1.0f),
+		glm::vec4(-1.0f, 0.0f, 0.0f, 1.0f),
+		glm::vec4(-1.0f, 0.0f, 0.0f, 1.0f),
+		glm::vec4(-1.0f, 0.0f, 0.0f, 1.0f),
+		glm::vec4(-1.0f, 0.0f, 0.0f, 1.0f),
+		glm::vec4(-1.0f, 0.0f, 0.0f, 1.0f),
+
+		glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
+		glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
+		glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
+		glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
+		glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
+		glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
+
+		glm::vec4(0.0f, -1.0f, 0.0f, 1.0f),
+		glm::vec4(0.0f, -1.0f, 0.0f, 1.0f),
+		glm::vec4(0.0f, -1.0f, 0.0f, 1.0f),
+		glm::vec4(0.0f, -1.0f, 0.0f, 1.0f),
+		glm::vec4(0.0f, -1.0f, 0.0f, 1.0f),
+		glm::vec4(0.0f, -1.0f, 0.0f, 1.0f),
+
+		glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
+		glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
+		glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
+		glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
+		glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
+		glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)
+	};
+
+	m->texCoords = {
+		glm::vec2(0.0f, 0.0f),
+		glm::vec2(1.0f, 1.0f),
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(1.0f, 1.0f),
+		glm::vec2(0.0f, 0.0f),
+		glm::vec2(0.0f, 1.0f),
+
+		glm::vec2(0.0f, 0.0f),
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(1.0f, 1.0f),
+		glm::vec2(1.0f, 1.0f),
+		glm::vec2(0.0f, 1.0f),
+		glm::vec2(0.0f, 0.0f),
+
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(1.0f, 1.0f),
+		glm::vec2(0.0f, 1.0f),
+		glm::vec2(0.0f, 1.0f),
+		glm::vec2(0.0f, 0.0f),
+		glm::vec2(1.0f, 0.0f),
+
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(0.0f, 1.0f),
+		glm::vec2(1.0f, 1.0f),
+		glm::vec2(0.0f, 1.0f),
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(0.0f, 0.0f),
+
+		glm::vec2(0.0f, 1.0f),
+		glm::vec2(1.0f, 1.0f),
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(0.0f, 0.0f),
+		glm::vec2(0.0f, 1.0f),
+
+		glm::vec2(0.0f, 1.0f),
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(1.0f, 1.0f),
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(0.0f, 1.0f),
+		glm::vec2(0.0f, 0.0f)
+	};
+
+	m->SetupMesh();
+
+	return m;
+}
+
+Mesh* Mesh::GenerateFloor()
+{
+	Mesh* m = new Mesh();
+	
+	m->vertices = {
+		glm::vec3(-10.0f, 0.0f, -10.0f),
+		glm::vec3( 10.0f, 0.0f, -10.0f),
+		glm::vec3( 10.0f, 0.0f,  10.0f),
+		glm::vec3(-10.0f, 0.0f,  10.0f),
+	};
+
+	m->normals = {
+		glm::vec3(0.0f, 1.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f)
+	};
+
+	m->texCoords = {
+		glm::vec2(0.0f, 0.0f),
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(1.0f, 1.0f),
+		glm::vec2(0.0f, 1.0f)
+	};
+
+	m->textures.emplace_back(Texture("../Resources/Textures/wood.png"));
+
+	m->indices = {
+		0, 3, 2, // first triangle
+		2, 1, 0  // second triangle
 	};
 
 	m->SetupMesh();
@@ -97,19 +249,22 @@ Mesh::Mesh()
 
 }
 
-Mesh::Mesh(std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<Texture>&& textures)
+Mesh::Mesh(std::vector<unsigned int>&& indices, std::vector<Texture>&& textures)
 {
-	this->vertices = vertices;
 	this->indices = indices;
 	this->textures = textures;
-
+	
 	SetupMesh();
+}
+
+Mesh::~Mesh()
+{
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(MAXBUFFER, VBOs);
 }
 
 void Mesh::Draw(Shader& shader)
 {
-	shader.Use();
-
 	GLuint diffuseNr = 1;
 	GLuint specularNr = 1;
 	for (size_t i = 0; i < textures.size(); ++i)
@@ -143,32 +298,48 @@ void Mesh::Draw(Shader& shader)
 void Mesh::SetupMesh()
 {
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-
 	glBindVertexArray(VAO);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+	size_t numVertices = vertices.size();
+	UploadAttribute(&VBOs[VERTEX], numVertices, sizeof(glm::vec3), 3, VERTEX, vertices.data());
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),indices.data(), GL_STATIC_DRAW);
-
-	// vertex positions
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-
-	// vertex normals
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-
-	// vertex texture coords
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
-
+	if (!colors.empty())
+	{
+		UploadAttribute(&VBOs[COLOUR], numVertices, sizeof(glm::vec4), 4, COLOUR, colors.data());
+	}
+	if (!texCoords.empty())
+	{
+		UploadAttribute(&VBOs[TEXCOORD], numVertices, sizeof(glm::vec2), 2, TEXCOORD, texCoords.data());
+	}
+	if (!normals.empty())
+	{
+		UploadAttribute(&VBOs[NORMAL], numVertices, sizeof(glm::vec3), 3, NORMAL, normals.data());
+	}
+	if (!tangents.empty())
+	{
+		UploadAttribute(&VBOs[TANGENT], numVertices, sizeof(glm::vec3), 3, TANGENT, tangents.data());
+	}
+	if (!biTangents.empty())
+	{
+		UploadAttribute(&VBOs[BiTANGENT], numVertices, sizeof(glm::vec3), 3, BiTANGENT, biTangents.data());
+	}
+	if (!indices.empty())
+	{
+		glGenBuffers(1, &EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+	}
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Mesh::UploadAttribute()
+void Mesh::UploadAttribute(GLuint* buffer, int numElements, int dataSize, int attributeSize, int attributeID, void* dataPtr)
 {
+	glGenBuffers(1, buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, *buffer);
+	glBufferData(GL_ARRAY_BUFFER, numElements * dataSize, dataPtr, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(attributeID);
+	glVertexAttribPointer(attributeID, attributeSize, GL_FLOAT, GL_FALSE, 0, 0);
 }

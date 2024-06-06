@@ -1,6 +1,7 @@
 #include "CubeMap.h"
 
 #include "stb_image.h"
+#include "Shader.h"
 
 #include <iostream>
 
@@ -101,9 +102,9 @@ void CubeMap::LoadCubeMap()
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
-void CubeMap::Draw(GLuint shaderProgram)
+void CubeMap::Draw()
 {
-	glUseProgram(shaderProgram);
+	Shader::GetShaderByIndex(3)->Use();
 	glDepthFunc(GL_LEQUAL);
 	glBindVertexArray(SkyboxVAO);
 	glActiveTexture(GL_TEXTURE0);

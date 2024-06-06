@@ -52,40 +52,57 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
 
 Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 {
-	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
+	Mesh m;
 
+	m.vertices.resize(mesh->mNumVertices, glm::vec3());
 	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
 	{
-		Vertex vertex;
-
 		// Retrieve position
-		vertex.position.x = mesh->mVertices[i].x;
-		vertex.position.y = mesh->mVertices[i].y;
-		vertex.position.z = mesh->mVertices[i].z;
+		m.vertices[i].x = mesh->mVertices[i].x;
+		m.vertices[i].y = mesh->mVertices[i].y;
+		m.vertices[i].z = mesh->mVertices[i].z;
+	}
 
-		// Normals
-		if (mesh->HasNormals())
-		{
-			vertex.normal.x = mesh->mNormals[i].x;
-			vertex.normal.y = mesh->mNormals[i].y;
-			vertex.normal.z = mesh->mNormals[i].z;
-		}
-
-		// Texture coordinates
-		if (mesh->mTextureCoords[0]) // Does the mesh contain texture coordinates
+	// Texture coordinates
+	m.texCoords.resize(mesh->mNumVertices, glm::vec2(0.0f));
+	if (mesh->mTextureCoords[0]) // Does the mesh contain texture coordinates
+	{
+		for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
 		{
 			// Assimp allows a model to have up to 8 different texture coordinates per vertex. We're not going to use 8, we only care about the first set of texture coordinates.
-			vertex.texCoords.x = mesh->mTextureCoords[0][i].x;
-			vertex.texCoords.y = mesh->mTextureCoords[0][i].y;
+			m.texCoords[i].x = mesh->mTextureCoords[0][i].x;
+			m.texCoords[i].y = mesh->mTextureCoords[0][i].y;
 		}
-		else
-		{
-			vertex.texCoords = glm::vec2(0.0f);
-		}
+	}
 
-		vertices.emplace_back(vertex);
+	// Normals
+	if (mesh->HasNormals())
+	{
+		m.normals.resize(mesh->mNumVertices, glm::vec3());
+		for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+		{
+			m.normals[i].x = mesh->mNormals[i].x;
+			m.normals[i].y = mesh->mNormals[i].y;
+			m.normals[i].z = mesh->mNormals[i].z;
+		}
+	}
+
+	if (mesh->HasTangentsAndBitangents())
+	{
+		m.tangents.resize(mesh->mNumVertices, glm::vec3());
+		m.biTangents.resize(mesh->mNumVertices, glm::vec3());
+		for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+		{
+			m.tangents[i].x = mesh->mTangents[i].x;
+			m.tangents[i].y = mesh->mTangents[i].y;
+			m.tangents[i].z = mesh->mTangents[i].z;
+
+			m.biTangents[i].x = mesh->mBitangents[i].x;
+			m.biTangents[i].y = mesh->mBitangents[i].y;
+			m.biTangents[i].z = mesh->mBitangents[i].z;
+		}
 	}
 
 	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
@@ -93,7 +110,6 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 		for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; j++)
 			indices.push_back(mesh->mFaces[i].mIndices[j]);
 	}	
-
 
 	if (mesh->mMaterialIndex >= 0)
 	{
@@ -112,7 +128,9 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 	}
 
-	return Mesh(std::move(vertices), std::move(indices), std::move(textures));
+	m.SetupMesh();
+
+	return m; // TODO: Optimize the Mesh value return
 }
 
 std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
@@ -136,7 +154,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType 
 		if (!skip)
 		{
 			Texture texture;
-			texture.LoadFromFile(directory + std::string(str.C_Str()));
+			texture.LoadFromFile(directory + "/" + std::string(str.C_Str()));
 			texture.type = typeName;
 			texture.path = std::string(str.C_Str());
 			textures.push_back(texture);

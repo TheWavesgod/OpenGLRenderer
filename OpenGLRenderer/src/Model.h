@@ -19,6 +19,8 @@ public:
 
 	void Draw(Shader& shader);
 
+	unsigned int shaderIndex;
+
 protected:
 	std::vector<Mesh> meshes;
 	std::string directory;

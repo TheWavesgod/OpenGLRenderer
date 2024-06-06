@@ -4,9 +4,13 @@
 #include <fstream>
 #include <sstream>
 
+std::vector<Shader*> Shader::shaders;
+
 Shader::Shader(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc, const std::string& geometryShaderLoc)
 {
 	bCreateSuccess = BuildShaderProgram(vertexShaderLoc, fragmentShaderLoc, geometryShaderLoc);
+
+	shaders.push_back(this);
 }
 
 bool Shader::BuildShaderProgram(const std::string& vertexShaderLoc, const std::string& fragmentShaderLoc, const std::string& geometryShaderLoc)

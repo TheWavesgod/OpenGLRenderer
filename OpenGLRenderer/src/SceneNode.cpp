@@ -44,15 +44,23 @@ void SceneNode::AddChild(SceneNode* child)
 	child->parent = this;
 }
 
-void SceneNode::Draw(Shader& s)
+void SceneNode::Draw()
 {
 	if (mesh)
 	{
-		mesh->Draw(s);
+		Shader* useShader = Shader::GetShaderByIndex(mesh->shaderIndex);
+		useShader->Use();
+		useShader->SetUniformMat4("model", worldTransform.GetTransMatrix());
+
+		mesh->Draw(*useShader);
 	}
+
 	if (model)
 	{
-		model->Draw(s);
+		Shader* useShader = Shader::GetShaderByIndex(model->shaderIndex);
+		useShader->Use();
+		useShader->SetUniformMat4("model", worldTransform.GetTransMatrix());
+		model->Draw(*useShader);
 	}
 }
 

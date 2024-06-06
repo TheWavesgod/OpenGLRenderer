@@ -18,7 +18,6 @@ public:
 	void SetSceneBufferReady();
 	void MultiSample();
 	void PostProcess();
-	GLuint GetShaderProgramByIndex(int i) const;
 
 protected:
 	void InitializeRenderer();
@@ -30,8 +29,6 @@ protected:
 	void CreateUniformBuffer();
 
 private:
-	std::vector<Shader*> shaders;
-
 	window* currentWindow;
 
 	bool bHasInitilized;
@@ -52,6 +49,5 @@ private:
 public:
 	inline bool HasInitialized() { return bHasInitilized; }
 	inline GLuint GetUboMatrices() const { return uboMatrices; }
-	inline Shader* GetShaderPtrByIndex(int i) const { return shaders[i]; }
 };
 

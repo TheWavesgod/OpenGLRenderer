@@ -72,14 +72,16 @@ private:
 class LightsManager
 {
 public:
-	std::vector<Light*> lights;
-
 	void DrawLightDepthMaps();
 
 private:
 	void BuildLightsFrameBuffer();
 	GLuint GenerateDepthMap();
 	GLuint GenerateDepthCubeMap();
+
+	std::vector<DirLight*> dirLights;
+	std::vector<SpotLight*> spotLights;
+	std::vector<PointLight*> pointLights;
 
 	std::vector<GLuint> FBOsLightsDepth;
 	std::vector<GLuint> depthMapsLights;

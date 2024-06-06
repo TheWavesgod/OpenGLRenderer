@@ -15,7 +15,7 @@ Level::Level(glRenderer* r)
 {
 	renderer = r;
 
-	camera = new Camera(0.0f, 0.0f, glm::vec3(0.0f, 0.0f, 3.0f));
+	camera = new Camera(0.0f, 0.0f, glm::vec3(0.0f, 2.0f, 3.0f));
 
 	lightsManager = new LightsManager();
 
@@ -28,7 +28,11 @@ Level::Level(glRenderer* r)
 		"../Resources/CubeMap/evening_back.jpg"
 	);
 
+	floor = Mesh::GenerateFloor();
+	floor->shaderIndex = 4;
+
 	cube = Mesh::GenerateCube();
+	cube->shaderIndex = 0;
 
 	tex = new Texture("../Resources/Textures/brick.tga");
 
@@ -52,9 +56,13 @@ Level::~Level()
 
 void Level::ConstructScene()
 {
+	SceneNode* Floor = new SceneNode(floor);
+	root->AddChild(Floor);
+	Floor->GetTransform().SetPosition(glm::vec3(0.0f, -1.0f, 0.0f));
+
 	SceneNode* container = new SceneNode(cube);
 	root->AddChild(container);
-	container->GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, -3.0f));
+	container->GetTransform().SetPosition(glm::vec3(0.0f, 3.0f, -3.0f));
 }
 
 void Level::Update(float dt)
@@ -85,19 +93,10 @@ void Level::DrawScene()
 	BuildNodeLists(root);
 	SortNodeLists();
 	DrawNodes();
-
-	glUseProgram(renderer->GetShaderProgramByIndex(0)); 
-	glBindTexture(GL_TEXTURE_2D, tex->TextureID());
-
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -3.0f));
-
-	renderer->GetShaderPtrByIndex(0)->SetUniformMat4("model", model);
-
-	cube->Draw(*(renderer->GetShaderPtrByIndex(0)));
+	ClearNodeLists();
 
 	// Draw skybox last
-	skybox->Draw(renderer->GetShaderProgramByIndex(3));
+	skybox->Draw();
 }
 
 void Level::BuildNodeLists(SceneNode* from)
@@ -133,6 +132,8 @@ void Level::SortNodeLists()
 
 void Level::ClearNodeLists()
 {
+	transparentNodeList.clear();
+	nodeList.clear();
 }
 
 void Level::DrawNodes()
@@ -152,6 +153,6 @@ void Level::DrawNode(SceneNode* n)
 {
 	if (n->GetMesh() || n->GetModel())
 	{
-		n->Draw(*renderer->GetShaderPtrByIndex(0));
+		n->Draw();
 	}
 }

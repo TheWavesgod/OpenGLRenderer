@@ -24,10 +24,6 @@ glRenderer::glRenderer(window* w)
 
 glRenderer::~glRenderer(void)
 {
-	for (auto shader : shaders)
-	{
-		delete shader;
-	}
 }
 
 void glRenderer::InitializeRenderer()
@@ -60,7 +56,7 @@ void glRenderer::PostProcess()
 	// Gaussian Blur for Bloom
 	bool horizontal = true, first_iteration = true;
 	int amount = 10;
-	glUseProgram(shaders[2]->GetShaderProgram());
+	Shader::GetShaderByIndex(2)->Use();
 	for (unsigned int i = 0; i < amount; ++i)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, FBOpingpong[horizontal]);
@@ -75,10 +71,10 @@ void glRenderer::PostProcess()
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glUseProgram(shaders[2]->GetShaderProgram());
-	shaders[2]->SetUniformInt("screenTexture", 0);
-	shaders[2]->SetUniformInt("gammaCorrection", false);
-	shaders[2]->SetUniformFloat("exposure", 1.0f);
+	Shader::GetShaderByIndex(2)->Use();
+	Shader::GetShaderByIndex(2)->SetUniformInt("screenTexture", 0);
+	Shader::GetShaderByIndex(2)->SetUniformInt("gammaCorrection", false);
+	Shader::GetShaderByIndex(2)->SetUniformFloat("exposure", 1.0f);
 	glBindVertexArray(screenQuadVAO);
 	glDisable(GL_DEPTH_TEST);
 	glBindTexture(GL_TEXTURE_2D, colorTexPostProcess[0]);
@@ -87,28 +83,22 @@ void glRenderer::PostProcess()
 	glfwSwapBuffers(currentWindow->GetGLFWWindow());
 }
 
-GLuint glRenderer::GetShaderProgramByIndex(int i) const
-{
-	return shaders[i]->GetShaderProgram();
-}
-
 bool glRenderer::CreateShaderPrograms()
 {
 	Shader* s = new Shader("../Shaders/vertex.glsl", "../Shaders/fragment.glsl");
 	if (!s->HasInitialized()) return false;
-	shaders.push_back(s);
 
 	s = new Shader("../Shaders/vertPhoneLight.glsl", "../Shaders/fragPhonLight.glsl");
 	if (!s->HasInitialized()) return false;
-	shaders.push_back(s);
 
 	s = new Shader("../Shaders/vertPostProcessing.glsl", "../Shaders/fragPostProcessing.glsl");
 	if (!s->HasInitialized()) return false;
-	shaders.push_back(s);
 
 	s = new Shader("../Shaders/vertCubemap.glsl", "../Shaders/fragCubemap.glsl");
 	if (!s->HasInitialized()) return false;
-	shaders.push_back(s);
+
+	s = new Shader("../Shaders/vertFloor.glsl", "../Shaders/fragment.glsl");
+	if (!s->HasInitialized()) return false;
 
 	return true;
 }
@@ -198,8 +188,8 @@ void glRenderer::CreateUniformBuffer()
 	glGenBuffers(1, &uboMatrices);
 	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
 	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void glRenderer::GenerateScreenQuad()

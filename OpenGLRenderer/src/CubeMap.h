@@ -12,7 +12,7 @@ class CubeMap
 public:
 	CubeMap(const std::string& right, const std::string& left, const std::string& top, const std::string& bottom, const std::string& front, const std::string& back);
 
-	void Draw(GLuint shaderProgram);
+	void Draw();
 
 private:
 	GLuint textureID;

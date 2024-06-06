@@ -24,6 +24,7 @@ const Transform& Transform::operator*(const Transform& other) const
 	result.position = position + rotation * (scale * other.position);
 	result.rotation = rotation * other.rotation;
 	result.scale = scale * other.scale;
+	result.updateTransformMatrix();
 	return result;
 }
 

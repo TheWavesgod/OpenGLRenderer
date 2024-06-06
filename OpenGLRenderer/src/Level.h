@@ -40,6 +40,7 @@ protected:
 	LightsManager* lightsManager;
 	CubeMap* skybox;
 
+	Mesh* floor;
 	Mesh* cube;
 	Texture* tex;
 

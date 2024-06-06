@@ -5,7 +5,8 @@
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
 
-#include<string>
+#include <string>
+#include <vector>
 
 class Shader
 {
@@ -29,8 +30,12 @@ public:
 	void SetUniformMat4(const std::string& variable, const glm::mat4& val);
 	void SetUniformInt(const std::string& variable, GLuint val);
 
+	static inline Shader* GetShaderByIndex(int i) { return shaders[i]; }
+
 protected:
 	GLuint shaderProgramID;
+
+	static std::vector<Shader*> shaders;
 
 private:
 	std::string shaderText;

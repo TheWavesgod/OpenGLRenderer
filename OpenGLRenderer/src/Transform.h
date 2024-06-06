@@ -41,7 +41,5 @@ private:
 	glm::quat rotation;
 	glm::vec3 scale;
 	glm::mat4 transformMatrix;
-
-
 };
 
