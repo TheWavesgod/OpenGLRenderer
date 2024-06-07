@@ -97,7 +97,7 @@ bool glRenderer::CreateShaderPrograms()
 	s = new Shader("../Shaders/vertCubemap.glsl", "../Shaders/fragCubemap.glsl");
 	if (!s->HasInitialized()) return false;
 
-	s = new Shader("../Shaders/vertFloor.glsl", "../Shaders/fragment.glsl");
+	s = new Shader("../Shaders/vertFloor.glsl", "../Shaders/fragPhonLight.glsl");
 	if (!s->HasInitialized()) return false;
 
 	return true;

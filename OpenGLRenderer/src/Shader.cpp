@@ -18,21 +18,24 @@ bool Shader::BuildShaderProgram(const std::string& vertexShaderLoc, const std::s
 	shaderProgramID = glCreateProgram();
 
 	GLuint shaderIDs[E_MAX];
+	int num = 0;
 	if (!vertexShaderLoc.empty())
 	{
 		if (!ReadAndCompileShader(vertexShaderLoc, E_VERTEX, &shaderIDs[E_VERTEX])) return false;
 		glAttachShader(shaderProgramID, shaderIDs[E_VERTEX]);
-
+		++num;
 	}
 	if (!fragmentShaderLoc.empty())
 	{
 		if (!ReadAndCompileShader(fragmentShaderLoc, E_FRAGMENT, &shaderIDs[E_FRAGMENT])) return false;
 		glAttachShader(shaderProgramID, shaderIDs[E_FRAGMENT]);
+		++num;
 	}
 	if (!geometryShaderLoc.empty())
 	{
 		if (!ReadAndCompileShader(geometryShaderLoc, E_GEOMETRY, &shaderIDs[E_GEOMETRY])) return false;
 		glAttachShader(shaderProgramID, shaderIDs[E_GEOMETRY]);
+		++num;
 	}
 
 	glLinkProgram(shaderProgramID);
@@ -47,9 +50,9 @@ bool Shader::BuildShaderProgram(const std::string& vertexShaderLoc, const std::s
 		return false;
 	}
 
-	for (auto& i : shaderIDs)
+	for (int i = 0; i < num; ++i)
 	{
-		glDeleteShader(i);
+		glDeleteShader(shaderIDs[i]);
 	}
 
 	return true;

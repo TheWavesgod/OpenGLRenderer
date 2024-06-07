@@ -233,6 +233,7 @@ Mesh* Mesh::GenerateFloor()
 	};
 
 	m->textures.emplace_back(Texture("../Resources/Textures/wood.png"));
+	m->textures[0].type = "diffuse";
 
 	m->indices = {
 		0, 3, 2, // first triangle
@@ -273,15 +274,15 @@ void Mesh::Draw(Shader& shader)
 		// retrieve texture number (the N in diffuse_textureN)
 		std::string number;
 		std::string name = textures[i].type;
-		if (name == "texture_diffuse")
+		if (name == "diffuse")
 			number = std::to_string(diffuseNr++);
-		else if (name == "texture_specular")
+		else if (name == "specular")
 			number = std::to_string(specularNr++);
 
-		shader.SetUniformInt("material." + name + number, i);
+		shader.SetUniformInt("material." + name, i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].TextureID());
 	}
-
+	shader.SetUniformFloat("material.shininess", 32.0f);
 
 	glBindVertexArray(VAO);
 	if (indices.empty())

@@ -1,9 +1,5 @@
 #version 450 core
 
-#define LIGHT_TYPE_DIRECTIONAL 0
-#define LIGHT_TYPE_POINT 1
-#define LIGHT_TYPE_SPOT 2
-
 out vec4 FragColor;
 
 in vec3 FragPos;
@@ -19,12 +15,14 @@ struct Material
     float shininess;
 };
 
+uniform Material material;
+
 struct DirLight
 {
     vec3 direction;
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    float padding1;
+    vec3 color;
+    float padding2;
 };
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
@@ -32,50 +30,55 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 struct PointLight 
 {
     vec3 position;
-   
+    float padding1;
+    vec3 color;
+    float padding2;
+
     float constant;
     float linear;
     float quadratic;
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    float padding3;
 };
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
-struct spotLight
+struct SpotLight
 {
     vec3 position;
+    float padding1;
     vec3 direction;
+    float padding2;
+    vec3 color;
+
     float innerCutOff;
     float outerCutOff;
-
+    
     float constant;
     float linear;
     float quadratic;
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
 };
 
-vec3 CalcSpotLight(spotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
-struct Light
+
+layout(std140, binding = 1) uniform DirLightBuffer
 {
-    int type;
-    DirLight directional;
-    PointLight point;
-    spotLight spot;
+    DirLight dirLights[5];
+    int dirLightsNum;
 };
 
-layout(std430, binding = 0) buffer LightBuffer
+layout(std140, binding = 2) uniform SpotLightBuffer
 {
-    Light lights[];
+    SpotLight spotLights[10];
+    int spotLightsNum;
 };
 
-uniform Material material;
+layout(std140, binding = 3) uniform PointLightBuffer
+{
+    PointLight pointLights[10];
+    int pointLightsNum;
+};
+
 
 uniform samplerCube skybox;
 vec3 CalcSkybox(vec3 normal, vec3 viewDir);
@@ -91,21 +94,19 @@ void main()
     vec3 viewDir = normalize(viewPos - FragPos);
 
     vec3 result = vec3(0.0f, 0.0f, 0.0f);
-    for(int i = 0; i < lights.length(); ++i)
+    for (int i = 0; i < dirLightsNum; ++i)
     {
-        if(lights[i].type == LIGHT_TYPE_DIRECTIONAL)    // phase 1: Directional lighting
-        {
-            result += CalcDirLight(lights[i].directional, norm, viewDir);
-        }
-        else if(lights[i].type == LIGHT_TYPE_POINT)     // phase 2: Point lights
-        {
-            result += CalcPointLight(lights[i].point, norm, FragPos, viewDir);    
-        }
-        else if(lights[i].type == LIGHT_TYPE_SPOT)      // phase 3: Spot light
-        {
-            result += CalcSpotLight(lights[i].spot, norm, FragPos, viewDir);    
-        }   
+        result += CalcDirLight(dirLights[i], norm, viewDir);       // phase 1: Directional lighting
     }
+    for (int i = 0; i < spotLightsNum; ++i)
+    {
+        result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);    // phase 2: Spot light
+    }
+    for (int i = 0; i < pointLightsNum; ++i)
+    {
+        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);  // phase 3: Point lights
+    }
+
     FragColor = vec4(result, 1.0);
 }
 
@@ -130,9 +131,9 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0f);
     float spec = CalSpec(lightDir, normal, viewDir);
-    vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, TexCoord));
-    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoord));
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoord));
+    vec3 ambient  = 0.1f * light.color * vec3(texture(material.diffuse, TexCoord));
+    vec3 diffuse  = light.color * diff * vec3(texture(material.diffuse, TexCoord));
+    vec3 specular = light.color * spec * vec3(texture(material.specular, TexCoord));
     return (ambient + diffuse + specular); 
 }
 
@@ -147,16 +148,16 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float distance = length(light.position - fragPos);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
     // combine results
-    vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, TexCoord));
-    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoord));
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoord));
+    vec3 ambient  = 0.1f * light.color * vec3(texture(material.diffuse, TexCoord));
+    vec3 diffuse  = light.color * diff * vec3(texture(material.diffuse, TexCoord));
+    vec3 specular = light.color * spec * vec3(texture(material.specular, TexCoord));
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;
     return (ambient + diffuse + specular);
 }
 
-vec3 CalcSpotLight(spotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
     // Calculate intensity 
@@ -172,9 +173,9 @@ vec3 CalcSpotLight(spotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float distance = length(light.position - fragPos);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
     // combine results
-    vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, TexCoord));
-    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoord));
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoord));
+    vec3 ambient  = 0.1f * light.color * vec3(texture(material.diffuse, TexCoord));
+    vec3 diffuse  = light.color * diff * vec3(texture(material.diffuse, TexCoord));
+    vec3 specular = light.color * spec * vec3(texture(material.specular, TexCoord));
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;

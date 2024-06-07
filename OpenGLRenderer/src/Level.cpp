@@ -48,6 +48,7 @@ Level::Level(glRenderer* r)
 Level::~Level()
 {
 	delete camera;
+	delete lightsManager;
 	delete skybox;
 	delete cube;
 	delete tex;
@@ -56,6 +57,11 @@ Level::~Level()
 
 void Level::ConstructScene()
 {
+	lightsManager->AddDirectionalLight(glm::vec3(-70.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f));
+	lightsManager->AddSpotLight(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.0f), 30.0f, 35.0f, 0.35f, 0.44f);
+	lightsManager->AddPointLight(glm::vec3(1.0f, 3.0f, 1.0f), glm::vec3(0.0f, 0.8f, 0.5f), 0.35f, 0.44f);
+
+
 	SceneNode* Floor = new SceneNode(floor);
 	root->AddChild(Floor);
 	Floor->GetTransform().SetPosition(glm::vec3(0.0f, -1.0f, 0.0f));
@@ -69,14 +75,17 @@ void Level::Update(float dt)
 {
 	camera->UpdateCamera(dt);
 	camera->UploadViewMatrix(renderer->GetUboMatrices());
+	lightsManager->Update();
 
-	root->Update(dt);
+ 	root->Update(dt);
 
 	Render();
 }
 
 void Level::LevelBeginPlay()
 {
+	lightsManager->Init();
+
 	camera->UploadProjectionMatrix(renderer->GetUboMatrices());
 }
 
