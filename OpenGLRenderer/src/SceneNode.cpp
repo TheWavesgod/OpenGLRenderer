@@ -79,3 +79,18 @@ void SceneNode::Update(float dt)
 		child->Update(dt);
 	}
 }
+
+void SceneNode::DrawToLightDepthMap(Shader* shader)
+{
+	if (mesh || model)
+	{
+		shader->SetUniformMat4("model", worldTransform.GetTransMatrix());
+		if (mesh) mesh->DrawToLightDepthMap();
+		if (model) model->DrawToLightDepthMap();
+	}
+
+	for (SceneNode* child : children)
+	{
+		child->DrawToLightDepthMap(shader);
+	}
+}

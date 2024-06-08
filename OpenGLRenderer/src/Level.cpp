@@ -32,9 +32,9 @@ Level::Level(glRenderer* r)
 	floor->shaderIndex = 4;
 
 	cube = Mesh::GenerateCube();
-	cube->shaderIndex = 0;
-
-	tex = new Texture("../Resources/Textures/brick.tga");
+	cube->shaderIndex = 1;
+	cube->AddTexture(Texture("../Resources/Textures/container2.png"));
+	cube->AddTexture(Texture("../Resources/Textures/container2_specular.png", "specular"));
 
 	backpack = new Model("../Resources/Models/backpack/backpack.obj");
 
@@ -51,15 +51,14 @@ Level::~Level()
 	delete lightsManager;
 	delete skybox;
 	delete cube;
-	delete tex;
 	delete root;
 }
 
 void Level::ConstructScene()
 {
-	lightsManager->AddDirectionalLight(glm::vec3(-70.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f));
-	lightsManager->AddSpotLight(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.0f), 30.0f, 35.0f, 0.35f, 0.44f);
-	lightsManager->AddPointLight(glm::vec3(1.0f, 3.0f, 1.0f), glm::vec3(0.0f, 0.8f, 0.5f), 0.35f, 0.44f);
+	lightsManager->AddDirectionalLight(glm::vec3(-80.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f));
+	lightsManager->AddSpotLight(glm::vec3(3.0f, 2.0f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.8f, 0.0f), 30.0f, 35.0f, 0.07f, 0.017f);
+	lightsManager->AddPointLight(glm::vec3(-3.0f, 2.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.8f), 0.09f, 0.032f);
 
 
 	SceneNode* Floor = new SceneNode(floor);
@@ -68,14 +67,13 @@ void Level::ConstructScene()
 
 	SceneNode* container = new SceneNode(cube);
 	root->AddChild(container);
-	container->GetTransform().SetPosition(glm::vec3(0.0f, 3.0f, -3.0f));
+	container->GetTransform().SetPosition(glm::vec3(0.0f, 1.5f, -3.0f));
 }
 
 void Level::Update(float dt)
 {
 	camera->UpdateCamera(dt);
 	camera->UploadViewMatrix(renderer->GetUboMatrices());
-	lightsManager->Update();
 
  	root->Update(dt);
 
@@ -91,6 +89,8 @@ void Level::LevelBeginPlay()
 
 void Level::Render()
 {
+	lightsManager->DrawLightDepthMaps(root);
+	lightsManager->Update();
 	renderer->SetSceneBufferReady();
 	DrawScene();
 	renderer->MultiSample();

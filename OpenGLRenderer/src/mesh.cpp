@@ -113,6 +113,50 @@ Mesh* Mesh::GenerateCube()
 		glm::vec3(-0.5f,  0.5f,  0.5f)
 	};
 
+	m->normals = {
+		glm::vec3(-1.0f,  0.0f,  0.0f),
+		glm::vec3(-1.0f,  0.0f,  0.0f),
+		glm::vec3(-1.0f,  0.0f,  0.0f),
+		glm::vec3(-1.0f,  0.0f,  0.0f),
+		glm::vec3(-1.0f,  0.0f,  0.0f),
+		glm::vec3(-1.0f,  0.0f,  0.0f),
+
+		glm::vec3( 0.0f,  0.0f,  1.0f),
+		glm::vec3( 0.0f,  0.0f,  1.0f),
+		glm::vec3( 0.0f,  0.0f,  1.0f),
+		glm::vec3( 0.0f,  0.0f,  1.0f),
+		glm::vec3( 0.0f,  0.0f,  1.0f),
+		glm::vec3( 0.0f,  0.0f,  1.0f),
+
+		glm::vec3(-1.0f,  0.0f,  0.0f),
+		glm::vec3(-1.0f,  0.0f,  0.0f),
+		glm::vec3(-1.0f,  0.0f,  0.0f),
+		glm::vec3(-1.0f,  0.0f,  0.0f),
+		glm::vec3(-1.0f,  0.0f,  0.0f),
+		glm::vec3(-1.0f,  0.0f,  0.0f),
+
+		glm::vec3( 1.0f,  0.0f,  0.0f),
+		glm::vec3( 1.0f,  0.0f,  0.0f),
+		glm::vec3( 1.0f,  0.0f,  0.0f),
+		glm::vec3( 1.0f,  0.0f,  0.0f),
+		glm::vec3( 1.0f,  0.0f,  0.0f),
+		glm::vec3( 1.0f,  0.0f,  0.0f),
+
+		glm::vec3( 0.0f, -1.0f,  0.0f),
+		glm::vec3( 0.0f, -1.0f,  0.0f),
+		glm::vec3( 0.0f, -1.0f,  0.0f),
+		glm::vec3( 0.0f, -1.0f,  0.0f),
+		glm::vec3( 0.0f, -1.0f,  0.0f),
+		glm::vec3( 0.0f, -1.0f,  0.0f),
+
+		glm::vec3( 0.0f,  1.0f,  0.0f),
+		glm::vec3( 0.0f,  1.0f,  0.0f),
+		glm::vec3( 0.0f,  1.0f,  0.0f),
+		glm::vec3( 0.0f,  1.0f,  0.0f),
+		glm::vec3( 0.0f,  1.0f,  0.0f),
+		glm::vec3( 0.0f,  1.0f,  0.0f),
+	};
+
 	m->colors =
 	{
 		glm::vec4(0.0f, 0.0f, -1.0f, 1.0f), 
@@ -284,6 +328,20 @@ void Mesh::Draw(Shader& shader)
 	}
 	shader.SetUniformFloat("material.shininess", 32.0f);
 
+	glBindVertexArray(VAO);
+	if (indices.empty())
+	{
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	}
+	else
+	{
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	}
+	glBindVertexArray(0);
+}
+
+void Mesh::DrawToLightDepthMap()
+{
 	glBindVertexArray(VAO);
 	if (indices.empty())
 	{

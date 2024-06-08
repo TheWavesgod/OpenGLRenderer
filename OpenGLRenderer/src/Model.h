@@ -18,6 +18,7 @@ public:
 	Model(const std::string& filePath) { LoadModel(filePath); }
 
 	void Draw(Shader& shader);
+	void DrawToLightDepthMap();
 
 	unsigned int shaderIndex;
 

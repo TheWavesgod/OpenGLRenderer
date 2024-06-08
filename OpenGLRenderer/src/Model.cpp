@@ -15,6 +15,14 @@ void Model::Draw(Shader& shader)
 	}
 }
 
+void Model::DrawToLightDepthMap()
+{
+	for (Mesh& mesh : meshes)
+	{
+		mesh.DrawToLightDepthMap();
+	}
+}
+
 void Model::LoadModel(const std::string& path)
 {
 	/**

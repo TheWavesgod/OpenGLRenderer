@@ -22,6 +22,8 @@ public:
 	virtual void Draw();
 	virtual void Update(float dt);
 
+	void DrawToLightDepthMap(Shader* shader);
+
 	static bool CompareByCameraDistance(const SceneNode* a, const SceneNode* b) { return (a->distanceFromCamera < b->distanceFromCamera) ? true : false; }
 
 protected:

@@ -4,7 +4,7 @@ layout (location = 0) in vec3 aPos;
 
 uniform mat4 lightProjection;
 uniform mat4 lightView;
-unifrom mat4 model;
+uniform mat4 model;
 
 void main()
 {

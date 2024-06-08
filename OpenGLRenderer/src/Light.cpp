@@ -1,5 +1,7 @@
 #include "Light.h"
+#include "Shader.h"
 #include "Window.h"
+#include "SceneNode.h"
 
 const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
@@ -15,6 +17,9 @@ void LightsManager::Init()
 {
 	BuildLightsFrameBuffer();
 	BuildLightsUniformBuffer();
+
+	BindDepthMapSamplerForShader(Shader::GetShaderByIndex(1));
+	BindDepthMapSamplerForShader(Shader::GetShaderByIndex(4));
 }
 
 void LightsManager::Update()
@@ -24,6 +29,7 @@ void LightsManager::Update()
 	{
 		dirLightsData[i].direction = dirLights[i]->GetLightDirection();
 		dirLightsData[i].color = dirLights[i]->GetLightColor();
+		dirLightsData[i].lightSpaceMat = dirLights[i]->BuildLightSpaceMatrix();
 	}
 
 	int spotLightsNum = spotLights.size();
@@ -37,6 +43,7 @@ void LightsManager::Update()
 		spotLightsData[i].constant = spotLights[i]->constant;
 		spotLightsData[i].linear = spotLights[i]->linear;
 		spotLightsData[i].quadratic = spotLights[i]->quadratic;
+		spotLightsData[i].lightSpaceMat = spotLights[i]->BuildLightSpaceMatrix();
 	}
 
 	int pointLightsNum = pointLights.size();
@@ -47,6 +54,7 @@ void LightsManager::Update()
 		pointLightsData[i].constant = pointLights[i]->constant;
 		pointLightsData[i].linear = pointLights[i]->linear;
 		pointLightsData[i].quadratic = pointLights[i]->quadratic;
+		pointLightsData[i].lightSpaceMat = pointLights[i]->BuildLightSpaceMatrix();
 	}
 
 	glBindBuffer(GL_UNIFORM_BUFFER, lightsUBOs[LIGHT_Directional]);
@@ -61,18 +69,39 @@ void LightsManager::Update()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void LightsManager::DrawLightDepthMaps()
+void LightsManager::DrawLightDepthMaps(SceneNode* node)
 {
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 	
-	size_t lightNum = dirLights.size() + spotLights.size() + pointLights.size();
-	for (size_t i = 0; i < lightNum; ++i)
+	Shader* usingShader = Shader::GetShaderByIndex(5);
+	usingShader->Use();
+	for (size_t i = 0; i < dirLights.size(); ++i)
 	{
+		usingShader->SetUniformMat4("lightProjection", dirLights[i]->BuildProjection());
+		usingShader->SetUniformMat4("lightView", dirLights[i]->BuildView());
 		glBindFramebuffer(GL_FRAMEBUFFER, FBOsLightsDepth[i]);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glClear(GL_DEPTH_BUFFER_BIT);	
+		node->DrawToLightDepthMap(usingShader);
 	}
 
+	for (size_t i = 0; i < spotLights.size(); ++i)
+	{
+		usingShader->SetUniformMat4("lightProjection", spotLights[i]->BuildProjection());
+		usingShader->SetUniformMat4("lightView", spotLights[i]->BuildView());
+		glBindFramebuffer(GL_FRAMEBUFFER, FBOsLightsDepth[dirLights.size() + i]);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		node->DrawToLightDepthMap(usingShader);
+	}
+
+	for (size_t i = 0; i < pointLights.size(); ++i)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, FBOsLightsDepth[dirLights.size() + spotLights.size() + i]);
+		glClear(GL_DEPTH_BUFFER_BIT);
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, window::GetWindowPointer()->GetWidth(), window::GetWindowPointer()->GetHeight());
 }
 
@@ -110,6 +139,13 @@ void LightsManager::BuildLightsFrameBuffer()
 		glReadBuffer(GL_NONE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
+
+	// Bind the depth map to the Textrue Unit
+	for (size_t i = 0; i < dirLights.size() + pointLights.size(); ++i)
+	{
+		glActiveTexture(GL_TEXTURE10 + i);
+		glBindTexture(GL_TEXTURE_2D, depthMapsLights[i]);
+	}
 }
 
 void LightsManager::BuildLightsUniformBuffer()
@@ -117,6 +153,19 @@ void LightsManager::BuildLightsUniformBuffer()
 	lightsUBOs[LIGHT_Directional] = GenerateLightUninformBuffer(LIGHT_Directional, MAXNUM_DIRLIGHT * sizeof(DirLightData) + sizeof(int));
 	lightsUBOs[LIGHT_Spot] = GenerateLightUninformBuffer(LIGHT_Spot, MAXNUM_SPOTLIGHT * sizeof(SpotLightData) + sizeof(int));
 	lightsUBOs[LIGHT_Point] = GenerateLightUninformBuffer(LIGHT_Point, MAXNUM_POINTLIGHT * sizeof(PointLightData) + sizeof(int));
+}
+
+void LightsManager::BindDepthMapSamplerForShader(Shader* shader)
+{	
+	shader->Use();
+	for (size_t i = 0; i < dirLights.size(); ++i)
+	{
+		shader->SetUniformInt("dirDepth[" + std::to_string(i) + "]", 10 + i);
+	}
+	for (size_t i = 0; i < spotLights.size(); ++i)
+	{
+		shader->SetUniformInt("spotDepth[" + std::to_string(i) + "]", 10 + i + dirLights.size());
+	}
 }
 
 GLuint LightsManager::GenerateDepthMap()
@@ -203,31 +252,31 @@ void LightsManager::AddPointLight(glm::vec3 lightPos, glm::vec3 lightColor, floa
 }
 
 
-
-
 const glm::mat4& DirLight::BuildProjection()
 {
-	float near_plane = 1.0f, far_plane = 7.5f;
-	return glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	float near_plane = -200.0f, far_plane = 200.0f;
+	return glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
 }
 
 const glm::mat4& DirLight::BuildView()
 {
-	return glm::lookAt(
-		glm::vec3(-2.0f, 4.0f, -1.0f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f)
-	);
+	glm::vec3 center = glm::vec3(0.0f);
+	glm::vec3 lightPos = center - this->GetLightDirection() * 100.0f;
+
+	return glm::lookAt(lightPos, center, glm::vec3( 0.0f, 1.0f, 0.0f));
 }
 
 const glm::mat4& SpotLight::BuildProjection()
 {
-	return glm::mat4();
+	float nearPlane = 1.0f;
+	float farPlane = 100.0f; 
+
+	return glm::perspective(glm::radians(outerCutOff * 2.0f), 1.0f, nearPlane, farPlane);
 }
 
 const glm::mat4& SpotLight::BuildView()
 {
-	return glm::mat4();
+	return glm::lookAt(transform.GetPosition(), transform.GetPosition() + transform.GetForwardVector(), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 const glm::mat4& PointLight::BuildProjection()

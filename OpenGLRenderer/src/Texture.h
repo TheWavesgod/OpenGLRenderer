@@ -8,7 +8,7 @@ class Texture
 public:
 	Texture();
 
-	Texture(const std::string& fileLoc);
+	Texture(const std::string& fileLoc, const std::string type = "diffuse");
 
 	~Texture() {}
 

@@ -13,9 +13,11 @@ Texture::Texture()
 	path = "";
 }
 
-Texture::Texture(const std::string& fileLoc)
+Texture::Texture(const std::string& fileLoc, const std::string type)
 {
 	LoadFromFile(fileLoc);
+
+	this->type = type;
 }
 
 void Texture::LoadFromFile(const std::string& fileLoc)

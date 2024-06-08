@@ -42,7 +42,6 @@ protected:
 
 	Mesh* floor;
 	Mesh* cube;
-	Texture* tex;
 
 	Model* backpack;
 

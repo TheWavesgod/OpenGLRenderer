@@ -6,7 +6,10 @@
 #include "glad/glad.h"
 #include "Transform.h"
 
-const unsigned int MAXNUM_DIRLIGHT = 5, MAXNUM_SPOTLIGHT = 10, MAXNUM_POINTLIGHT = 10; 
+const unsigned int MAXNUM_DIRLIGHT = 5, MAXNUM_SPOTLIGHT = 5, MAXNUM_POINTLIGHT = 5; 
+
+class SceneNode;
+class Shader;
 
 enum LightType
 {
@@ -30,6 +33,7 @@ public:
 
 	virtual const glm::mat4& BuildProjection() = 0;
 	virtual const glm::mat4& BuildView() = 0;
+	virtual const glm::mat4& BuildLightSpaceMatrix() { return BuildProjection() * BuildView(); };
 protected:
 	LightType type;
 	Transform transform;
@@ -81,7 +85,7 @@ public:
 	void Init();
 	void Update();
 
-	void DrawLightDepthMaps();
+	void DrawLightDepthMaps(SceneNode* node);
 
 	void AddDirectionalLight(glm::vec3 lightRot, glm::vec3 lightColor);
 	void AddSpotLight(glm::vec3 lightPos, glm::vec3 lightRot, glm::vec3 lightColor, float innerCutOff, float outerCutOff, float linear, float quadratic);
@@ -90,6 +94,8 @@ public:
 private:
 	void BuildLightsFrameBuffer();
 	void BuildLightsUniformBuffer();
+
+	void BindDepthMapSamplerForShader(Shader* shader);
 
 	GLuint GenerateDepthMap();
 	GLuint GenerateDepthCubeMap();

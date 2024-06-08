@@ -7,7 +7,6 @@
 
 #include <vector>
 
-
 class Shader;
 class Texture;
 class Model;
@@ -38,10 +37,14 @@ public:
 	~Mesh();
 
 	void Draw(Shader& shader);
+	void DrawToLightDepthMap();
 
 	unsigned int shaderIndex;
 
 	friend Model;
+
+
+	void AddTexture(const Texture& tex) { textures.push_back(tex); }
 
 protected:
 	// Mesh attributes
