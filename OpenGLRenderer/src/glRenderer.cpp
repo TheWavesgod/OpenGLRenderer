@@ -103,6 +103,9 @@ bool glRenderer::CreateShaderPrograms()
 	s = new Shader("../Shaders/vertDirLight.glsl", "../Shaders/fragShadow.glsl");
 	if (!s->HasInitialized()) return false;
 
+	s = new Shader("../Shaders/vertPBR.glsl", "../Shaders/fragPBR.glsl");
+	if (!s->HasInitialized()) return false;
+
 	return true;
 }
 

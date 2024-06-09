@@ -254,14 +254,14 @@ void LightsManager::AddPointLight(glm::vec3 lightPos, glm::vec3 lightColor, floa
 
 const glm::mat4& DirLight::BuildProjection()
 {
-	float near_plane = -200.0f, far_plane = 200.0f;
-	return glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
+	float near_plane = 0.1f, far_plane = 1000.0f;
+	return glm::ortho(-200.0f, 200.0f, -200.0f, 200.0f, near_plane, far_plane);
 }
 
 const glm::mat4& DirLight::BuildView()
 {
 	glm::vec3 center = glm::vec3(0.0f);
-	glm::vec3 lightPos = center - this->GetLightDirection() * 100.0f;
+	glm::vec3 lightPos = center - this->GetLightDirection() * 500.0f;
 
 	return glm::lookAt(lightPos, center, glm::vec3( 0.0f, 1.0f, 0.0f));
 }
