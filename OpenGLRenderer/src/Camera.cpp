@@ -75,3 +75,11 @@ void Camera::UploadViewMatrix(GLuint uniformBuffer)
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(this->BuildViewMatrix()));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
+
+void Camera::UploadViewPos(GLuint uniformBuffer)
+{
+	// Send view position to uniform buffer every frame before drawing
+	glBindBuffer(GL_UNIFORM_BUFFER, uniformBuffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::vec3), glm::value_ptr(this->transform.GetPosition()));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}

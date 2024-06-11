@@ -123,16 +123,16 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 		// 1. diffuse map
-		std::vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuse");
+		std::vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, TEXTYPE_DIFFUSE);
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 		// 2. specular map
-		std::vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "specular");
+		std::vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, TEXTYPE_SPECULAR);
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end()); 
 		// 3. normal maps
-		std::vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_NORMALS, "normal");
+		std::vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_NORMALS, TEXTYPE_NORMAL);
 		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 		// 4. height maps
-		std::vector<Texture> heightMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, "height");
+		std::vector<Texture> heightMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, TEXTYPE_HEIGHT);
 		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 	}
 
@@ -141,7 +141,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	return m; // TODO: Optimize the Mesh value return
 }
 
-std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, TextureType textype)
 {
 	std::vector<Texture> textures;
 
@@ -163,7 +163,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType 
 		{
 			Texture texture;
 			texture.LoadFromFile(directory + "/" + std::string(str.C_Str()));
-			texture.type = typeName;
+			texture.type = textype;
 			texture.path = std::string(str.C_Str());
 			textures.push_back(texture);
 			textures_loaded.push_back(texture);	

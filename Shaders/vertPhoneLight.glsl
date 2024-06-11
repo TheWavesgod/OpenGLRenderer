@@ -9,11 +9,13 @@ layout(location = 5) in vec3 aBiTangent;
 out vec3 FragPos;
 out vec3 Normal;
 out vec2 TexCoord;
+out vec3 viewPos;
 
 layout(std140, binding = 0) uniform Matrices
 {
     mat4 projection;
     mat4 view;
+    vec3 camPos;
 };
 uniform mat4 model;
 
@@ -23,4 +25,5 @@ void main()
     FragPos = vec3(model * vec4(aPos, 1.0f));
     Normal = mat3(transpose(inverse(model))) * aNormal;  
     TexCoord = aTexCoord;
+    viewPos = camPos;
 }

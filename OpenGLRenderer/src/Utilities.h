@@ -45,3 +45,4 @@ struct PointLightData
 
 	glm::mat4 lightSpaceMat;
 };
+

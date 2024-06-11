@@ -39,9 +39,11 @@ protected:
 	SceneNode* root;
 	LightsManager* lightsManager;
 	CubeMap* skybox;
+	CubeMap* skybox1;
 
 	Mesh* floor;
 	Mesh* cube;
+	Mesh* PBRcube;
 
 	Model* backpack;
 

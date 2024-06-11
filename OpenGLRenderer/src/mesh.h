@@ -60,6 +60,9 @@ protected:
 	void SetupMesh();
 	void UploadAttribute(GLuint* buffer, int numElements, int dataSize, int attribSize, int attributeID, void* dataPtr);
 
+	void GenerateTangentCoordsForArrays();
+	void BindTextureSamplerBeforedraw(Shader& shader);
+
 private:
 	GLuint VAO;
 	GLuint VBOs[MAXBUFFER];

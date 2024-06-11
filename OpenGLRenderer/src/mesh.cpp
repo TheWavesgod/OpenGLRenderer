@@ -246,6 +246,8 @@ Mesh* Mesh::GenerateCube()
 		glm::vec2(0.0f, 0.0f)
 	};
 
+	m->GenerateTangentCoordsForArrays();
+
 	m->SetupMesh();
 
 	return m;
@@ -277,7 +279,7 @@ Mesh* Mesh::GenerateFloor()
 	};
 
 	m->textures.emplace_back(Texture("../Resources/Textures/wood.png"));
-	m->textures[0].type = "diffuse";
+	m->textures[0].type = TEXTYPE_DIFFUSE;
 
 	m->indices = {
 		0, 3, 2, // first triangle
@@ -308,7 +310,52 @@ Mesh::~Mesh()
 	glDeleteBuffers(MAXBUFFER, VBOs);
 }
 
-void Mesh::Draw(Shader& shader)
+void Mesh::GenerateTangentCoordsForArrays()
+{
+	if (!indices.empty() || vertices.empty() || texCoords.empty()) return;
+
+	tangents.resize(vertices.size(), glm::vec3());
+	biTangents.resize(vertices.size(), glm::vec3());
+
+	for (size_t i = 0; i < vertices.size(); i += 3)
+	{
+		// Positions
+		glm::vec3 pos1 = vertices[i];
+		glm::vec3 pos2 = vertices[i + 1];
+		glm::vec3 pos3 = vertices[i + 2];
+
+		// Texture coordinates
+		glm::vec2 uv1 = texCoords[i];
+		glm::vec2 uv2 = texCoords[i + 1];
+		glm::vec2 uv3 = texCoords[i + 2];
+
+		// calculate tangent/bitangent vectors of this triangle
+		glm::vec3 tangent, bitangent;
+
+		glm::vec3 edge1 = pos2 - pos1;
+		glm::vec3 edge2 = pos3 - pos1;
+		glm::vec2 deltaUV1 = uv2 - uv1;
+		glm::vec2 deltaUV2 = uv3 - uv1;
+
+		float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+		tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+		tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+		tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+		bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+		bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+		bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+		for (size_t j = 0; j < 3; ++j)
+		{
+			tangents[i + j] = tangent;
+			biTangents[i + j] = bitangent;
+		}
+	}
+}
+
+void Mesh::BindTextureSamplerBeforedraw(Shader& shader)
 {
 	GLuint diffuseNr = 1;
 	GLuint specularNr = 1;
@@ -317,7 +364,7 @@ void Mesh::Draw(Shader& shader)
 		glActiveTexture(GL_TEXTURE0 + i);			// activate proper texture unit before binding
 		// retrieve texture number (the N in diffuse_textureN)
 		std::string number;
-		std::string name = textures[i].type;
+		std::string name = textures[i].GetTypeName();
 		if (name == "diffuse")
 			number = std::to_string(diffuseNr++);
 		else if (name == "specular")
@@ -327,6 +374,20 @@ void Mesh::Draw(Shader& shader)
 		glBindTexture(GL_TEXTURE_2D, textures[i].TextureID());
 	}
 	shader.SetUniformFloat("material.shininess", 32.0f);
+}
+
+void Mesh::Draw(Shader& shader)
+{
+	for (size_t i = 0; i < textures.size(); ++i)
+	{
+		glActiveTexture(GL_TEXTURE0 + i);			// activate proper texture unit before binding
+		// retrieve texture number 
+		std::string name = textures[i].GetTypeName();  // TODO: Why string can't return string&
+		shader.SetUniformInt("material." + name, i);
+		glBindTexture(GL_TEXTURE_2D, textures[i].TextureID());
+	}
+	shader.SetUniformFloat("material.shininess", 32.0f);
+	shader.SetUniformInt("irradianceMap", 6);
 
 	glBindVertexArray(VAO);
 	if (indices.empty())
@@ -402,3 +463,5 @@ void Mesh::UploadAttribute(GLuint* buffer, int numElements, int dataSize, int at
 	glEnableVertexAttribArray(attributeID);
 	glVertexAttribPointer(attributeID, attributeSize, GL_FLOAT, GL_FALSE, 0, 0);
 }
+
+

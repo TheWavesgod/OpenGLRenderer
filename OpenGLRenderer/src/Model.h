@@ -7,6 +7,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "Utilities.h"
 #include "Texture.h"
 
 class Shader;
@@ -29,7 +30,7 @@ protected:
 	void LoadModel(const std::string& path);
 	void ProcessNode(aiNode* node, const aiScene* scene);
 	Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
-	std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+	std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, TextureType textype);
 
 private:
 	std::vector<Texture> textures_loaded;

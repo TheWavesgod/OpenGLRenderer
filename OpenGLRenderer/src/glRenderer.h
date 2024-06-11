@@ -44,10 +44,10 @@ private:
 
 	GLuint screenQuadVAO;
 
-	GLuint uboMatrices;
+	GLuint uboCamera;
 
 public:
 	inline bool HasInitialized() { return bHasInitilized; }
-	inline GLuint GetUboMatrices() const { return uboMatrices; }
+	inline GLuint GetUboCamera() const { return uboCamera; }
 };
 

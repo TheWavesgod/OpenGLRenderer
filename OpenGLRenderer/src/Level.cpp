@@ -28,13 +28,22 @@ Level::Level(glRenderer* r)
 		"../Resources/CubeMap/evening_back.jpg"
 	);
 
+	skybox1 = new CubeMap("../Resources/HDR/LakePier/lake_pier_2k.hdr");
+
 	floor = Mesh::GenerateFloor();
 	floor->shaderIndex = 4;
 
 	cube = Mesh::GenerateCube();
 	cube->shaderIndex = 1;
 	cube->AddTexture(Texture("../Resources/Textures/container2.png"));
-	cube->AddTexture(Texture("../Resources/Textures/container2_specular.png", "specular"));
+	cube->AddTexture(Texture("../Resources/Textures/container2_specular.png", TEXTYPE_SPECULAR));
+
+	PBRcube = Mesh::GenerateCube();
+	PBRcube->shaderIndex = 6;
+	PBRcube->AddTexture(Texture("../Resources/Textures/RustedIron/rustediron2_basecolor.png", TEXTYPE_ALBEDO));
+	PBRcube->AddTexture(Texture("../Resources/Textures/RustedIron/rustediron2_metallic.png", TEXTYPE_METALLIC));
+	PBRcube->AddTexture(Texture("../Resources/Textures/RustedIron/rustediron2_normal.png", TEXTYPE_ROUGHNESS));
+	PBRcube->AddTexture(Texture("../Resources/Textures/RustedIron/rustediron2_roughness.png", TEXTYPE_NORMAL));
 
 	backpack = new Model("../Resources/Models/backpack/backpack.obj");
 
@@ -51,6 +60,7 @@ Level::~Level()
 	delete lightsManager;
 	delete skybox;
 	delete cube;
+	delete PBRcube;
 	delete root;
 }
 
@@ -67,13 +77,18 @@ void Level::ConstructScene()
 
 	SceneNode* container = new SceneNode(cube);
 	root->AddChild(container);
-	container->GetTransform().SetPosition(glm::vec3(0.0f, 1.5f, -3.0f));
+	container->GetTransform().SetPosition(glm::vec3(3.0f, 1.5f, -3.0f));
+
+	SceneNode* PBRcontainer = new SceneNode(PBRcube);
+	root->AddChild(PBRcontainer);
+	PBRcontainer->GetTransform().SetPosition(glm::vec3(-3.0f, 1.5f, -3.0f));
 }
 
 void Level::Update(float dt)
 {
 	camera->UpdateCamera(dt);
-	camera->UploadViewMatrix(renderer->GetUboMatrices());
+	camera->UploadViewMatrix(renderer->GetUboCamera());
+	camera->UploadViewPos(renderer->GetUboCamera());
 
  	root->Update(dt);
 
@@ -84,7 +99,9 @@ void Level::LevelBeginPlay()
 {
 	lightsManager->Init();
 
-	camera->UploadProjectionMatrix(renderer->GetUboMatrices());
+	camera->UploadProjectionMatrix(renderer->GetUboCamera());
+
+	skybox1->BindIrradianceMap(6);
 }
 
 void Level::Render()
@@ -105,7 +122,7 @@ void Level::DrawScene()
 	ClearNodeLists();
 
 	// Draw skybox last
-	skybox->Draw();
+	skybox1->Draw();
 }
 
 void Level::BuildNodeLists(SceneNode* from)

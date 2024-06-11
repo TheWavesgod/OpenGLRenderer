@@ -3,8 +3,9 @@
 out vec4 FragColor;
 
 in vec3 FragPos;
-in vec3 Normal;
 in vec2 TexCoord;
+in vec3 viewPos;
+in mat3 TBN;
 
 // Struct define
 struct DirLight
@@ -52,11 +53,11 @@ struct PointLight
 
 struct Material
 {
-    sampler2D albedoMap;
-    sampler2D normalMap;
-    sampler2D metallicMap;
-    sampler2D roughnessMap;
-    sampler2D aoMap;
+    sampler2D albedo;
+    sampler2D normal;
+    sampler2D metallic;
+    sampler2D roughness;
+    sampler2D ao;
 };
 
 // Uniform Variables
@@ -78,13 +79,13 @@ layout(std140, binding = 3) uniform PointLightBuffer
     int pointLightsNum;
 };
 
-uniform vec3 camPos;
-
 uniform Material material;
+uniform samplerCube irradianceMap;
 
 const float PI = 3.14159265359;
 
 // Functions Declaration
+vec3 CalNormalFromMap();
 vec3 CalcSpotLightRadiance(SpotLight light);
 vec3 CalcPointLightRadiance(PointLight light);
 
@@ -92,21 +93,22 @@ float DistributionGGX(vec3 N, vec3 H, float a);
 float GeometrySchlickGGX(float NdotV, float k);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float k);
 vec3 FresnelSchlick(float cosTheta, vec3 F0);
+vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness);
 
 vec3 CalcOutputColor(vec3 radiance, vec3 N, vec3 V, vec3 L, vec3 F0, vec3 albedo, float metallic, float roughness);
 
 void main()
 {
     // Get the fragment material settings
-    vec3 albedo = texture(material.albedoMap, TexCoord).rgb;
-    //vec3 normal = getNormalFromNormalMap(); // TODO: Calculate Normal from normal map
-    float metallic = texture(material.metallicMap, TexCoord).r;
-    float roughness = texture(material.roughnessMap, TexCoord).r;
-    float ao = texture(material.aoMap, TexCoord).r;
+    vec3 albedo = texture(material.albedo, TexCoord).rgb;
+    vec3 normal = CalNormalFromMap();
+    float metallic = texture(material.metallic, TexCoord).r;
+    float roughness = texture(material.roughness, TexCoord).r;
+    float ao = texture(material.ao, TexCoord).r;
 
     // Get the genaric variables
-    vec3 N = normalize(Normal);
-    vec3 V = normalize(camPos - FragPos);
+    vec3 N = normalize(normal);
+    vec3 V = normalize(viewPos - FragPos);
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
@@ -129,10 +131,23 @@ void main()
         vec3 L = normalize(pointLights[i].position - FragPos);   
         result += CalcOutputColor(radiance, N, V, L, F0, albedo, metallic, roughness);
     }
-    vec3 ambient = vec3(0.03f) * albedo * ao;
+
+    vec3 kS = FresnelSchlickRoughness(max(dot(N, V), 0.0f), F0, roughness);
+    vec3 kD = 1.0f - kS;
+    vec3 irradiance = texture(irradianceMap, N).rgb;
+    vec3 diffuse = irradiance * albedo;
+    vec3 ambient = (kD * diffuse) * ao;
     result += ambient;
 
     FragColor = vec4(result, 1.0f);
+}
+
+vec3 CalNormalFromMap()
+{
+    vec3 normal = texture(material.normal, TexCoord).rgb;
+    normal = normal * 2.0f - 1.0f;
+    normal = normalize(TBN * normal);
+    return normal;
 }
 
 vec3 CalcSpotLightRadiance(SpotLight light)
@@ -197,6 +212,11 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 vec3 FresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0f - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
+}
+
+vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
 vec3 CalcOutputColor(vec3 radiance, vec3 N, vec3 V, vec3 L, vec3 F0, vec3 albedo, float metallic, float roughness)

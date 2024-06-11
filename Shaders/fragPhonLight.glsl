@@ -5,8 +5,7 @@ out vec4 FragColor;
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoord;
-
-uniform vec3 viewPos;
+in vec3 viewPos;
 
 struct Material
 {

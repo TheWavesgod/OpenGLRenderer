@@ -106,6 +106,12 @@ bool glRenderer::CreateShaderPrograms()
 	s = new Shader("../Shaders/vertPBR.glsl", "../Shaders/fragPBR.glsl");
 	if (!s->HasInitialized()) return false;
 
+	s = new Shader("../Shaders/vertHDRtoCubemap.glsl", "../Shaders/fragHDRtoCubemap.glsl");
+	if (!s->HasInitialized()) return false;
+
+	s = new Shader("../Shaders/vertHDRtoCubemap.glsl", "../Shaders/fragIrrandianceMap.glsl");
+	if (!s->HasInitialized()) return false;
+
 	return true;
 }
 
@@ -191,10 +197,10 @@ void glRenderer::CreateFrameBuffer()
 
 void glRenderer::CreateUniformBuffer()
 {
-	glGenBuffers(1, &uboMatrices);
-	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
+	glGenBuffers(1, &uboCamera);
+	glBindBuffer(GL_UNIFORM_BUFFER, uboCamera);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + sizeof(glm::vec3), nullptr, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboCamera, 0, 2 * sizeof(glm::mat4) + sizeof(glm::vec3));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

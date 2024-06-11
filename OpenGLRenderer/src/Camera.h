@@ -43,6 +43,7 @@ public:
 
 	void UploadProjectionMatrix(GLuint uniformBuffer);
 	void UploadViewMatrix(GLuint uniformBuffer);
+	void UploadViewPos(GLuint uniformBuffer);
 
 protected:
 	float yaw;
