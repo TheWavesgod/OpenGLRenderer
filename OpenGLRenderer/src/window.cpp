@@ -2,10 +2,12 @@
 
 window* window::windowPtr = nullptr;
 
+bool window::firstMouse = true;
 float window::lastMouseX = 0.0f;
 float window::lastMouseY = 0.0f;
 float window::mouseInputX = 0.0f;
 float window::mouseInputY = 0.0f;
+float window::mouseScroll = 0.0f;
 
 window* window::CreateGLFWWindow(uint32_t width, uint32_t height, const std::string& title, bool bFullScreen)
 {
@@ -35,6 +37,7 @@ window::window(uint32_t width, uint32_t height, const std::string& title, bool b
 
 	glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(w, mouse_callback);
+	glfwSetScrollCallback(w, scroll_callback);
 
 	// Initialize GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -106,16 +109,28 @@ void window::CloseWindow()
 	glfwTerminate();
 }
 
-void window::mouse_callback(GLFWwindow* window, double xpos, double ypos)
+void window::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
-	mouseInputX = lastMouseX - xpos;
+	float xpos = static_cast<float>(xposIn);
+	float ypos = static_cast<float>(yposIn);
+
+	if (firstMouse)
+	{
+		lastMouseX = xpos;
+		lastMouseY = ypos;
+		firstMouse = false;
+	}
+
+	mouseInputX = xpos - lastMouseX;
 	mouseInputY = lastMouseY - ypos; // reversed since y-coordinates range from bottom to top
+
 	lastMouseX = xpos;
 	lastMouseY = ypos;
+}
 
-	const float sensitivity = 0.1f;
-	mouseInputX *= sensitivity;
-	mouseInputY *= sensitivity;
+void window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	mouseScroll = yoffset;
 }
 
 void window::glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam)

@@ -28,7 +28,7 @@ Level::Level(glRenderer* r)
 		"../Resources/CubeMap/evening_back.jpg"
 	);
 
-	skybox1 = new CubeMap("../Resources/HDR/LakePier/lake_pier_2k.hdr");
+	skybox1 = new CubeMap("../Resources/HDR/Mondello/spiaggia_di_mondello_2k.hdr");
 
 	floor = Mesh::GenerateFloor();
 	floor->shaderIndex = 4;
@@ -38,12 +38,31 @@ Level::Level(glRenderer* r)
 	cube->AddTexture(Texture("../Resources/Textures/container2.png"));
 	cube->AddTexture(Texture("../Resources/Textures/container2_specular.png", TEXTYPE_SPECULAR));
 
-	PBRcube = Mesh::GenerateCube();
-	PBRcube->shaderIndex = 6;
-	PBRcube->AddTexture(Texture("../Resources/Textures/RustedIron/rustediron2_basecolor.png", TEXTYPE_ALBEDO));
-	PBRcube->AddTexture(Texture("../Resources/Textures/RustedIron/rustediron2_metallic.png", TEXTYPE_METALLIC));
-	PBRcube->AddTexture(Texture("../Resources/Textures/RustedIron/rustediron2_normal.png", TEXTYPE_ROUGHNESS));
-	PBRcube->AddTexture(Texture("../Resources/Textures/RustedIron/rustediron2_roughness.png", TEXTYPE_NORMAL));
+	RustedIron = Mesh::GenerateCube();
+	RustedIron->shaderIndex = 6;
+	RustedIron->AddTexture(Texture("../Resources/Textures/RustedIron/rustediron2_basecolor.png", TEXTYPE_ALBEDO));
+	RustedIron->AddTexture(Texture("../Resources/Textures/RustedIron/rustediron2_metallic.png", TEXTYPE_METALLIC));
+	RustedIron->AddTexture(Texture("../Resources/Textures/RustedIron/rustediron2_normal.png", TEXTYPE_NORMAL));
+	RustedIron->AddTexture(Texture("../Resources/Textures/RustedIron/rustediron2_roughness.png", TEXTYPE_ROUGHNESS));
+	RustedIron->AddTexture(Texture("../Resources/Textures/RustedIron/rustediron2_ao.png", TEXTYPE_AO));
+
+	BrickWall = Mesh::GenerateCube();
+	BrickWall->shaderIndex = 6;
+	BrickWall->AddTexture(Texture("../Resources/Textures/BrickWall/brick-wall_albedo.png", TEXTYPE_ALBEDO));
+	BrickWall->AddTexture(Texture("../Resources/Textures/BrickWall/brick-wall_metallic.png", TEXTYPE_METALLIC));
+	BrickWall->AddTexture(Texture("../Resources/Textures/BrickWall/brick-wall_roughness.png", TEXTYPE_ROUGHNESS));
+	BrickWall->AddTexture(Texture("../Resources/Textures/BrickWall/brick-wall_normal-dx.png", TEXTYPE_NORMAL));
+	BrickWall->AddTexture(Texture("../Resources/Textures/BrickWall/brick-wall_height.png", TEXTYPE_HEIGHT));
+	BrickWall->AddTexture(Texture("../Resources/Textures/BrickWall/brick-wall_ao.png", TEXTYPE_AO));
+	
+	GrassMeadow = Mesh::GenerateCube();
+	GrassMeadow->shaderIndex = 6;
+	GrassMeadow->AddTexture(Texture("../Resources/Textures/GrassMeadow/grass-meadow_albedo.png", TEXTYPE_ALBEDO));
+	GrassMeadow->AddTexture(Texture("../Resources/Textures/GrassMeadow/grass-meadow_metallic.png", TEXTYPE_METALLIC));
+	GrassMeadow->AddTexture(Texture("../Resources/Textures/GrassMeadow/grass-meadow_roughness.png", TEXTYPE_ROUGHNESS));
+	GrassMeadow->AddTexture(Texture("../Resources/Textures/GrassMeadow/grass-meadow_normal-dx.png", TEXTYPE_NORMAL));
+	GrassMeadow->AddTexture(Texture("../Resources/Textures/GrassMeadow/grass-meadow_height.png", TEXTYPE_HEIGHT));
+	GrassMeadow->AddTexture(Texture("../Resources/Textures/GrassMeadow/grass-meadow_ao.png", TEXTYPE_AO));
 
 	backpack = new Model("../Resources/Models/backpack/backpack.obj");
 
@@ -60,13 +79,15 @@ Level::~Level()
 	delete lightsManager;
 	delete skybox;
 	delete cube;
-	delete PBRcube;
+	delete RustedIron;
+	delete BrickWall;
+	delete GrassMeadow;
 	delete root;
 }
 
 void Level::ConstructScene()
 {
-	lightsManager->AddDirectionalLight(glm::vec3(-80.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f));
+	lightsManager->AddDirectionalLight(glm::vec3(-80.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	lightsManager->AddSpotLight(glm::vec3(3.0f, 2.0f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.8f, 0.0f), 30.0f, 35.0f, 0.07f, 0.017f);
 	lightsManager->AddPointLight(glm::vec3(-3.0f, 2.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.8f), 0.09f, 0.032f);
 
@@ -77,11 +98,19 @@ void Level::ConstructScene()
 
 	SceneNode* container = new SceneNode(cube);
 	root->AddChild(container);
-	container->GetTransform().SetPosition(glm::vec3(3.0f, 1.5f, -3.0f));
+	container->GetTransform().SetPosition(glm::vec3( 4.0f, 1.5f, -3.0f));
 
-	SceneNode* PBRcontainer = new SceneNode(PBRcube);
+	SceneNode* PBRcontainer = new SceneNode(RustedIron);
 	root->AddChild(PBRcontainer);
-	PBRcontainer->GetTransform().SetPosition(glm::vec3(-3.0f, 1.5f, -3.0f));
+	PBRcontainer->GetTransform().SetPosition(glm::vec3( 2.0f, 1.5f, -3.0f));
+
+	SceneNode* PBRBrickWall = new SceneNode(BrickWall);
+	root->AddChild(PBRBrickWall);
+	PBRBrickWall->GetTransform().SetPosition(glm::vec3( 0.0f, 1.5f, -3.0f));
+
+	SceneNode* PBRGrassMeadow = new SceneNode(GrassMeadow);
+	root->AddChild(PBRGrassMeadow);
+	PBRGrassMeadow->GetTransform().SetPosition(glm::vec3(-2.0f, 1.5f, -3.0f));
 }
 
 void Level::Update(float dt)
@@ -101,7 +130,9 @@ void Level::LevelBeginPlay()
 
 	camera->UploadProjectionMatrix(renderer->GetUboCamera());
 
-	skybox1->BindIrradianceMap(6);
+	skybox1->BindIrradianceMap(6); 
+	skybox1->BindprefilterMap(7);
+	skybox1->BindBRDFLUT(8);
 }
 
 void Level::Render()

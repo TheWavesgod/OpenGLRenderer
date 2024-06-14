@@ -30,6 +30,7 @@ public:
 	static Mesh* GenerateQuad();
 	static Mesh* GenerateCube();
 	static Mesh* GenerateFloor();
+	static Mesh* GenerateSphere();
 	 
 	Mesh();
 	Mesh(std::vector<unsigned int>&& indices, std::vector<Texture>&& textures);
@@ -67,5 +68,7 @@ private:
 	GLuint VAO;
 	GLuint VBOs[MAXBUFFER];
 	GLuint EBO;
+
+	GLenum drawMode;
 };
 

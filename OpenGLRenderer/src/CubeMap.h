@@ -15,11 +15,15 @@ public:
 	CubeMap(const std::string& hdrFileLoc);
 
 	void BindIrradianceMap(int i);
+	void BindprefilterMap(int i);
+	void BindBRDFLUT(int i);
 	void Draw();
 
 private:
 	GLuint textureID;
 	GLuint irrandianceMap;
+	GLuint prefilterMap;
+	GLuint brdfLUT;
 
 	GLuint SkyboxVAO;
 	GLuint hdrTextrue;
@@ -36,4 +40,6 @@ private:
 
 	void ConvertHDRtoCubemap();
 	void GenerateIrradianceMap();
+	void GeneratePrefilterMap();
+	void GenerateBRDFLUT();
 };

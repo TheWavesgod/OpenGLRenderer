@@ -43,7 +43,11 @@ protected:
 
 	Mesh* floor;
 	Mesh* cube;
-	Mesh* PBRcube;
+	Mesh* RustedIron;
+	Mesh* BrickWall;
+	Mesh* GrassMeadow;
+	Mesh* StainlessSteel;
+	Mesh* WhiteMarble;
 
 	Model* backpack;
 

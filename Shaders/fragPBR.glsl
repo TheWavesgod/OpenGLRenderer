@@ -5,7 +5,9 @@ out vec4 FragColor;
 in vec3 FragPos;
 in vec2 TexCoord;
 in vec3 viewPos;
-in mat3 TBN;
+in vec3 Normal;
+in vec3 Tangent;
+in vec3 BiTangent;
 
 // Struct define
 struct DirLight
@@ -55,6 +57,7 @@ struct Material
 {
     sampler2D albedo;
     sampler2D normal;
+    sampler2D height;
     sampler2D metallic;
     sampler2D roughness;
     sampler2D ao;
@@ -81,11 +84,17 @@ layout(std140, binding = 3) uniform PointLightBuffer
 
 uniform Material material;
 uniform samplerCube irradianceMap;
+uniform samplerCube prefilterMap;
+uniform sampler2D brdfLUT;  
+uniform float heightScale;
+uniform mat4 model;
 
 const float PI = 3.14159265359;
 
 // Functions Declaration
-vec3 CalNormalFromMap();
+mat3 CalculateTBN();
+vec2 ParallaxMapping(mat3 TBN);
+vec3 CalNormalFromMap(vec2 texCoord, mat3 TBN);
 vec3 CalcSpotLightRadiance(SpotLight light);
 vec3 CalcPointLightRadiance(PointLight light);
 
@@ -99,12 +108,18 @@ vec3 CalcOutputColor(vec3 radiance, vec3 N, vec3 V, vec3 L, vec3 F0, vec3 albedo
 
 void main()
 {
+    mat3 TBN = CalculateTBN();
+    vec2 texCoord = ParallaxMapping(TBN);
+    // if(texCoord.x > 1.0f || texCoord.y > 1.0f || texCoord.x < 0.0f || texCoord.y < 0.0f)
+    //     discard;
+
     // Get the fragment material settings
-    vec3 albedo = texture(material.albedo, TexCoord).rgb;
-    vec3 normal = CalNormalFromMap();
-    float metallic = texture(material.metallic, TexCoord).r;
-    float roughness = texture(material.roughness, TexCoord).r;
-    float ao = texture(material.ao, TexCoord).r;
+    vec3 albedo = texture(material.albedo, texCoord).rgb;
+    vec3 normal = CalNormalFromMap(texCoord, TBN);
+    //vec3 normal = mat3(model) * Normal;
+    float metallic = texture(material.metallic, texCoord).r;
+    float roughness = texture(material.roughness, texCoord).r;
+    float ao = texture(material.ao, texCoord).r;
 
     // Get the genaric variables
     vec3 N = normalize(normal);
@@ -132,19 +147,84 @@ void main()
         result += CalcOutputColor(radiance, N, V, L, F0, albedo, metallic, roughness);
     }
 
-    vec3 kS = FresnelSchlickRoughness(max(dot(N, V), 0.0f), F0, roughness);
+    vec3 R = reflect(-V, N);
+    vec3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0f), F0, roughness);
+
+    vec3 kS = F;
     vec3 kD = 1.0f - kS;
+    kD *= 1.0 - metallic;
+    
     vec3 irradiance = texture(irradianceMap, N).rgb;
     vec3 diffuse = irradiance * albedo;
-    vec3 ambient = (kD * diffuse) * ao;
-    result += ambient;
 
+    const float MAX_REFLECTION_LOD = 4.0f;
+    vec3 prefilteredColor = textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
+    vec2 envBRDF  = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
+
+    //vec3 ambient = (kD * diffuse + specular) * ao;
+    vec3 ambient = vec3(0.01f) * albedo * ao;
+
+    result += ambient;
     FragColor = vec4(result, 1.0f);
 }
 
-vec3 CalNormalFromMap()
+mat3 CalculateTBN()
 {
-    vec3 normal = texture(material.normal, TexCoord).rgb;
+    mat3 normalMatrix = transpose(inverse(mat3(model)));
+    vec3 T = normalize(normalMatrix * Tangent);
+    vec3 B = normalize(normalMatrix * BiTangent);
+    vec3 N = normalize(normalMatrix * Normal);
+
+    mat3 TBN = mat3(T, B, N);
+
+    return TBN;    
+}
+
+vec2 ParallaxMapping(mat3 TBN)
+{
+    vec3 tangentViewPos = TBN * viewPos;
+    vec3 tangentFragPos = TBN * FragPos;
+    vec3 viewDir = normalize(tangentViewPos - tangentFragPos);
+    // number of depth layers
+    const float minLayers = 8;
+    const float maxLayers = 32;
+    float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));  
+    // calculate the size of each layer
+    float layerDepth = 1.0 / numLayers;
+    float currentLayerDepth = 0.0;
+    // the amount to shift the texture coordinates per layer (from vector P)
+    vec2 P = viewDir.xy / viewDir.z * heightScale; 
+    vec2 deltaTexCoord = P / numLayers;
+    // Get initial values
+    vec2 currentTexCoord = TexCoord;
+    float currentDepthMapValue = 1.0f - texture(material.height, TexCoord).r;
+
+    while (currentLayerDepth < currentDepthMapValue)
+    {
+        // shift texture coordinates along direction of P
+        currentTexCoord -= deltaTexCoord;
+        // get depthmap value at current texture coordinates
+        currentDepthMapValue = 1.0f - texture(material.height, currentTexCoord).r;
+        // get depth of next layer
+        currentLayerDepth += layerDepth;
+    }
+
+    // get texture coordinates before collision (reverse operations)
+    vec2 prevTexCoord = currentTexCoord + deltaTexCoord;
+
+    // get depth after and before collision for linear interpolation
+    float afterDepth = currentDepthMapValue - currentLayerDepth;
+    float beforeDepth = 1.0f - texture(material.height, prevTexCoord).r - currentLayerDepth + layerDepth;
+    // Interpolation of texture coordinates
+    float weight = afterDepth / (afterDepth - beforeDepth);
+    vec2 finalTexCoord = prevTexCoord * weight + currentTexCoord * (1.0 - weight);
+    return finalTexCoord;
+}
+
+vec3 CalNormalFromMap(vec2 texCoord, mat3 TBN)
+{
+    vec3 normal = texture(material.normal, texCoord).rgb;
     normal = normal * 2.0f - 1.0f;
     normal = normalize(TBN * normal);
     return normal;

@@ -6,8 +6,10 @@ void Camera::UpdateCamera(float dt)
 {
 	using namespace glm;
 
-	yaw += window::mouseInputX;
-	pitch += window::mouseInputY;
+	const float sensitive = 0.1f;
+
+	yaw -= window::mouseInputX * sensitive;
+	pitch += window::mouseInputY * sensitive;
 
     pitch = std::min(pitch, 89.0f);
     pitch = std::max(pitch, -89.0f);
@@ -22,7 +24,9 @@ void Camera::UpdateCamera(float dt)
 	}
 	transform.SetRotation(vec3(pitch, yaw, 0.0f));
 
-	float speed = cameraMoveSpeed * dt;
+	cameraMoveSpeed = std::clamp(cameraMoveSpeed + window::mouseScroll, 10.0f, 50.0f);
+
+	float displacement = cameraMoveSpeed * dt;
 
 	glm::vec3 moveDir = glm::vec3(0.0f);
 	if (window::GetInputState(GLFW_KEY_W) == GLFW_PRESS) { moveDir += transform.GetForwardVector(); }
@@ -31,7 +35,7 @@ void Camera::UpdateCamera(float dt)
 	if (window::GetInputState(GLFW_KEY_D) == GLFW_PRESS) { moveDir += transform.GetRightVector(); }
 	if (glm::length(moveDir) != 0.0f)
 	{
-		glm::vec3 moveDistance = glm::normalize(moveDir) * speed;
+		glm::vec3 moveDistance = glm::normalize(moveDir) * displacement;
 		transform.SetPosition(transform.GetPosition() + moveDistance);
 	}
 	moveDir = glm::vec3(0.0f);
@@ -39,7 +43,7 @@ void Camera::UpdateCamera(float dt)
 	if (window::GetInputState(GLFW_KEY_E) == GLFW_PRESS) { moveDir += transform.GetUpVector(); }
 	if (glm::length(moveDir) != 0.0f)
 	{
-		glm::vec3 moveDistance = glm::normalize(moveDir) * speed;
+		glm::vec3 moveDistance = glm::normalize(moveDir) * displacement;
 		transform.SetPosition(transform.GetPosition() + moveDistance);
 	}
 }

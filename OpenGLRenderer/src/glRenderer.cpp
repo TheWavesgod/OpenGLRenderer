@@ -32,7 +32,10 @@ void glRenderer::InitializeRenderer()
 	CreateFrameBuffer();
 	CreateUniformBuffer();
 
-	glEnable(GL_MULTISAMPLE);
+	//glEnable(GL_MULTISAMPLE);
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	glEnable(GL_DEPTH_TEST);
+
 }
 
 void glRenderer::SetSceneBufferReady()
@@ -54,18 +57,18 @@ void glRenderer::MultiSample()
 void glRenderer::PostProcess()
 {
 	// Gaussian Blur for Bloom
-	bool horizontal = true, first_iteration = true;
-	int amount = 10;
-	Shader::GetShaderByIndex(2)->Use();
-	for (unsigned int i = 0; i < amount; ++i)
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, FBOpingpong[horizontal]);
-		//shaders[2]->SetUniformInt("horizontal", horizontal);
-		glBindTexture(GL_TEXTURE_2D, first_iteration ? colorTexPostProcess[1] : colorTexPingpong[!horizontal]); // First iteration bind the bright Texture From last render
-		// Draw
-		horizontal = !horizontal;
-		if (first_iteration) first_iteration = false;
-	}
+	//bool horizontal = true, first_iteration = true;
+	//int amount = 10;
+	//Shader::GetShaderByIndex(2)->Use();
+	//for (unsigned int i = 0; i < amount; ++i)
+	//{
+	//	glBindFramebuffer(GL_FRAMEBUFFER, FBOpingpong[horizontal]);
+	//	//shaders[2]->SetUniformInt("horizontal", horizontal);
+	//	glBindTexture(GL_TEXTURE_2D, first_iteration ? colorTexPostProcess[1] : colorTexPingpong[!horizontal]); // First iteration bind the bright Texture From last render
+	//	// Draw
+	//	horizontal = !horizontal;
+	//	if (first_iteration) first_iteration = false;
+	//}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -73,7 +76,7 @@ void glRenderer::PostProcess()
 
 	Shader::GetShaderByIndex(2)->Use();
 	Shader::GetShaderByIndex(2)->SetUniformInt("screenTexture", 0);
-	Shader::GetShaderByIndex(2)->SetUniformInt("gammaCorrection", false);
+	Shader::GetShaderByIndex(2)->SetUniformInt("gammaCorrection", true);
 	Shader::GetShaderByIndex(2)->SetUniformFloat("exposure", 1.0f);
 	glBindVertexArray(screenQuadVAO);
 	glDisable(GL_DEPTH_TEST);
@@ -110,6 +113,12 @@ bool glRenderer::CreateShaderPrograms()
 	if (!s->HasInitialized()) return false;
 
 	s = new Shader("../Shaders/vertHDRtoCubemap.glsl", "../Shaders/fragIrrandianceMap.glsl");
+	if (!s->HasInitialized()) return false;
+
+	s = new Shader("../Shaders/vertHDRtoCubemap.glsl", "../Shaders/fragPrefilter.glsl");
+	if (!s->HasInitialized()) return false;
+
+	s = new Shader("../Shaders/vertPostProcessing.glsl", "../Shaders/fragBRDFMap.glsl");
 	if (!s->HasInitialized()) return false;
 
 	return true;

@@ -15,6 +15,7 @@ public:
 
 	static float mouseInputX;
 	static float mouseInputY;
+	static float mouseScroll;
 
 	bool HasInitialized();
 	bool Update(float& deltaT);
@@ -26,6 +27,7 @@ public:
 	window& operator=(const window&) = delete;
 
 	static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+	static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 	static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam);
 
@@ -38,6 +40,7 @@ protected:
 private:
 	static window* windowPtr;
 	
+	static bool firstMouse;
 	static float lastMouseX;
 	static float lastMouseY;
 
