@@ -114,12 +114,12 @@ Mesh* Mesh::GenerateCube()
 	};
 
 	m->normals = {
-		glm::vec3(-1.0f,  0.0f,  0.0f),
-		glm::vec3(-1.0f,  0.0f,  0.0f),
-		glm::vec3(-1.0f,  0.0f,  0.0f),
-		glm::vec3(-1.0f,  0.0f,  0.0f),
-		glm::vec3(-1.0f,  0.0f,  0.0f),
-		glm::vec3(-1.0f,  0.0f,  0.0f),
+		glm::vec3( 0.0f,  0.0f, -1.0f),
+		glm::vec3( 0.0f,  0.0f, -1.0f),
+		glm::vec3( 0.0f,  0.0f, -1.0f),
+		glm::vec3( 0.0f,  0.0f, -1.0f),
+		glm::vec3( 0.0f,  0.0f, -1.0f),
+		glm::vec3( 0.0f,  0.0f, -1.0f),
 
 		glm::vec3( 0.0f,  0.0f,  1.0f),
 		glm::vec3( 0.0f,  0.0f,  1.0f),
@@ -217,18 +217,18 @@ Mesh* Mesh::GenerateCube()
 		glm::vec2(0.0f, 1.0f),
 		glm::vec2(0.0f, 0.0f),
 
-		glm::vec2(1.0f, 0.0f),
+		glm::vec2(0.0f, 1.0f),
 		glm::vec2(1.0f, 1.0f),
-		glm::vec2(0.0f, 1.0f),
-		glm::vec2(0.0f, 1.0f),
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(1.0f, 0.0f),
 		glm::vec2(0.0f, 0.0f),
-		glm::vec2(1.0f, 0.0f),
+		glm::vec2(0.0f, 1.0f),
 
-		glm::vec2(1.0f, 0.0f),
 		glm::vec2(0.0f, 1.0f),
+		glm::vec2(1.0f, 0.0f),
 		glm::vec2(1.0f, 1.0f),
-		glm::vec2(0.0f, 1.0f),
 		glm::vec2(1.0f, 0.0f),
+		glm::vec2(0.0f, 1.0f),
 		glm::vec2(0.0f, 0.0f),
 
 		glm::vec2(0.0f, 1.0f),
@@ -337,6 +337,8 @@ Mesh* Mesh::GenerateSphere()
 		oddRow = !oddRow;
 	}
 
+	m->GenerateTangentCoordsForElements(4);
+
 	m->SetupMesh();
 	m->drawMode = GL_TRIANGLE_STRIP;
 
@@ -404,6 +406,54 @@ void Mesh::GenerateTangentCoordsForArrays()
 			tangents[i + j] = tangent;
 			biTangents[i + j] = bitangent;
 		}
+	}
+}
+
+void Mesh::GenerateTangentCoordsForElements(unsigned int faceType)
+{
+	if (indices.empty() || vertices.empty() || texCoords.empty()) return;
+
+	tangents.resize(vertices.size(), glm::vec3(0.0f));
+	biTangents.resize(vertices.size(), glm::vec3(0.0f));
+
+	for (size_t i = 0; i < indices.size(); i += faceType)
+	{
+		glm::vec3 pos1 = vertices[indices[i]];
+		glm::vec3 pos2 = vertices[indices[i + 1]];
+		glm::vec3 pos3 = vertices[indices[i + 2]];
+
+		glm::vec2 uv1 = texCoords[indices[i]];
+		glm::vec2 uv2 = texCoords[indices[i + 1]];
+		glm::vec2 uv3 = texCoords[indices[i + 2]];
+
+		glm::vec3 tangent, bitangent;
+
+		glm::vec3 edge1 = pos2 - pos1;
+		glm::vec3 edge2 = pos3 - pos1;
+		glm::vec2 deltaUV1 = uv2 - uv1;
+		glm::vec2 deltaUV2 = uv3 - uv1;
+
+		float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+		tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+		tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+		tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+		bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+		bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+		bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+		for (size_t j = 0; j < faceType; ++j)
+		{
+			tangents[indices[i + j]] += tangent;
+			biTangents[indices[i + j]] += bitangent;
+		}
+	}
+
+	for (size_t i = 0; i < vertices.size(); ++i)
+	{
+		tangents[i] = glm::normalize(tangents[i]);
+		biTangents[i] = glm::normalize(biTangents[i]);
 	}
 }
 

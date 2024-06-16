@@ -5,7 +5,7 @@
 
 int main()
 {
-	window* w = window::CreateGLFWWindow(800, 600, "OpenGL Renderer", false);
+	window* w = window::CreateGLFWWindow(1920, 1080, "OpenGL Renderer", false);
 	if (!w->HasInitialized())
 	{
 		return -1;

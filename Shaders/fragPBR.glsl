@@ -183,8 +183,10 @@ mat3 CalculateTBN()
 
 vec2 ParallaxMapping(mat3 TBN)
 {
-    vec3 tangentViewPos = TBN * viewPos;
-    vec3 tangentFragPos = TBN * FragPos;
+    mat3 inverseTBN = transpose(TBN);
+
+    vec3 tangentViewPos = inverseTBN * viewPos;
+    vec3 tangentFragPos = inverseTBN * FragPos;
     vec3 viewDir = normalize(tangentViewPos - tangentFragPos);
     // number of depth layers
     const float minLayers = 8;

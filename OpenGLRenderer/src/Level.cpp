@@ -64,7 +64,26 @@ Level::Level(glRenderer* r)
 	GrassMeadow->AddTexture(Texture("../Resources/Textures/GrassMeadow/grass-meadow_height.png", TEXTYPE_HEIGHT));
 	GrassMeadow->AddTexture(Texture("../Resources/Textures/GrassMeadow/grass-meadow_ao.png", TEXTYPE_AO));
 
+	StainlessSteel = Mesh::GenerateCube();
+	StainlessSteel->shaderIndex = 6;
+	StainlessSteel->AddTexture(Texture("../Resources/Textures/StainlessSteel/used-stainless-steel2_albedo.png", TEXTYPE_ALBEDO));
+	StainlessSteel->AddTexture(Texture("../Resources/Textures/StainlessSteel/used-stainless-steel2_metallic.png", TEXTYPE_METALLIC));
+	StainlessSteel->AddTexture(Texture("../Resources/Textures/StainlessSteel/used-stainless-steel2_roughness.png", TEXTYPE_ROUGHNESS));
+	StainlessSteel->AddTexture(Texture("../Resources/Textures/StainlessSteel/used-stainless-steel2_normal-dx.png", TEXTYPE_NORMAL));
+	StainlessSteel->AddTexture(Texture("../Resources/Textures/StainlessSteel/used-stainless-steel2_height.png", TEXTYPE_HEIGHT));
+	StainlessSteel->AddTexture(Texture("../Resources/Textures/StainlessSteel/used-stainless-steel2_ao.png", TEXTYPE_AO));
+
+	WhiteMarble = Mesh::GenerateCube();
+	WhiteMarble->shaderIndex = 6;
+	WhiteMarble->AddTexture(Texture("../Resources/Textures/WhiteMarble/white-marble_albedo.png", TEXTYPE_ALBEDO));
+	WhiteMarble->AddTexture(Texture("../Resources/Textures/WhiteMarble/white-marble_metallic.png", TEXTYPE_METALLIC));
+	WhiteMarble->AddTexture(Texture("../Resources/Textures/WhiteMarble/white-marble_roughness.png", TEXTYPE_ROUGHNESS));
+	WhiteMarble->AddTexture(Texture("../Resources/Textures/WhiteMarble/white-marble_normal-dx.png", TEXTYPE_NORMAL));
+	WhiteMarble->AddTexture(Texture("../Resources/Textures/WhiteMarble/white-marble_height.png", TEXTYPE_HEIGHT));
+	WhiteMarble->AddTexture(Texture("../Resources/Textures/WhiteMarble/white-marble_ao.png", TEXTYPE_AO));
+
 	backpack = new Model("../Resources/Models/backpack/backpack.obj");
+	backpack->SetShaderIndex(1);
 
 	root = new SceneNode();
 
@@ -82,14 +101,16 @@ Level::~Level()
 	delete RustedIron;
 	delete BrickWall;
 	delete GrassMeadow;
+	delete StainlessSteel;
+	delete WhiteMarble;
 	delete root;
 }
 
 void Level::ConstructScene()
 {
-	lightsManager->AddDirectionalLight(glm::vec3(-80.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	lightsManager->AddSpotLight(glm::vec3(3.0f, 2.0f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.8f, 0.0f), 30.0f, 35.0f, 0.07f, 0.017f);
-	lightsManager->AddPointLight(glm::vec3(-3.0f, 2.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.8f), 0.09f, 0.032f);
+	lightsManager->AddDirectionalLight(glm::vec3(-80.0f, 0.0f, 0.0f), glm::vec3(3.0f, 3.0f, 3.0f));
+	lightsManager->AddSpotLight(glm::vec3(3.0f, 2.0f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.0f, 2.0f, 0.0f), 30.0f, 35.0f, 0.07f, 0.017f);
+	lightsManager->AddPointLight(glm::vec3(-3.0f, 2.0f, 1.0f), glm::vec3(3.0f, 0.0f, 1.5f), 0.09f, 0.032f);
 
 
 	SceneNode* Floor = new SceneNode(floor);
@@ -99,6 +120,10 @@ void Level::ConstructScene()
 	SceneNode* container = new SceneNode(cube);
 	root->AddChild(container);
 	container->GetTransform().SetPosition(glm::vec3( 4.0f, 1.5f, -3.0f));
+
+	//SceneNode* backpackModel = new SceneNode(backpack);
+	//root->AddChild(backpackModel);
+	//backpackModel->GetTransform().SetPosition(glm::vec3(6.0f, 1.5f, -3.0f));
 
 	SceneNode* PBRcontainer = new SceneNode(RustedIron);
 	root->AddChild(PBRcontainer);
@@ -111,6 +136,14 @@ void Level::ConstructScene()
 	SceneNode* PBRGrassMeadow = new SceneNode(GrassMeadow);
 	root->AddChild(PBRGrassMeadow);
 	PBRGrassMeadow->GetTransform().SetPosition(glm::vec3(-2.0f, 1.5f, -3.0f));
+
+	SceneNode* PBRStainlessSteel = new SceneNode(StainlessSteel);
+	root->AddChild(PBRStainlessSteel);
+	PBRStainlessSteel->GetTransform().SetPosition(glm::vec3(-4.0f, 1.5f, -3.0f));
+
+	SceneNode* PBRWhiteMarble = new SceneNode(WhiteMarble);
+	root->AddChild(PBRWhiteMarble);
+	PBRWhiteMarble->GetTransform().SetPosition(glm::vec3(-6.0f, 1.5f, -3.0f));
 }
 
 void Level::Update(float dt)

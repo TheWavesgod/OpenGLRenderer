@@ -21,6 +21,7 @@ public:
 	void Draw(Shader& shader);
 	void DrawToLightDepthMap();
 
+	void SetShaderIndex(unsigned int index);
 	unsigned int shaderIndex;
 
 protected:

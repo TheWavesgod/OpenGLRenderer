@@ -62,6 +62,7 @@ protected:
 	void UploadAttribute(GLuint* buffer, int numElements, int dataSize, int attribSize, int attributeID, void* dataPtr);
 
 	void GenerateTangentCoordsForArrays();
+	void GenerateTangentCoordsForElements(unsigned int faceType = 3);
 	void BindTextureSamplerBeforedraw(Shader& shader);
 
 private:

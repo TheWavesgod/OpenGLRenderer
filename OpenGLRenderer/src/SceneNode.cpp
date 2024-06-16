@@ -60,6 +60,7 @@ void SceneNode::Draw()
 		Shader* useShader = Shader::GetShaderByIndex(model->shaderIndex);
 		useShader->Use();
 		useShader->SetUniformMat4("model", worldTransform.GetTransMatrix());
+
 		model->Draw(*useShader);
 	}
 }

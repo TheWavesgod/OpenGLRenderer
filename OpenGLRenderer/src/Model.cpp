@@ -23,6 +23,15 @@ void Model::DrawToLightDepthMap()
 	}
 }
 
+void Model::SetShaderIndex(unsigned int index)
+{
+	shaderIndex = index;
+	for (auto& i : meshes)
+	{
+		i.shaderIndex = index;
+	}
+}
+
 void Model::LoadModel(const std::string& path)
 {
 	/**
