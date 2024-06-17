@@ -48,6 +48,7 @@ protected:
 	Mesh* GrassMeadow;
 	Mesh* StainlessSteel;
 	Mesh* WhiteMarble;
+	Mesh* Lava;
 
 	Model* backpack;
 

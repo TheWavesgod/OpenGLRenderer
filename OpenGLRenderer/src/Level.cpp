@@ -82,6 +82,15 @@ Level::Level(glRenderer* r)
 	WhiteMarble->AddTexture(Texture("../Resources/Textures/WhiteMarble/white-marble_height.png", TEXTYPE_HEIGHT));
 	WhiteMarble->AddTexture(Texture("../Resources/Textures/WhiteMarble/white-marble_ao.png", TEXTYPE_AO));
 
+	Lava = Mesh::GenerateCube();
+	Lava->shaderIndex = 6;
+	Lava->AddTexture(Texture("../Resources/Textures/ColumnedLavaRock/columned-lava-rock_albedo.png", TEXTYPE_ALBEDO));
+	Lava->AddTexture(Texture("../Resources/Textures/ColumnedLavaRock/columned-lava-rock_metallic.png", TEXTYPE_METALLIC));
+	Lava->AddTexture(Texture("../Resources/Textures/ColumnedLavaRock/columned-lava-rock_roughness.png", TEXTYPE_ROUGHNESS));
+	Lava->AddTexture(Texture("../Resources/Textures/ColumnedLavaRock/columned-lava-rock_normal-dx.png", TEXTYPE_NORMAL));
+	Lava->AddTexture(Texture("../Resources/Textures/ColumnedLavaRock/columned-lava-rock_height.png", TEXTYPE_HEIGHT));
+	Lava->AddTexture(Texture("../Resources/Textures/ColumnedLavaRock/columned-lava-rock_ao.png", TEXTYPE_AO));
+
 	backpack = new Model("../Resources/Models/backpack/backpack.obj");
 	backpack->SetShaderIndex(1);
 
@@ -103,6 +112,7 @@ Level::~Level()
 	delete GrassMeadow;
 	delete StainlessSteel;
 	delete WhiteMarble;
+	delete Lava;
 	delete root;
 }
 
@@ -133,9 +143,9 @@ void Level::ConstructScene()
 	root->AddChild(PBRBrickWall);
 	PBRBrickWall->GetTransform().SetPosition(glm::vec3( 0.0f, 1.5f, -3.0f));
 
-	SceneNode* PBRGrassMeadow = new SceneNode(GrassMeadow);
-	root->AddChild(PBRGrassMeadow);
-	PBRGrassMeadow->GetTransform().SetPosition(glm::vec3(-2.0f, 1.5f, -3.0f));
+	SceneNode* PBRLava = new SceneNode(Lava);
+	root->AddChild(PBRLava);
+	PBRLava->GetTransform().SetPosition(glm::vec3(-2.0f, 1.5f, -3.0f));
 
 	SceneNode* PBRStainlessSteel = new SceneNode(StainlessSteel);
 	root->AddChild(PBRStainlessSteel);
@@ -144,6 +154,10 @@ void Level::ConstructScene()
 	SceneNode* PBRWhiteMarble = new SceneNode(WhiteMarble);
 	root->AddChild(PBRWhiteMarble);
 	PBRWhiteMarble->GetTransform().SetPosition(glm::vec3(-6.0f, 1.5f, -3.0f));
+
+	SceneNode* PBRGrassMeadow = new SceneNode(GrassMeadow);
+	root->AddChild(PBRGrassMeadow);
+	PBRGrassMeadow->GetTransform().SetPosition(glm::vec3(-8.0f, 1.5f, -3.0f));
 }
 
 void Level::Update(float dt)
