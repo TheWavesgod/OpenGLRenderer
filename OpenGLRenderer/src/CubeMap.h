@@ -38,6 +38,8 @@ private:
 	void LoadCubeMap();
 	void LoadHDRFile();
 
+	void GenerateCaptureBuffer();
+
 	void ConvertHDRtoCubemap();
 	void GenerateIrradianceMap();
 	void GeneratePrefilterMap();

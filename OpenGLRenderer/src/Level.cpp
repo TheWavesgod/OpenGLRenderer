@@ -28,7 +28,7 @@ Level::Level(glRenderer* r)
 		"../Resources/CubeMap/evening_back.jpg"
 	);
 
-	skybox1 = new CubeMap("../Resources/HDR/Mondello/spiaggia_di_mondello_2k.hdr");
+	skybox1 = new CubeMap("../Resources/HDR/LivingRoom/LivingRoom.hdr");
 
 	floor = Mesh::GenerateFloor();
 	floor->shaderIndex = 4;
@@ -118,9 +118,9 @@ Level::~Level()
 
 void Level::ConstructScene()
 {
-	lightsManager->AddDirectionalLight(glm::vec3(-80.0f, 0.0f, 0.0f), glm::vec3(3.0f, 3.0f, 3.0f));
-	lightsManager->AddSpotLight(glm::vec3(3.0f, 2.0f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.0f, 2.0f, 0.0f), 30.0f, 35.0f, 0.07f, 0.017f);
-	lightsManager->AddPointLight(glm::vec3(-3.0f, 2.0f, 1.0f), glm::vec3(3.0f, 0.0f, 1.5f), 0.09f, 0.032f);
+	lightsManager->AddDirectionalLight(glm::vec3(-80.0f, 0.0f, 0.0f), glm::vec3(2.0f, 2.0f, 2.0f));
+	lightsManager->AddSpotLight(glm::vec3(3.0f, 2.0f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.5f, 0.0f), 30.0f, 35.0f, 0.07f, 0.017f);
+	lightsManager->AddPointLight(glm::vec3(-3.0f, 2.0f, 1.0f), glm::vec3(2.0f, 0.0f, 1.5f), 0.09f, 0.032f);
 
 
 	SceneNode* Floor = new SceneNode(floor);

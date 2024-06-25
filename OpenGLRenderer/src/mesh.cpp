@@ -291,7 +291,7 @@ Mesh* Mesh::GenerateFloor()
 	return m;
 }
 
-Mesh* Mesh::GenerateSphere()
+Mesh* Mesh::GenerateSphere()		
 {
 	Mesh* m = new Mesh();
 
@@ -433,15 +433,25 @@ void Mesh::GenerateTangentCoordsForElements(unsigned int faceType)
 		glm::vec2 deltaUV1 = uv2 - uv1;
 		glm::vec2 deltaUV2 = uv3 - uv1;
 
-		float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
-		tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-		tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-		tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+		float denominator = deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y;
+		if (denominator != 0)
+		{
+			float f = 1.0f / denominator;
 
-		bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-		bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-		bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+			tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+			bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+		}
+		else
+		{
+			tangent = glm::vec3(1.0f, 0.0f, 0.0f);
+			bitangent = glm::vec3(0.0f, 1.0f, 0.0f);
+		}
 
 		for (size_t j = 0; j < faceType; ++j)
 		{
@@ -452,8 +462,8 @@ void Mesh::GenerateTangentCoordsForElements(unsigned int faceType)
 
 	for (size_t i = 0; i < vertices.size(); ++i)
 	{
-		tangents[i] = glm::normalize(tangents[i]);
-		biTangents[i] = glm::normalize(biTangents[i]);
+		if (glm::length(tangents[i]) != 0) tangents[i] = glm::normalize(tangents[i]);
+		if (glm::length(biTangents[i]) != 0) biTangents[i] = glm::normalize(biTangents[i]);	
 	}
 }
 
