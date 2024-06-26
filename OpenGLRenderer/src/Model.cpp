@@ -89,7 +89,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 		for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
 		{
 			// Assimp allows a model to have up to 8 different texture coordinates per vertex. We're not going to use 8, we only care about the first set of texture coordinates.
-			m.texCoords[i].x = mesh->mTextureCoords[0][i].x;
+			m.texCoords[i].x = mesh->mTextureCoords[0][i].x; 
 			m.texCoords[i].y = mesh->mTextureCoords[0][i].y;
 		}
 	}
