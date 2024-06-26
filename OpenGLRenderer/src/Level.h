@@ -9,6 +9,7 @@ class Camera;
 class CubeMap;
 class Mesh;
 class Texture;
+class Material;
 class glRenderer;
 class LightsManager;
 class Model;
@@ -49,6 +50,8 @@ protected:
 	Mesh* StainlessSteel;
 	Mesh* WhiteMarble;
 	Mesh* Lava;
+
+	std::vector<Material*> materials;
 
 	Model* backpack;
 

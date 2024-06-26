@@ -10,6 +10,7 @@
 class Shader;
 class Texture;
 class Model;
+class Material;
 
 enum MeshBuffer
 {
@@ -44,8 +45,8 @@ public:
 
 	friend Model;
 
-
 	void AddTexture(const Texture& tex) { textures.push_back(tex); }
+	void SetMaterial(Material* val) { material = val; }
 
 protected:
 	// Mesh attributes
@@ -56,6 +57,9 @@ protected:
 	std::vector<glm::vec3> tangents;
 	std::vector<glm::vec3> biTangents;
 	std::vector<unsigned int> indices;
+
+	Material* material;
+
 	std::vector<Texture> textures; 
 
 	void SetupMesh();

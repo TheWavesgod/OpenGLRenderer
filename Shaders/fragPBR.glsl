@@ -61,6 +61,7 @@ struct Material
     sampler2D metallic;
     sampler2D roughness;
     sampler2D ao;
+    sampler2D emissive;
 };
 
 // Uniform Variables
@@ -83,10 +84,15 @@ layout(std140, binding = 3) uniform PointLightBuffer
 };
 
 uniform Material material;
+
 uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;  
+
+uniform bool useHeight;
 uniform float heightScale;
+uniform bool useEmissive;
+uniform float emissiveScale;
 uniform mat4 model;
 
 const float PI = 3.14159265359;
@@ -109,7 +115,7 @@ vec3 CalcOutputColor(vec3 radiance, vec3 N, vec3 V, vec3 L, vec3 F0, vec3 albedo
 void main()
 {
     mat3 TBN = CalculateTBN();
-    vec2 texCoord = ParallaxMapping(TBN);
+    vec2 texCoord = useHeight ? ParallaxMapping(TBN) : TexCoord;
     // if(texCoord.x > 1.0f || texCoord.y > 1.0f || texCoord.x < 0.0f || texCoord.y < 0.0f)
     //     discard;
 
@@ -132,20 +138,24 @@ void main()
     for (int i = 0; i < dirLightsNum; ++i)
     {
         vec3 L = normalize(-dirLights[i].direction);
-        result += CalcOutputColor(dirLights[i].color, N, V, L, F0, albedo, metallic, roughness);
+        result += CalcOutputColor(dirLights[i].color, N, V, L, F0, albedo, metallic, roughness) * ao;
     }
     for (int i = 0; i < spotLightsNum; ++i)
     {
         vec3 radiance = CalcSpotLightRadiance(spotLights[i]);
         vec3 L = normalize(spotLights[i].position - FragPos);
-        result += CalcOutputColor(radiance, N, V, L, F0, albedo, metallic, roughness);
+        result += CalcOutputColor(radiance, N, V, L, F0, albedo, metallic, roughness) * ao;
     }
     for (int i = 0; i < pointLightsNum; ++i)
     {
         vec3 radiance = CalcPointLightRadiance(pointLights[i]);
         vec3 L = normalize(pointLights[i].position - FragPos);   
-        result += CalcOutputColor(radiance, N, V, L, F0, albedo, metallic, roughness);
+        result += CalcOutputColor(radiance, N, V, L, F0, albedo, metallic, roughness) * ao;
     }
+
+    //Emissive
+    vec3 emissiveLight = useEmissive ? emissiveScale * texture(material.emissive, texCoord).rgb : vec3(0.0f);
+    result += emissiveLight;
 
     vec3 R = reflect(-V, N);
     vec3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0f), F0, roughness);

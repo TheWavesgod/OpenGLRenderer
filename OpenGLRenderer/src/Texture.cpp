@@ -108,6 +108,10 @@ const std::string Texture::GetTypeName() const
 	case TEXTYPE_HEIGHT:
 		name = "height";
 		break;
+
+	case TEXTYPE_EMISSIVE:
+		name = "emissive";
+		break;
 	}
 
 	return name;

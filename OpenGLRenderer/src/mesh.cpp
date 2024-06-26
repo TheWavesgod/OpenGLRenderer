@@ -1,6 +1,7 @@
 #include "mesh.h"
 #include "Texture.h"
 #include "Shader.h"
+#include "Material.h"
 #include <iostream>
 
 Mesh* Mesh::GenerateTriangle()
@@ -278,13 +279,12 @@ Mesh* Mesh::GenerateFloor()
 		glm::vec2(0.0f, 1.0f)
 	};
 
-	m->textures.emplace_back(Texture("../Resources/Textures/wood.png"));
-	m->textures[0].type = TEXTYPE_DIFFUSE;
-
 	m->indices = {
 		0, 3, 2, // first triangle
 		2, 1, 0  // second triangle
 	};
+
+	m->GenerateTangentCoordsForElements();
 
 	m->SetupMesh();
 
@@ -490,19 +490,7 @@ void Mesh::BindTextureSamplerBeforedraw(Shader& shader)
 
 void Mesh::Draw(Shader& shader)
 {
-	for (size_t i = 0; i < textures.size(); ++i)
-	{
-		glActiveTexture(GL_TEXTURE0 + i);			// activate proper texture unit before binding
-		// retrieve texture number 
-		std::string name = textures[i].GetTypeName();  // TODO: Why string can't return string&
-		shader.SetUniformInt("material." + name, i);
-		glBindTexture(GL_TEXTURE_2D, textures[i].TextureID());
-	}
-	shader.SetUniformFloat("material.shininess", 32.0f);
-	shader.SetUniformFloat("heightScale", 0.1f);
-	shader.SetUniformInt("irradianceMap", 6);
-	shader.SetUniformInt("prefilterMap", 7);
-	shader.SetUniformInt("brdfLUT", 8);
+	if (material) material->Set(shader);
 
 	glBindVertexArray(VAO);
 	if (indices.empty())

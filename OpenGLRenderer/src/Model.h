@@ -12,6 +12,7 @@
 
 class Shader;
 class Mesh;
+class Material;
 
 class Model
 {
@@ -24,14 +25,16 @@ public:
 	void SetShaderIndex(unsigned int index);
 	unsigned int shaderIndex;
 
+	void SetMaterial(Material* material);
+
 protected:
-	std::vector<Mesh> meshes;
+	std::vector<Mesh*> meshes;
 	std::string directory;
 
 	void LoadModel(const std::string& path);
 	void ProcessNode(aiNode* node, const aiScene* scene);
-	Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
-	std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, TextureType textype);
+	Mesh* ProcessMesh(aiMesh* mesh, const aiScene* scene);
+	void LoadMaterialTextures(aiMaterial* mat, aiTextureType type, TextureType textype);
 
 private:
 	std::vector<Texture> textures_loaded;
