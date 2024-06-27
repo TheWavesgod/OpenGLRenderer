@@ -274,9 +274,9 @@ Mesh* Mesh::GenerateFloor()
 
 	m->texCoords = {
 		glm::vec2(0.0f, 0.0f),
-		glm::vec2(1.0f, 0.0f),
-		glm::vec2(1.0f, 1.0f),
-		glm::vec2(0.0f, 1.0f)
+		glm::vec2(5.0f, 0.0f),
+		glm::vec2(5.0f, 5.0f),
+		glm::vec2(0.0f, 5.0f)
 	};
 
 	m->indices = {

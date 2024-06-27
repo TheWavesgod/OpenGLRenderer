@@ -15,11 +15,14 @@ LightsManager::~LightsManager()
 
 void LightsManager::Init()
 {
+	GenerateLightCube();
+
 	BuildLightsFrameBuffer();
 	BuildLightsUniformBuffer();
 
 	BindDepthMapSamplerForShader(Shader::GetShaderByIndex(1));
 	BindDepthMapSamplerForShader(Shader::GetShaderByIndex(4));
+	BindDepthMapSamplerForShader(Shader::GetShaderByIndex(6));
 }
 
 void LightsManager::Update()
@@ -72,24 +75,29 @@ void LightsManager::Update()
 void LightsManager::DrawLightDepthMaps(SceneNode* node)
 {
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 	
 	Shader* usingShader = Shader::GetShaderByIndex(5);
 	usingShader->Use();
 	for (size_t i = 0; i < dirLights.size(); ++i)
 	{
-		usingShader->SetUniformMat4("lightProjection", dirLights[i]->BuildProjection());
-		usingShader->SetUniformMat4("lightView", dirLights[i]->BuildView());
+		glm::mat4 proj = dirLights[i]->BuildProjection();
+		usingShader->SetUniformMat4("lightProjection", proj);
+		glm::mat4 view = dirLights[i]->BuildView();
+		usingShader->SetUniformMat4("lightView", view);
 		glBindFramebuffer(GL_FRAMEBUFFER, FBOsLightsDepth[i]);
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
 		glClear(GL_DEPTH_BUFFER_BIT);	
 		node->DrawToLightDepthMap(usingShader);
 	}
 
 	for (size_t i = 0; i < spotLights.size(); ++i)
 	{
-		usingShader->SetUniformMat4("lightProjection", spotLights[i]->BuildProjection());
-		usingShader->SetUniformMat4("lightView", spotLights[i]->BuildView());
+		glm::mat4 proj = spotLights[i]->BuildProjection();
+		usingShader->SetUniformMat4("lightProjection", proj);
+		glm::mat4 view = spotLights[i]->BuildView();
+		usingShader->SetUniformMat4("lightView", view);
 		glBindFramebuffer(GL_FRAMEBUFFER, FBOsLightsDepth[dirLights.size() + i]);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		node->DrawToLightDepthMap(usingShader);
@@ -102,7 +110,29 @@ void LightsManager::DrawLightDepthMaps(SceneNode* node)
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glCullFace(GL_BACK);
 	glViewport(0, 0, window::GetWindowPointer()->GetWidth(), window::GetWindowPointer()->GetHeight());
+}
+
+void LightsManager::DrawLightCubes()
+{
+	Shader* usingShader = Shader::GetShaderByIndex(11);
+
+	usingShader->Use();
+	for (size_t i = 0; i < spotLights.size(); ++i)
+	{
+		usingShader->SetUniformMat4("models[" + std::to_string(i) + "]", spotLights[i]->GetLightTransform().GetTransMatrix());
+		usingShader->SetUniformVec3("colors[" + std::to_string(i) + "]", spotLights[i]->GetLightColor());
+	}
+	for (size_t i = 0; i < pointLights.size(); ++i)
+	{
+		usingShader->SetUniformMat4("models[" + std::to_string(i + spotLights.size()) + "]", pointLights[i]->GetLightTransform().GetTransMatrix());
+		usingShader->SetUniformVec3("colors[" + std::to_string(i + spotLights.size()) + "]", pointLights[i]->GetLightColor());
+	}
+
+	glBindVertexArray(lightCubeVAO);
+	glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0, spotLights.size() + pointLights.size());
+	glBindVertexArray(0);
 }
 
 void LightsManager::BuildLightsFrameBuffer()
@@ -216,6 +246,62 @@ GLuint LightsManager::GenerateLightUninformBuffer(LightType type, unsigned int s
 	return ubo;
 }
 
+void LightsManager::GenerateLightCube()
+{
+	std::vector<glm::vec3> vertices = {
+		glm::vec3(-0.5f, -0.5f, -0.5f),
+		glm::vec3( 0.5f, -0.5f, -0.5f),
+		glm::vec3( 0.5f,  0.5f, -0.5f),
+		glm::vec3(-0.5f,  0.5f, -0.5f),
+		glm::vec3(-0.5f, -0.5f,  0.5f),
+		glm::vec3( 0.5f, -0.5f,  0.5f),
+		glm::vec3( 0.5f,  0.5f,  0.5f),
+		glm::vec3(-0.5f,  0.5f,  0.5f)
+	};
+	std::vector<unsigned int> indices = {
+		// 后面
+		0, 2, 1,
+		0, 3, 2,
+		// 前面
+		4, 5, 6,
+		4, 6, 7,
+		// 左面
+		4, 0, 1,
+		4, 1, 5,
+		// 右面
+		2, 3, 7,
+		2, 7, 6,
+		// 上面
+		1, 2, 6,
+		1, 6, 5,
+		// 下面
+		0, 4, 7,
+		0, 7, 3
+	};
+	for (auto& vertex : vertices)
+	{
+		vertex *= 0.2f;
+	}
+
+	glGenVertexArrays(1, &lightCubeVAO);
+	glBindVertexArray(lightCubeVAO);
+
+	glGenBuffers(1, &lightCubeVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, lightCubeVBO);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); 
+
+	glGenBuffers(1, &lightCubeEBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lightCubeEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
 
 void LightsManager::AddDirectionalLight(glm::vec3 lightRot, glm::vec3 lightColor)
 {
@@ -254,14 +340,15 @@ void LightsManager::AddPointLight(glm::vec3 lightPos, glm::vec3 lightColor, floa
 
 const glm::mat4& DirLight::BuildProjection()
 {
-	float near_plane = 0.1f, far_plane = 1000.0f;
-	return glm::ortho(-200.0f, 200.0f, -200.0f, 200.0f, near_plane, far_plane);
+	float near_plane = 0.1f, far_plane = 100.0f;
+	glm::mat4 projection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, near_plane, far_plane);
+	return projection;
 }
 
 const glm::mat4& DirLight::BuildView()
 {
 	glm::vec3 center = glm::vec3(0.0f);
-	glm::vec3 lightPos = center - this->GetLightDirection() * 500.0f;
+	glm::vec3 lightPos = center - this->GetLightDirection() * 50.0f;
 
 	return glm::lookAt(lightPos, center, glm::vec3( 0.0f, 1.0f, 0.0f));
 }
@@ -271,7 +358,9 @@ const glm::mat4& SpotLight::BuildProjection()
 	float nearPlane = 1.0f;
 	float farPlane = 100.0f; 
 
-	return glm::perspective(glm::radians(outerCutOff * 2.0f), 1.0f, nearPlane, farPlane);
+	glm::mat4 projection = glm::perspective(glm::radians(outerCutOff * 2.0f), 1.0f, nearPlane, farPlane);
+
+	return projection;
 }
 
 const glm::mat4& SpotLight::BuildView()

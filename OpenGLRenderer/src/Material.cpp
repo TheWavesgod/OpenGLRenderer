@@ -62,7 +62,7 @@ void Material::Set(Shader& shader)
 		shader.SetUniformInt("useEmissive", textures[TEXTYPE_EMISSIVE] != nullptr);
 		shader.SetUniformInt("useHeight", textures[TEXTYPE_HEIGHT] != nullptr);
 
-		shader.SetUniformFloat("heightScale", 0.1f);
+		shader.SetUniformFloat("heightScale", 0.2f);
 		shader.SetUniformFloat("emissiveScale", 1.0f);
 
 		shader.SetUniformInt("irradianceMap", 7);

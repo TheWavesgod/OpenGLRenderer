@@ -30,6 +30,7 @@ public:
 	inline const glm::vec3& GetLightPosition() const { return transform.GetPosition(); }
 	inline const glm::vec3& GetLightDirection() const { return transform.GetForwardVector(); }
 	inline const glm::vec3& GetLightColor() const { return color; }
+	inline const Transform& GetLightTransform() const { return transform; }
 
 	virtual const glm::mat4& BuildProjection() = 0;
 	virtual const glm::mat4& BuildView() = 0;
@@ -86,6 +87,7 @@ public:
 	void Update();
 
 	void DrawLightDepthMaps(SceneNode* node);
+	void DrawLightCubes();
 
 	void AddDirectionalLight(glm::vec3 lightRot, glm::vec3 lightColor);
 	void AddSpotLight(glm::vec3 lightPos, glm::vec3 lightRot, glm::vec3 lightColor, float innerCutOff, float outerCutOff, float linear, float quadratic);
@@ -101,6 +103,8 @@ private:
 	GLuint GenerateDepthCubeMap();
 	GLuint GenerateLightUninformBuffer(LightType type, unsigned int size);
 
+	void GenerateLightCube();
+
 	std::vector<DirLight*> dirLights;
 	std::vector<SpotLight*> spotLights;
 	std::vector<PointLight*> pointLights;
@@ -112,4 +116,8 @@ private:
 	DirLightData dirLightsData[MAXNUM_DIRLIGHT];
 	SpotLightData spotLightsData[MAXNUM_SPOTLIGHT];
 	PointLightData pointLightsData[MAXNUM_POINTLIGHT];
+
+	GLuint lightCubeVBO;
+	GLuint lightCubeVAO;
+	GLuint lightCubeEBO;
 };

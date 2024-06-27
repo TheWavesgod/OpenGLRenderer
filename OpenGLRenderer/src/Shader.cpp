@@ -112,7 +112,7 @@ bool Shader::ReadAndCompileShader(const std::string& fileLocation, shaderType ty
 	return success;
 }
 
-void Shader::SetUniformVec3(const std::string& variable, float x, float y, float z)
+void Shader::SetUniformVec3(const std::string& variable, const glm::vec3& val)
 {
 	GLuint valLoc = glGetUniformLocation(shaderProgramID, variable.c_str());
 	if (valLoc == -1)
@@ -120,7 +120,7 @@ void Shader::SetUniformVec3(const std::string& variable, float x, float y, float
 		std::cerr << "Couldn't find uniform variable " << variable << std::endl;
 		return;
 	}
-	glUniform3f(valLoc, x, y, z);
+	glUniform3f(valLoc, val.x, val.y, val.z);
 }
 
 void Shader::SetUniformFloat(const std::string& variable, float val)

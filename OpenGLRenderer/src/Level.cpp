@@ -29,7 +29,7 @@ Level::Level(glRenderer* r)
 		"../Resources/CubeMap/evening_back.jpg"
 	);
 
-	skybox1 = new CubeMap("../Resources/HDR/RockHill/RockHill.hdr");
+	skybox1 = new CubeMap("../Resources/HDR/DarkPlace/DarkPlace.hdr");
 
 	Material* newMaterial = new Material(
 		"../Resources/Textures/RustedIron/rustediron2_basecolor.png",
@@ -174,9 +174,8 @@ Level::~Level()
 void Level::ConstructScene()
 {
 	lightsManager->AddDirectionalLight(glm::vec3(-80.0f, 0.0f, 0.0f), glm::vec3(2.0f, 2.0f, 2.0f));
-	lightsManager->AddSpotLight(glm::vec3(3.0f, 2.0f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.5f, 0.0f), 30.0f, 35.0f, 0.07f, 0.017f);
-	lightsManager->AddPointLight(glm::vec3(-3.0f, 2.0f, 1.0f), glm::vec3(2.0f, 0.0f, 1.5f), 0.09f, 0.032f);
-
+	lightsManager->AddSpotLight(glm::vec3(3.0f, 5.0f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.5f, 0.0f), 30.0f, 35.0f, 0.07f, 0.017f);
+	//lightsManager->AddPointLight(glm::vec3(-3.0f, 4.5f, 1.0f), glm::vec3(2.0f, 0.0f, 1.5f), 0.09f, 0.032f);
 
 	SceneNode* Floor = new SceneNode(floor);
 	root->AddChild(Floor);
@@ -239,9 +238,10 @@ void Level::LevelBeginPlay()
 
 void Level::Render()
 {
-	//lightsManager->DrawLightDepthMaps(root);
+	lightsManager->DrawLightDepthMaps(root);
 	lightsManager->Update();
 	renderer->SetSceneBufferReady();
+	lightsManager->DrawLightCubes();
 	DrawScene();
 	renderer->MultiSample();
 	renderer->PostProcess();

@@ -122,6 +122,9 @@ bool glRenderer::CreateShaderPrograms()
 	s = new Shader("../Shaders/vertPostProcessing.glsl", "../Shaders/fragBRDFMap.glsl");
 	if (!s->HasInitialized()) return false;
 
+	s = new Shader("../Shaders/vertDrawLight.glsl", "../Shaders/fragDrawLight.glsl");
+	if (!s->HasInitialized()) return false;
+
 	return true;
 }
 

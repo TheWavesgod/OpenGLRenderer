@@ -25,7 +25,7 @@ public:
 	inline void Use() { glUseProgram(shaderProgramID); }
 
 	// Set Shader Uniform Values
-	void SetUniformVec3(const std::string& variable, float x, float y, float z);
+	void SetUniformVec3(const std::string& variable, const glm::vec3& val);
 	void SetUniformFloat(const std::string& variable, float val);
 	void SetUniformMat4(const std::string& variable, const glm::mat4& val);
 	void SetUniformInt(const std::string& variable, GLuint val);

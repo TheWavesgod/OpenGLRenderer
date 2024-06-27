@@ -83,6 +83,9 @@ layout(std140, binding = 3) uniform PointLightBuffer
     int pointLightsNum;
 };
 
+uniform sampler2D dirDepth[5];
+uniform sampler2D spotDepth[5];
+
 uniform Material material;
 
 uniform samplerCube irradianceMap;
@@ -101,8 +104,10 @@ const float PI = 3.14159265359;
 mat3 CalculateTBN();
 vec2 ParallaxMapping(mat3 TBN);
 vec3 CalNormalFromMap(vec2 texCoord, mat3 TBN);
+
 vec3 CalcSpotLightRadiance(SpotLight light);
 vec3 CalcPointLightRadiance(PointLight light);
+float CalcShadowIn2D(mat4 lightSpaceMat, vec3 lightDir, vec3 normal, sampler2D shadowMap);
 
 float DistributionGGX(vec3 N, vec3 H, float a);
 float GeometrySchlickGGX(float NdotV, float k);
@@ -122,7 +127,6 @@ void main()
     // Get the fragment material settings
     vec3 albedo = texture(material.albedo, texCoord).rgb;
     vec3 normal = CalNormalFromMap(texCoord, TBN);
-    //vec3 normal = mat3(model) * Normal;
     float metallic = texture(material.metallic, texCoord).r;
     float roughness = texture(material.roughness, texCoord).r;
     float ao = texture(material.ao, texCoord).r;
@@ -138,13 +142,15 @@ void main()
     for (int i = 0; i < dirLightsNum; ++i)
     {
         vec3 L = normalize(-dirLights[i].direction);
-        result += CalcOutputColor(dirLights[i].color, N, V, L, F0, albedo, metallic, roughness) * ao;
+        float shadow = CalcShadowIn2D(dirLights[i].lightSpaceMat, L, normal, dirDepth[i]);
+        result += CalcOutputColor(dirLights[i].color, N, V, L, F0, albedo, metallic, roughness) * ao * (1.0f - shadow);
     }
     for (int i = 0; i < spotLightsNum; ++i)
     {
-        vec3 radiance = CalcSpotLightRadiance(spotLights[i]);
         vec3 L = normalize(spotLights[i].position - FragPos);
-        result += CalcOutputColor(radiance, N, V, L, F0, albedo, metallic, roughness) * ao;
+        float shadow = CalcShadowIn2D(spotLights[i].lightSpaceMat, L, normal, spotDepth[i]);
+        vec3 radiance = CalcSpotLightRadiance(spotLights[i]);
+        result += CalcOutputColor(radiance, N, V, L, F0, albedo, metallic, roughness) * ao * (1.0f - shadow);
     }
     for (int i = 0; i < pointLightsNum; ++i)
     {
@@ -264,6 +270,32 @@ vec3 CalcPointLightRadiance(PointLight light)
 
     vec3 radiance = light.color * attenuation;
     return radiance;
+}
+
+float CalcShadowIn2D(mat4 lightSpaceMat, vec3 lightDir, vec3 normal, sampler2D shadowMap)
+{
+    vec4 fragPosLightSpace = lightSpaceMat * vec4(FragPos, 1.0f);
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+
+    projCoords = projCoords * 0.5 + 0.5; 
+    float currentDepth = projCoords.z;  
+
+    if(currentDepth > 1.0f) return 0.0f;
+
+    float shadow = 0.0f;
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);  
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+            shadow += currentDepth - bias > pcfDepth ? 1.0f : 0.0f;
+        }
+    }
+    shadow /= 9.0f;
+
+    return shadow;
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
