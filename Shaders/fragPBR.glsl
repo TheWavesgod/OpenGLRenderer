@@ -83,10 +83,11 @@ layout(std140, binding = 3) uniform PointLightBuffer
     int pointLightsNum;
 };
 
+uniform Material material;
+
 uniform sampler2D dirDepth[5];
 uniform sampler2D spotDepth[5];
-
-uniform Material material;
+uniform samplerCube pointDepth[5];
 
 uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
@@ -100,6 +101,15 @@ uniform mat4 model;
 
 const float PI = 3.14159265359;
 
+vec3 sampleOffsetDirections[20] = vec3[]
+(
+   vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1), 
+     vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
+   vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
+   vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
+   vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
+); 
+
 // Functions Declaration
 mat3 CalculateTBN();
 vec2 ParallaxMapping(mat3 TBN);
@@ -108,6 +118,7 @@ vec3 CalNormalFromMap(vec2 texCoord, mat3 TBN);
 vec3 CalcSpotLightRadiance(SpotLight light);
 vec3 CalcPointLightRadiance(PointLight light);
 float CalcShadowIn2D(mat4 lightSpaceMat, vec3 lightDir, vec3 normal, sampler2D shadowMap);
+float CalcShadowInCube(vec3 lightPos, vec3 viewPos, samplerCube shadowMap);
 
 float DistributionGGX(vec3 N, vec3 H, float a);
 float GeometrySchlickGGX(float NdotV, float k);
@@ -154,9 +165,10 @@ void main()
     }
     for (int i = 0; i < pointLightsNum; ++i)
     {
+        vec3 L = normalize(pointLights[i].position - FragPos);  
+        float shadow = CalcShadowInCube(pointLights[i].position, viewPos, pointDepth[i]);
         vec3 radiance = CalcPointLightRadiance(pointLights[i]);
-        vec3 L = normalize(pointLights[i].position - FragPos);   
-        result += CalcOutputColor(radiance, N, V, L, F0, albedo, metallic, roughness) * ao;
+        result += CalcOutputColor(radiance, N, V, L, F0, albedo, metallic, roughness) * ao * (1.0f - shadow);
     }
 
     //Emissive
@@ -179,7 +191,6 @@ void main()
     vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
     vec3 ambient = (kD * diffuse + specular) * ao;
-    //vec3 ambient = kD * diffuse * ao;
 
     result += ambient;
     FragColor = vec4(result, 1.0f);
@@ -294,6 +305,29 @@ float CalcShadowIn2D(mat4 lightSpaceMat, vec3 lightDir, vec3 normal, sampler2D s
         }
     }
     shadow /= 9.0f;
+
+    return shadow;
+}
+
+float CalcShadowInCube(vec3 lightPos, vec3 viewPos, samplerCube shadowMap)
+{
+    vec3 fragToLight = FragPos - lightPos;
+    float currentDepth = length(fragToLight);
+
+    float shadow = 0.0f;
+    float bias = 0.15f; 
+    int samples = 20;
+    float viewDistance = length(viewPos - FragPos);
+    float diskRadius = (1.0f + (viewDistance / 50.0f)) / 25.0f;                   // (viewDistance / far_plane)) / 25.0;  
+    for(int i = 0; i < samples; ++i)
+    {
+        float closestDepth = textureCube(shadowMap, fragToLight + sampleOffsetDirections[i] * diskRadius).r;            
+        //float closestDepth = 1.0f;
+        closestDepth *= 50.0f;   // * far_plane undo mapping [0;1]
+        if(currentDepth - bias > closestDepth)
+            shadow += 1.0f;
+    }
+    shadow /= float(samples);
 
     return shadow;
 }

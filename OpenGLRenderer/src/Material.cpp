@@ -68,6 +68,8 @@ void Material::Set(Shader& shader)
 		shader.SetUniformInt("irradianceMap", 7);
 		shader.SetUniformInt("prefilterMap", 8);
 		shader.SetUniformInt("brdfLUT", 9);
+
+		//shader.SetUniformInt("pointDepth[" + std::to_string(0) + "]", 12);
 	}
 	else
 	{

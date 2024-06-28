@@ -61,6 +61,9 @@ public:
 	float innerCutOff;
 	float outerCutOff;
 
+	float innerCutOffInDegree;
+	float outerCutOffInDegree;
+
 	float constant = 1.0f;
     float linear;
     float quadratic;
@@ -71,6 +74,8 @@ class PointLight : public Light
 public:
 	const glm::mat4& BuildProjection() override;
 	const glm::mat4& BuildView() override;
+
+	const glm::mat4 BuildShadowMatrix(int i);
 
 	float constant = 1.0f;
 	float linear;

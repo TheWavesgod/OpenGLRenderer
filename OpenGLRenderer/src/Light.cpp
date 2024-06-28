@@ -20,8 +20,8 @@ void LightsManager::Init()
 	BuildLightsFrameBuffer();
 	BuildLightsUniformBuffer();
 
-	BindDepthMapSamplerForShader(Shader::GetShaderByIndex(1));
-	BindDepthMapSamplerForShader(Shader::GetShaderByIndex(4));
+	//BindDepthMapSamplerForShader(Shader::GetShaderByIndex(1));
+	//BindDepthMapSamplerForShader(Shader::GetShaderByIndex(4));
 	BindDepthMapSamplerForShader(Shader::GetShaderByIndex(6));
 }
 
@@ -83,7 +83,7 @@ void LightsManager::DrawLightDepthMaps(SceneNode* node)
 	usingShader->Use();
 	for (size_t i = 0; i < dirLights.size(); ++i)
 	{
-		glm::mat4 proj = dirLights[i]->BuildProjection();
+		glm::mat4 proj = dirLights[i]->BuildProjection();		// TODO: Why const glm::mat& return value to function failed
 		usingShader->SetUniformMat4("lightProjection", proj);
 		glm::mat4 view = dirLights[i]->BuildView();
 		usingShader->SetUniformMat4("lightView", view);
@@ -103,10 +103,18 @@ void LightsManager::DrawLightDepthMaps(SceneNode* node)
 		node->DrawToLightDepthMap(usingShader);
 	}
 
+	usingShader = Shader::GetShaderByIndex(12);
+	usingShader->Use();
 	for (size_t i = 0; i < pointLights.size(); ++i)
-	{
+	{	
+		glm::vec3 lightPos = pointLights[i]->GetLightPosition();
+		usingShader->SetUniformVec3("lightPos", lightPos);
+		usingShader->SetUniformFloat("far_plane", 50.0f);
+		for (int x = 0; x < 6; ++x)
+			usingShader->SetUniformMat4("shadowMatrices[" + std::to_string(x) + "]", pointLights[i]->BuildShadowMatrix(x));
 		glBindFramebuffer(GL_FRAMEBUFFER, FBOsLightsDepth[dirLights.size() + spotLights.size() + i]);
 		glClear(GL_DEPTH_BUFFER_BIT);
+		node->DrawToLightDepthMap(usingShader);
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -171,10 +179,15 @@ void LightsManager::BuildLightsFrameBuffer()
 	}
 
 	// Bind the depth map to the Textrue Unit
-	for (size_t i = 0; i < dirLights.size() + pointLights.size(); ++i)
+	for (size_t i = 0; i < dirLights.size() + spotLights.size(); ++i)
 	{
 		glActiveTexture(GL_TEXTURE10 + i);
 		glBindTexture(GL_TEXTURE_2D, depthMapsLights[i]);
+	}
+	for (size_t i = dirLights.size() + spotLights.size(); i < lightNum; ++i)
+	{
+		glActiveTexture(GL_TEXTURE10 + i);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, depthMapsLights[i]);
 	}
 }
 
@@ -195,6 +208,10 @@ void LightsManager::BindDepthMapSamplerForShader(Shader* shader)
 	for (size_t i = 0; i < spotLights.size(); ++i)
 	{
 		shader->SetUniformInt("spotDepth[" + std::to_string(i) + "]", 10 + i + dirLights.size());
+	}
+	for (size_t i = 0; i < pointLights.size(); ++i)
+	{
+		shader->SetUniformInt("pointDepth[" + std::to_string(i) + "]", 10 + i + dirLights.size() + spotLights.size());
 	}
 }
 
@@ -318,8 +335,10 @@ void LightsManager::AddSpotLight(glm::vec3 lightPos, glm::vec3 lightRot, glm::ve
 	newlight->SetLightPosition(lightPos);
 	newlight->SetLightRotation(lightRot);
 	newlight->SetLightColor(lightColor);
-	newlight->innerCutOff = innerCutOff;
-	newlight->outerCutOff = outerCutOff;
+	newlight->innerCutOffInDegree = innerCutOff;
+	newlight->outerCutOffInDegree = outerCutOff;
+	newlight->innerCutOff = glm::cos(glm::radians(innerCutOff));
+	newlight->outerCutOff = glm::cos(glm::radians(outerCutOff));
 	newlight->linear = linear;
 	newlight->quadratic = quadratic;
 
@@ -358,25 +377,60 @@ const glm::mat4& SpotLight::BuildProjection()
 	float nearPlane = 1.0f;
 	float farPlane = 100.0f; 
 
-	glm::mat4 projection = glm::perspective(glm::radians(outerCutOff * 2.0f), 1.0f, nearPlane, farPlane);
+	glm::mat4 projection = glm::perspective(glm::radians(outerCutOffInDegree * 2.0f), 1.0f, nearPlane, farPlane);
 
 	return projection;
 }
 
 const glm::mat4& SpotLight::BuildView()
 {
-	return glm::lookAt(transform.GetPosition(), transform.GetPosition() + transform.GetForwardVector(), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::vec3 pos = transform.GetPosition();
+	glm::vec3 dir = transform.GetForwardVector();
+	return glm::lookAt(pos, pos + dir * 2.0f, glm::vec3(0.0f, 1.0f, 0.0f));;
 }
 
 const glm::mat4& PointLight::BuildProjection()
 {
 	float aspect = (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT;
 	float near = 1.0f;
-	float far = 25.0f;
-	return glm::perspective(glm::radians(90.0f), aspect, near, far);
+	float far = 50.0f;
+	return glm::perspective(glm::radians(90.0f), aspect, near, 50.0f);
 }
 
 const glm::mat4& PointLight::BuildView()
 {
 	return glm::mat4();
+}
+
+const glm::mat4 PointLight::BuildShadowMatrix(int i)
+{
+	glm::mat4 proj = this->BuildProjection();
+	glm::vec3 pos = transform.GetPosition();
+
+	switch (i)
+	{
+	case 0:
+		return proj * glm::lookAt(pos, pos + glm::vec3( 1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
+		break;
+
+	case 1:
+		return proj * glm::lookAt(pos, pos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
+		break;
+
+	case 2:
+		return proj * glm::lookAt(pos, pos + glm::vec3( 0.0,  1.0, 0.0), glm::vec3(0.0, 0.0, 1.0));
+		break;
+
+	case 3:
+		return proj * glm::lookAt(pos, pos + glm::vec3( 0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0));
+		break;
+
+	case 4:
+		return proj * glm::lookAt(pos, pos + glm::vec3( 0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0));
+		break;
+
+	case 5:
+		return proj * glm::lookAt(pos, pos + glm::vec3( 0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0));
+		break;
+	}
 }

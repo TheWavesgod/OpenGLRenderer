@@ -125,6 +125,9 @@ bool glRenderer::CreateShaderPrograms()
 	s = new Shader("../Shaders/vertDrawLight.glsl", "../Shaders/fragDrawLight.glsl");
 	if (!s->HasInitialized()) return false;
 
+	s = new Shader("../Shaders/vertPointLight.glsl", "../Shaders/fragPointLight.glsl", "../Shaders/geomPointLight.glsl");
+	if (!s->HasInitialized()) return false;
+
 	return true;
 }
 
