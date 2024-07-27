@@ -18,7 +18,7 @@ protected:
 	void SpacialAcceleration();
 
 	void IntegrateAcceleration(float dt);
-	void InterrateVelocity(float dt);
+	void IntegrateVelocity(float dt);
 
 	void UpdateGameObjectsBoundingAABB();
 

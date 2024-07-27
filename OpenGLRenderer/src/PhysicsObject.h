@@ -1,10 +1,19 @@
 #pragma once
 #include <glm.hpp>
 
+class CollisionVolume;
+class Transform;
+
 class PhysicsObject
 {
 public:
+	PhysicsObject(Transform* parentTransform, const CollisionVolume* parentVolume);
+	~PhysicsObject();
+
 	void UpdateInertiaTensor();
+
+	void InitCubeInertia();
+	void InitSphereInertia();
 
 	/** Setter */
 	void SetLinearVelocity(const glm::vec3& newVel) { linearVelocity = newVel; }
@@ -20,13 +29,17 @@ public:
 	inline glm::mat3 GetInverseInertiaTensor() const { return inverseInertiaTensor; }
 	inline float GetLinearDamping() const { return linearDamping; }
 	inline float GetAngularDamping() const { return anguleDamping; }
-private:
+
+protected:
+	const CollisionVolume* volume;
+	Transform* transform;
+
 	float inverseMass;
 	glm::vec3 inverseInertia;
 	glm::mat3 inverseInertiaTensor;
 	
-	float elasticity;
-	float friction;
+	float elasticity = 0.8f;
+	float friction = 0.8f;
 	bool bHasGravity = false;
 
 	float linearDamping = 0.1f;

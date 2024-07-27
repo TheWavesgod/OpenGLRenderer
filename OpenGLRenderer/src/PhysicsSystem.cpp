@@ -29,14 +29,14 @@ void PhysicsSystem::Update(float dt)
 	while (dtOffset > realDT)
 	{
 		IntegrateAcceleration(realDT);
-
 		CollisionDetection();
-
-
+		IntegrateVelocity(dt);
 
 		dtOffset -= realDT;
 		++iteratorCount;
 	}
+
+	
 }
 
 void PhysicsSystem::CollisionDetection()
@@ -81,7 +81,7 @@ void PhysicsSystem::IntegrateAcceleration(float dt)
 	}
 }
 
-void PhysicsSystem::InterrateVelocity(float dt)
+void PhysicsSystem::IntegrateVelocity(float dt)
 {
 	GameObjectIterator begin, end;
 	level.GetGameObjectsIterators(begin, end);
@@ -108,8 +108,14 @@ void PhysicsSystem::InterrateVelocity(float dt)
 		glm::quat orientation = transform.GetQuatRotation();
 		glm::vec3 angularVel = physicsObject->GetAngularVelocity();
 
-		orientation = orientation + (glm::quat(angularVel * dt * 0.5f) * orientation);
-		orientation = glm::normalize(orientation);
+		float angle = glm::length(angularVel) * dt;
+		if (angle != 0.0f)
+		{
+			glm::vec3 axis = glm::normalize(angularVel);
+			glm::quat deltaRot = glm::angleAxis(angle, axis);
+			orientation = deltaRot * orientation;
+			orientation = glm::normalize(orientation);
+		}
 		transform.SetRotation(orientation);
 
 		// Angular damping
