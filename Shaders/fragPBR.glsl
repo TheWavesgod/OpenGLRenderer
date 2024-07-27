@@ -321,8 +321,8 @@ float CalcShadowInCube(vec3 lightPos, vec3 viewPos, samplerCube shadowMap)
     float diskRadius = (1.0f + (viewDistance / 50.0f)) / 25.0f;                   // (viewDistance / far_plane)) / 25.0;  
     for(int i = 0; i < samples; ++i)
     {
-        float closestDepth = textureCube(shadowMap, fragToLight + sampleOffsetDirections[i] * diskRadius).r;            
-        //float closestDepth = 1.0f;
+        //float closestDepth = texture(shadowMap, fragToLight + sampleOffsetDirections[i] * diskRadius).r;            
+        float closestDepth = 1.0f;
         closestDepth *= 50.0f;   // * far_plane undo mapping [0;1]
         if(currentDepth - bias > closestDepth)
             shadow += 1.0f;

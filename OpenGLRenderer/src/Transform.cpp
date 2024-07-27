@@ -12,6 +12,12 @@ void Transform::SetRotation(const glm::vec3& eulerAngles)
 	updateTransformMatrix();
 }
 
+void Transform::SetRotation(const glm::quat& quaternion)
+{
+	rotation = quaternion;
+	updateTransformMatrix();
+}
+
 void Transform::SetScale(const glm::vec3& scl)
 {
 	scale = scl;

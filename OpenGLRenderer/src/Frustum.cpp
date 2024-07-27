@@ -21,7 +21,7 @@ Plane::Plane(const glm::vec3& normal, float distance, bool normalise)
 
 bool Plane::ShpereInPlane(const glm::vec3& position, float radius) const
 {
-	if (glm::dot(position, normal) + distance + radius <= 0)
+	if (glm::dot(position, normal) - distance + radius <= 0)
 	{
 		return false;
 	}

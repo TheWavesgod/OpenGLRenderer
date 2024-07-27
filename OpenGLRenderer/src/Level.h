@@ -4,6 +4,7 @@
 
 #include <vector>
 
+class GameObject;
 class SceneNode;
 class Camera;
 class CubeMap;
@@ -14,6 +15,8 @@ class glRenderer;
 class LightsManager;
 class Model;
 
+using GameObjectIterator = std::vector<GameObject*>::const_iterator;
+
 class Level
 {
 public:
@@ -23,6 +26,8 @@ public:
 	void Update(float dt);
 
 	void LevelBeginPlay();
+
+	void GetGameObjectsIterators(GameObjectIterator& cbegin, GameObjectIterator& cend) const;
 
 protected:
 	void ConstructScene();
@@ -60,5 +65,7 @@ protected:
 
 	std::vector<SceneNode*> transparentNodeList;
 	std::vector<SceneNode*> nodeList;
+
+	std::vector<GameObject*> gameObjects;
 };
 

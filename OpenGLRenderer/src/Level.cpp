@@ -236,11 +236,17 @@ void Level::LevelBeginPlay()
 	skybox1->BindBRDFLUT(9);
 }
 
+void Level::GetGameObjectsIterators(GameObjectIterator& cbegin, GameObjectIterator& cend) const
+{
+	cbegin = gameObjects.cbegin();
+	cend = gameObjects.cend();
+}
+
 void Level::Render()
 {
 	lightsManager->DrawLightDepthMaps(root);
 	lightsManager->Update();
-	renderer->SetSceneBufferReady();
+	renderer->SetSceneBufferReady();	
 	lightsManager->DrawLightCubes();
 	DrawScene();
 	renderer->MultiSample();
