@@ -28,7 +28,6 @@ protected:
 
 	glm::vec3 gravity;
 	//std::unordered_set<CollisionDetection::CollisionInfo> allCollisions;
-
-
+	std::unordered_set<CollisionDetection::CollisionInfo> spatialCollisions;
 };
 

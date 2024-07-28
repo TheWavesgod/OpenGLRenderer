@@ -16,6 +16,8 @@ public:
 	PhysicsObject* GetPhysicsObject() const { return physicsObject; }
 	Transform& GetTransform() { return transform; }
 
+	bool GetBoundingAABB(glm::vec3& size) const;
+
 protected:
 	Transform transform;
 

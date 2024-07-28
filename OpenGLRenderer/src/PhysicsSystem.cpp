@@ -2,6 +2,7 @@
 
 #include "GameObject.h"
 #include "PhysicsObject.h"
+#include "Octree.h"
 
 PhysicsSystem::PhysicsSystem(Level& currentLevel) : level(currentLevel)
 {
@@ -35,17 +36,48 @@ void PhysicsSystem::Update(float dt)
 		dtOffset -= realDT;
 		++iteratorCount;
 	}
-
-	
 }
 
 void PhysicsSystem::CollisionDetection()
 {
-	
+	SpacialAcceleration();
+	for (auto& i : spatialCollisions)
+	{
+
+	}
 }
 
 void PhysicsSystem::SpacialAcceleration()
 {
+	spatialCollisions.clear();
+	Octree<GameObject*> tree(glm::vec3(1024, 1024, 1024), 7, 6);		// Set Octree
+
+	GameObjectIterator begin;
+	GameObjectIterator end;
+	level.GetGameObjectsIterators(begin, end);
+	for (GameObjectIterator i = begin; i != end; ++i)
+	{
+		glm::vec3 size;
+		if (!(*i)->GetBoundingAABB(size)) continue;
+		glm::vec3 pos = (*i)->GetTransform().GetPosition();
+		tree.Insert(*i, pos, size);
+	}
+
+	tree.OperateOnContents(
+		[this](std::list<OctreeEntry<GameObject*>>& contents)
+		{
+			CollisionDetection::CollisionInfo info;
+			for (auto i = contents.begin(); i != contents.end(); ++i)
+			{
+				for(auto j = std::next(i); j != contents.end(); ++j)
+				{
+					info.a = std::min(i->object, j->object);
+					info.b = std::max(i->object, j->object);
+					spatialCollisions.insert(info);
+				}
+			}
+		}
+	);
 }
 
 void PhysicsSystem::IntegrateAcceleration(float dt)

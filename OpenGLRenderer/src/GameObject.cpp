@@ -36,3 +36,11 @@ void GameObject::UpdateCollisionVolumeAABB()
 		break;
 	}
 }
+
+bool GameObject::GetBoundingAABB(glm::vec3& size) const
+{
+	if (volume == nullptr) return false;
+
+	size = BoundingAABB;
+	return true;
+}

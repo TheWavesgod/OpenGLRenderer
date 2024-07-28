@@ -149,5 +149,8 @@
     <ClInclude Include="src\GameObject.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\Octree.h">
+      <Filter>Collision</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
