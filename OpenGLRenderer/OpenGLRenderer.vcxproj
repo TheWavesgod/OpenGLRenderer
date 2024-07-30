@@ -173,6 +173,7 @@
     <ClCompile Include="src\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Ray.h" />
     <ClInclude Include="src\Octree.h" />
     <ClInclude Include="src\GameObject.h" />
     <ClInclude Include="src\CollisionDetection.h" />

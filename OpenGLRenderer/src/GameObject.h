@@ -12,11 +12,17 @@ public:
 	~GameObject();
 
 	void UpdateCollisionVolumeAABB();
+	void UpdateCollisionVolumeSphere();
 
-	PhysicsObject* GetPhysicsObject() const { return physicsObject; }
 	Transform& GetTransform() { return transform; }
+	PhysicsObject* GetPhysicsObject() const { return physicsObject; }
+	const CollisionVolume* GetBoundingVolume() const { return volume; }
 
+	float GetBoundingSphere() const { return BoundingSphere; }
 	bool GetBoundingAABB(glm::vec3& size) const;
+
+protected:
+	glm::vec3 GetBoundingAABBForOBB();
 
 protected:
 	Transform transform;
@@ -28,6 +34,6 @@ protected:
 	PhysicsObject* physicsObject = nullptr;
 
 	glm::vec3 BoundingAABB;
-	float BoundingSphere;
+	float BoundingSphere = 10.0f;
 };
 

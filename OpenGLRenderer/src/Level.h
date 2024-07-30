@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Frustum.h"
+#include "PhysicsSystem.h"
 
 #include <vector>
 
@@ -28,6 +29,8 @@ public:
 	void LevelBeginPlay();
 
 	void GetGameObjectsIterators(GameObjectIterator& cbegin, GameObjectIterator& cend) const;
+
+	bool Raycast(Ray& r, RayCollision& collision, bool closestObject = false, GameObject* ignore = nullptr) const;
 
 protected:
 	void ConstructScene();

@@ -152,5 +152,8 @@
     <ClInclude Include="src\Octree.h">
       <Filter>Collision</Filter>
     </ClInclude>
+    <ClInclude Include="src\Ray.h">
+      <Filter>Collision</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

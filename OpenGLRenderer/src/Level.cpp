@@ -242,6 +242,38 @@ void Level::GetGameObjectsIterators(GameObjectIterator& cbegin, GameObjectIterat
 	cend = gameObjects.cend();
 }
 
+bool Level::Raycast(Ray& r, RayCollision& collision, bool closestObject, GameObject* ignore) const
+{
+	RayCollision closestCollision;
+	for (auto& i : gameObjects)
+	{
+		if (i->GetBoundingVolume() == nullptr) continue;
+		if (i == ignore) continue;
+
+		RayCollision thisCollision;
+		if (CollisionDetection::RayIntersection(r, *i, thisCollision))
+		{
+			if (!closestObject)
+			{
+				collision = thisCollision;
+				collision.node = i;
+				return true;
+			}
+			else
+			{
+				if (thisCollision.rayDistance < closestCollision.rayDistance)
+				{
+					closestCollision = thisCollision;
+					closestCollision.node = i;
+				}
+			}
+		}
+	}
+	if (closestCollision.node == nullptr) return false;
+	collision = closestCollision;
+	return true;
+}
+
 void Level::Render()
 {
 	lightsManager->DrawLightDepthMaps(root);

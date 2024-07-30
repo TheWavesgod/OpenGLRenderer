@@ -29,10 +29,7 @@ public:
 protected:
 	OctreeNode() {}
 
-	OctreeNode(glm::vec3 pos, glm::vec3 halfSize) : position(pos), halfSize(halfSize)
-	{
-		children = nullptr;
-	}
+	OctreeNode(glm::vec3 pos, glm::vec3 halfSize) : position(pos), halfSize(halfSize) {}
 
 	~OctreeNode()
 	{
@@ -45,9 +42,9 @@ protected:
 
 		if (children == nullptr)
 		{
-			for (int i = 0; i < 4; ++i)
+			for (int i = 0; i < 8; ++i)
 			{
-				children[i]->Insert(object, objPos, objSize, depthLeft - 1, maxSize);
+				children[i].Insert(object, objPos, objSize, depthLeft - 1, maxSize);
 			}
 		}
 		else
@@ -56,11 +53,11 @@ protected:
 			if (contents.size() > maxSize && depthLeft > 0)
 			{
 				SplitNode();								// Current Node Full, Split Node
-				for (const auto& entry : contents)
+				for (auto& entry : contents)
 				{
 					for (size_t i = 0; i < 8; ++i)
 					{
-						children[i].Insert(entry.obj, entry.pos, entry.size, depthLeft - 1, maxSize);
+						children[i].Insert(entry.object, entry.pos, entry.size, depthLeft - 1, maxSize);
 					}
 				}
 				contents.clear();
@@ -72,23 +69,23 @@ protected:
 	{
 		glm::vec3 newSize = halfSize * 0.5f;
 		children = new OctreeNode<T>[8];
-		children[0] = new OctreeNode<T>(position + glm::vec3(newSize.x, newSize.y, newSize.z), newSize);
-		children[1] = new OctreeNode<T>(position + glm::vec3(newSize.x, newSize.y, -newSize.z), newSize);
-		children[2] = new OctreeNode<T>(position + glm::vec3(newSize.x, -newSize.y, newSize.z), newSize);
-		children[3] = new OctreeNode<T>(position + glm::vec3(newSize.x, -newSize.y, -newSize.z), newSize);
-		children[4] = new OctreeNode<T>(position + glm::vec3(-newSize.x, newSize.y, newSize.z), newSize);
-		children[5] = new OctreeNode<T>(position + glm::vec3(-newSize.x, newSize.y, -newSize.z), newSize);
-		children[6] = new OctreeNode<T>(position + glm::vec3(-newSize.x, -newSize.y, newSize.z), newSize);
-		children[7] = new OctreeNode<T>(position + glm::vec3(-newSize.x, -newSize.y, -newSize.z), newSize);
+		children[0] = OctreeNode<T>(position + glm::vec3(newSize.x, newSize.y, newSize.z), newSize);
+		children[1] = OctreeNode<T>(position + glm::vec3(newSize.x, newSize.y, -newSize.z), newSize);
+		children[2] = OctreeNode<T>(position + glm::vec3(newSize.x, -newSize.y, newSize.z), newSize);
+		children[3] = OctreeNode<T>(position + glm::vec3(newSize.x, -newSize.y, -newSize.z), newSize);
+		children[4] = OctreeNode<T>(position + glm::vec3(-newSize.x, newSize.y, newSize.z), newSize);
+		children[5] = OctreeNode<T>(position + glm::vec3(-newSize.x, newSize.y, -newSize.z), newSize);
+		children[6] = OctreeNode<T>(position + glm::vec3(-newSize.x, -newSize.y, newSize.z), newSize);
+		children[7] = OctreeNode<T>(position + glm::vec3(-newSize.x, -newSize.y, -newSize.z), newSize);
 	}
 
 	void OperateOnContents(OctreeFunc& func)
 	{
 		if (children != nullptr)
 		{
-			for (auto& i : children)
+			for (size_t i = 0; i < 8; ++i)
 			{
-				i.OperateOnContents(func);
+				children[i].OperateOnContents(func);
 			}
 		}
 		else
@@ -106,7 +103,7 @@ protected:
 	glm::vec3 position;
 	glm::vec3 halfSize;
 
-	OctreeNode<T>* children;
+	OctreeNode<T>* children = nullptr;
 };
 
 template<typename T>

@@ -43,7 +43,11 @@ void PhysicsSystem::CollisionDetection()
 	SpacialAcceleration();
 	for (auto& i : spatialCollisions)
 	{
+		CollisionDetection::CollisionInfo info = i;
+		if (CollisionDetection::ObjectIntersection(info.a, info.b, info))
+		{
 
+		}
 	}
 }
 
