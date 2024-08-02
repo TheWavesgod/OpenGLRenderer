@@ -1,5 +1,7 @@
 #include "CollisionDetection.h"
 
+#include <functional>
+
 bool CollisionDetection::RayIntersection(const Ray& ray, GameObject& object, RayCollision& collision)
 {
     const Transform& worldTransform = object.GetTransform();
@@ -398,5 +400,24 @@ bool CollisionDetection::RaySphereIntersection(const Ray& r, const SphereVolume&
     collision.collidedAt = rPos + rDir * (deltaProj - offset);
 
     return true;
+}
+
+bool CollisionDetection::IsPointInsideTriangle(const glm::vec3& point, const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2)
+{
+    using namespace glm;
+    std::function fun = 
+        [&point](const vec3& a, const vec3& b, const vec3& c) 
+        {
+            vec3 ap = point - a;
+            vec3 ab = b - a;
+            vec3 ac = c - a;
+
+            vec3 crossabac = glm::cross(ab, ac);
+            vec3 crossabap = glm::cross(ab, ap);
+
+            return glm::dot(crossabac, crossabap) >= 0;
+        };
+
+    return fun(v0, v1, v2) && fun(v1, v2, v0) && fun(v2, v0, v1);
 }
 

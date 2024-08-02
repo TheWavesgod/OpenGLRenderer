@@ -1,8 +1,9 @@
 #pragma once
 #include <unordered_set>
 
-#include "Level.h"
 #include "CollisionDetection.h"
+
+class Level;
 
 class PhysicsSystem
 {

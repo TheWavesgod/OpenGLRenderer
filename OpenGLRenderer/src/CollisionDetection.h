@@ -81,6 +81,10 @@ public:
 	
 	static bool RaySphereIntersection(const Ray& r, const SphereVolume& volume, const Transform& worldTransform, RayCollision& collision);
 
+	/**
+	 * Point 
+	 */
+	static bool IsPointInsideTriangle(const glm::vec3& point, const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2);
 };
 
 namespace std

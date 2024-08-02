@@ -4,6 +4,8 @@
 #include "PhysicsObject.h"
 #include "Octree.h"
 
+#include "Level.h"
+
 PhysicsSystem::PhysicsSystem(Level& currentLevel) : level(currentLevel)
 {
 
