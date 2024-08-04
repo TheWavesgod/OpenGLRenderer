@@ -19,6 +19,10 @@ public:
 	void MultiSample();
 	void PostProcess();
 
+	/** Setting parameter */
+	bool bGammaCorrection = true;
+	float exposure = 1.0f;
+
 protected:
 	void InitializeRenderer();
 

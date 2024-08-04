@@ -1,6 +1,6 @@
+#include "UserInterface.h"
 #include "window.h"
 #include "glRenderer.h"
-#include "shader.h"
 #include "Level.h"
 
 int main()
@@ -16,21 +16,38 @@ int main()
 	{
 		return -1;
 	}
-
+	
 	Level level(renderer);
+
+	UserInterface* ui = UserInterface::CreateUserInterface(w, renderer, level);
+	if (!ui)
+	{
+		return -1;
+	}
 
 	float deltaT;
 	while (w->Update(deltaT))
 	{
-		if (w->GetInputState(GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		if (w->GetInputState(GLFW_KEY_TAB) == GLFW_PRESS)
 		{
-			w->SetWindowShouldClose(true);
+			w->SwitchMouseInput();
 		}
 
-		level.Update(deltaT);
-	}
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
 
+		ui->StartNewFrame();
+
+		level.Update(deltaT);
+
+		ui->Render();
+
+		glfwSwapBuffers(w->GetGLFWWindow());
+	}
+	
+	ui->Shutdown();
 	w->CloseWindow();
+	delete renderer;
 
 	return 0;
 }

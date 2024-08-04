@@ -22,6 +22,9 @@
     <Filter Include="Render">
       <UniqueIdentifier>{210b22bc-8092-4dfd-b052-aa43b635eae1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ImGui">
+      <UniqueIdentifier>{61d0ecd7-d96d-4809-bfbb-5e7a236bdc1b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\glad.c">
@@ -30,19 +33,7 @@
     <ClCompile Include="src\Window.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\GLRenderer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Mesh.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Shader.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Texture.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Camera.cpp">
@@ -51,25 +42,13 @@
     <ClCompile Include="src\Transform.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Model.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Light.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\SceneNode.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\CubeMap.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Frustum.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Level.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Material.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\PhysicsSystem.cpp">
@@ -84,24 +63,60 @@
     <ClCompile Include="src\GameObject.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\ImGui\imgui.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImGui\imgui_demo.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImGui\imgui_draw.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImGui\imgui_impl_glfw.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImGui\imgui_tables.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImGui\imgui_widgets.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImGui\imgui_impl_opengl3.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UserInterface.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GLRenderer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CubeMap.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Light.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Material.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Texture.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Shader.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Window.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\GLRenderer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Mesh.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Shader.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\stb_image.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Texture.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Camera.h">
@@ -113,25 +128,13 @@
     <ClInclude Include="src\Utilities.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\Model.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Light.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\SceneNode.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\CubeMap.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Frustum.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Level.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Material.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\PhysicsSystem.h">
@@ -154,6 +157,60 @@
     </ClInclude>
     <ClInclude Include="src\Ray.h">
       <Filter>Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ImGui\imconfig.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ImGui\imgui.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ImGui\imgui_impl_glfw.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ImGui\imgui_internal.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ImGui\imstb_rectpack.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ImGui\imstb_textedit.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ImGui\imstb_truetype.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ImGui\imgui_impl_opengl3.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ImGui\imgui_impl_opengl3_loader.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UserInterface.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GLRenderer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CubeMap.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Light.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Material.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Mesh.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Model.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shader.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Texture.h">
+      <Filter>Render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

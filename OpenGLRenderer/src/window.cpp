@@ -35,7 +35,6 @@ window::window(uint32_t width, uint32_t height, const std::string& title, bool b
 	glfwMakeContextCurrent(w);
 	glfwWindow = w;
 
-	glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(w, mouse_callback);
 	glfwSetScrollCallback(w, scroll_callback);
 
@@ -43,7 +42,7 @@ window::window(uint32_t width, uint32_t height, const std::string& title, bool b
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
-		glfwWindow == nullptr;
+		glfwWindow = nullptr;
 	}
 
 	int flags; 
@@ -109,8 +108,24 @@ void window::CloseWindow()
 	glfwTerminate();
 }
 
+void window::SwitchMouseInput()
+{
+	if (bEnableMouseCursor)
+	{
+		glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		firstMouse = true;
+	}
+	else
+	{
+		glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+	bEnableMouseCursor = !bEnableMouseCursor;
+}
+
 void window::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
+	if (window::GetWindowPointer()->bEnableMouseCursor) return;
+
 	float xpos = static_cast<float>(xposIn);
 	float ypos = static_cast<float>(yposIn);
 

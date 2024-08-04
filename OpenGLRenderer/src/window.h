@@ -23,6 +23,8 @@ public:
 	void SetWindowShouldClose(bool bShouldClose);
 	void CloseWindow();
 
+	void SwitchMouseInput();
+
 	window(const window&) = delete;
 	window& operator=(const window&) = delete;
 
@@ -37,6 +39,8 @@ protected:
 
 	GLuint width;
 	GLuint height;
+
+	bool bEnableMouseCursor = true;
 private:
 	static window* windowPtr;
 	

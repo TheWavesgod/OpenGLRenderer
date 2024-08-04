@@ -20,16 +20,15 @@ Level::Level(glRenderer* r)
 
 	lightsManager = new LightsManager();
 
-	skybox = new CubeMap(
+	/*skybox = new CubeMap(
 		"../Resources/CubeMap/evening_right.jpg",
 		"../Resources/CubeMap/evening_left.jpg",
 		"../Resources/CubeMap/evening_top.jpg",
 		"../Resources/CubeMap/evening_bottom.jpg",
 		"../Resources/CubeMap/evening_front.jpg",
 		"../Resources/CubeMap/evening_back.jpg"
-	);
-
-	skybox1 = new CubeMap("../Resources/HDR/DarkPlace/DarkPlace.hdr");
+	);*/
+	ImportCubeMaps();
 
 	Material* newMaterial = new Material(
 		"../Resources/Textures/RustedIron/rustediron2_basecolor.png",
@@ -214,6 +213,15 @@ void Level::ConstructScene()
 	PBRGrassMeadow->GetTransform().SetPosition(glm::vec3(-8.0f, 1.5f, -3.0f));
 }
 
+void Level::ImportCubeMaps()
+{
+	CubeMaps.reserve(4);
+	CubeMaps[0] = new CubeMap("../Resources/HDR/RockHill/RockHill.hdr");
+	CubeMaps[1] = new CubeMap("../Resources/HDR/LivingRoom/LivingRoom.hdr");
+	CubeMaps[2] = new CubeMap("../Resources/HDR/DarkPlace/DarkPlace.hdr");
+	CubeMaps[3] = new CubeMap("../Resources/HDR/Gallery/gallery_hd.hdr");
+}
+
 void Level::Update(float dt)
 {
 	camera->UpdateCamera(dt);
@@ -231,9 +239,9 @@ void Level::LevelBeginPlay()
 
 	camera->UploadProjectionMatrix(renderer->GetUboCamera());
 
-	skybox1->BindIrradianceMap(7); 
-	skybox1->BindprefilterMap(8);
-	skybox1->BindBRDFLUT(9);
+	CubeMaps[currentSkybox]->BindIrradianceMap(7);
+	CubeMaps[currentSkybox]->BindprefilterMap(8);
+	CubeMaps[currentSkybox]->BindBRDFLUT(9);
 }
 
 void Level::GetGameObjectsIterators(GameObjectIterator& cbegin, GameObjectIterator& cend) const
@@ -280,6 +288,7 @@ void Level::Render()
 	lightsManager->Update();
 	renderer->SetSceneBufferReady();	
 	lightsManager->DrawLightCubes();
+	CheckSelectSkybox();
 	DrawScene();
 	renderer->MultiSample();
 	renderer->PostProcess();
@@ -293,7 +302,7 @@ void Level::DrawScene()
 	ClearNodeLists();
 
 	// Draw skybox last
-	skybox1->Draw();
+	CubeMaps[currentSkybox]->Draw();
 }
 
 void Level::BuildNodeLists(SceneNode* from)
@@ -352,4 +361,15 @@ void Level::DrawNode(SceneNode* n)
 	{
 		n->Draw();
 	}
+}
+
+void Level::CheckSelectSkybox()
+{
+	if (selectSkybox == currentSkybox) return;
+	
+	currentSkybox = selectSkybox;
+
+	CubeMaps[currentSkybox]->BindIrradianceMap(7);
+	CubeMaps[currentSkybox]->BindprefilterMap(8);
+	CubeMaps[currentSkybox]->BindBRDFLUT(9);
 }

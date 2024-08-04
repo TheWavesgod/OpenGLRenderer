@@ -32,8 +32,14 @@ public:
 
 	bool Raycast(Ray& r, RayCollision& collision, bool closestObject = false, GameObject* ignore = nullptr) const;
 
+	LightsManager* GetLightsManager() { return lightsManager; }
+
+	/** Setting parameter */
+	int selectSkybox = 0;
+
 protected:
 	void ConstructScene();
+	void ImportCubeMaps();
 
 	void Render();
 	void DrawScene();
@@ -44,9 +50,15 @@ protected:
 	void DrawNodes();
 	void DrawNode(SceneNode* n);
 
+	void CheckSelectSkybox();
+
 	Camera* camera;
 	SceneNode* root;
 	LightsManager* lightsManager;
+
+	int currentSkybox = 0;
+	std::vector<CubeMap*> CubeMaps;
+	
 	CubeMap* skybox;
 	CubeMap* skybox1;
 

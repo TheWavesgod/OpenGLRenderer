@@ -98,6 +98,10 @@ public:
 	void AddSpotLight(glm::vec3 lightPos, glm::vec3 lightRot, glm::vec3 lightColor, float innerCutOff, float outerCutOff, float linear, float quadratic);
 	void AddPointLight(glm::vec3 lightPos, glm::vec3 lightColor, float linear, float quadratic);
 
+	std::vector<DirLight*>& GetDirlights() { return dirLights; }
+	std::vector<SpotLight*>& GetSpotlights() { return spotLights; }
+	std::vector<PointLight*>& GetPointlights() { return pointLights; }
+
 private:
 	void BuildLightsFrameBuffer();
 	void BuildLightsUniformBuffer();

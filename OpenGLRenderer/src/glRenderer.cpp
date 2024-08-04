@@ -33,7 +33,7 @@ void glRenderer::InitializeRenderer()
 	CreateFrameBuffer();
 	CreateUniformBuffer();
 
-	//glEnable(GL_MULTISAMPLE);
+	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	glEnable(GL_DEPTH_TEST);
 
@@ -72,19 +72,14 @@ void glRenderer::PostProcess()
 	//}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
 	Shader::GetShaderByIndex(2)->Use();
 	Shader::GetShaderByIndex(2)->SetUniformInt("screenTexture", 0);
-	Shader::GetShaderByIndex(2)->SetUniformInt("gammaCorrection", true);
-	Shader::GetShaderByIndex(2)->SetUniformFloat("exposure", 1.0f);
+	Shader::GetShaderByIndex(2)->SetUniformInt("gammaCorrection", bGammaCorrection);
+	Shader::GetShaderByIndex(2)->SetUniformFloat("exposure", exposure);
 	glBindVertexArray(screenQuadVAO);
 	glDisable(GL_DEPTH_TEST);
 	glBindTexture(GL_TEXTURE_2D, colorTexPostProcess[0]);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	glfwSwapBuffers(currentWindow->GetGLFWWindow());
 }
 
 bool glRenderer::CreateShaderPrograms()
