@@ -29,6 +29,7 @@ public:
 
 protected:
 	std::vector<Mesh*> meshes;
+	std::vector<Material*> materials;
 	std::string directory;
 
 	void LoadModel(const std::string& path);

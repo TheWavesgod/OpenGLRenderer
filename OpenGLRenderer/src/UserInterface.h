@@ -31,6 +31,9 @@ protected:
 	void SetMenu();
 	void SetSkyboxMenu();
 	void SetLightMenu();
+	void SetMaterialMenu();
+	void SetModelMenu();
+	void SetGameObjectsMenu();
 
 private:
 	UserInterface(window* w, glRenderer* renderer, Level& l);

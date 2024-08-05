@@ -111,6 +111,9 @@
     <ClCompile Include="src\Shader.cpp">
       <Filter>Render</Filter>
     </ClCompile>
+    <ClCompile Include="src\RenderObject.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Window.h">
@@ -210,6 +213,9 @@
       <Filter>Render</Filter>
     </ClInclude>
     <ClInclude Include="src\Texture.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderObject.h">
       <Filter>Render</Filter>
     </ClInclude>
   </ItemGroup>

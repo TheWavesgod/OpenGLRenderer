@@ -1,16 +1,26 @@
 #include "GameObject.h"
+#include "RenderObject.h"
 #include "CollisionVolumn.h"
 
-GameObject::GameObject(CollisionVolume* newVolumn, PhysicsObject* newPhysicsObject)
+GameObject::GameObject(CollisionVolume* newVolumn, Model* newModel, PhysicsObject* newPhysicsObject)
 {
 	volume = newVolumn;
+	UpdateCollisionVolumeSphere();
 	physicsObject = newPhysicsObject;
+	model = newModel;
+
+	if (model)
+	{
+		renderObject = new RenderObject(model, &transform);
+		renderObject->SetBoundingSphere(BoundingSphere);
+	}
 }
 
 GameObject::~GameObject()
 {
 	delete volume;
 	delete physicsObject;
+	delete renderObject;
 }
 
 void GameObject::UpdateCollisionVolumeAABB()

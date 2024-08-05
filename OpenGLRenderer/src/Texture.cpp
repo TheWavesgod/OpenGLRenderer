@@ -116,3 +116,48 @@ const std::string Texture::GetTypeName() const
 
 	return name;
 }
+
+std::string Texture::GetTypeString(TextureType type)
+{
+	std::string name;
+	switch (type)
+	{
+	case TEXTYPE_DIFFUSE:
+		name = "diffuse";
+		break;
+
+	case TEXTYPE_SPECULAR:
+		name = "specular";
+		break;
+
+	case TEXTYPE_ALBEDO:
+		name = "albedo";
+		break;
+
+	case TEXTYPE_METALLIC:
+		name = "metallic";
+		break;
+
+	case TEXTYPE_ROUGHNESS:
+		name = "roughness";
+		break;
+
+	case TEXTYPE_AO:
+		name = "ao";
+		break;
+
+	case TEXTYPE_NORMAL:
+		name = "normal";
+		break;
+
+	case TEXTYPE_HEIGHT:
+		name = "height";
+		break;
+
+	case TEXTYPE_EMISSIVE:
+		name = "emissive";
+		break;
+	}
+
+	return name;
+}

@@ -13,30 +13,37 @@ Material::Material(const std::string& albedo, const std::string& mettalic, const
 	if (!albedo.empty())
 	{
 		textures[TEXTYPE_ALBEDO] = new Texture(albedo, TEXTYPE_ALBEDO);
+		filePathes[TEXTYPE_ALBEDO] = albedo;
 	}
 	if (!mettalic.empty())
 	{
 		textures[TEXTYPE_METALLIC] = new Texture(mettalic, TEXTYPE_METALLIC);
+		filePathes[TEXTYPE_METALLIC] = mettalic;
 	}
 	if (!roughness.empty())
 	{
 		textures[TEXTYPE_ROUGHNESS] = new Texture(roughness, TEXTYPE_ROUGHNESS);
+		filePathes[TEXTYPE_ROUGHNESS] = roughness;
 	}
 	if (!normal.empty())
 	{
 		textures[TEXTYPE_NORMAL] = new Texture(normal, TEXTYPE_NORMAL);
+		filePathes[TEXTYPE_NORMAL] = normal;
 	}
 	if (!height.empty())
 	{
 		textures[TEXTYPE_HEIGHT] = new Texture(height, TEXTYPE_HEIGHT);
+		filePathes[TEXTYPE_HEIGHT] = height;
 	}
 	if (!ao.empty())
 	{
 		textures[TEXTYPE_AO] = new Texture(ao, TEXTYPE_AO);
+		filePathes[TEXTYPE_AO] = ao;
 	}
 	if (!emissive.empty())
 	{
 		textures[TEXTYPE_EMISSIVE] = new Texture(emissive, TEXTYPE_EMISSIVE);
+		filePathes[TEXTYPE_EMISSIVE] = emissive;
 	}
 
 	bUsePBR = true;
@@ -62,8 +69,8 @@ void Material::Set(Shader& shader)
 		shader.SetUniformInt("useEmissive", textures[TEXTYPE_EMISSIVE] != nullptr);
 		shader.SetUniformInt("useHeight", textures[TEXTYPE_HEIGHT] != nullptr);
 
-		shader.SetUniformFloat("heightScale", 0.2f);
-		shader.SetUniformFloat("emissiveScale", 1.0f);
+		shader.SetUniformFloat("heightScale", heightScale);
+		shader.SetUniformFloat("emissiveScale", emissiveScale);
 
 		shader.SetUniformInt("irradianceMap", 7);
 		shader.SetUniformInt("prefilterMap", 8);

@@ -3,6 +3,7 @@
 #include "Level.h"
 #include "glRenderer.h"
 #include "Light.h"
+#include "Material.h"
 
 UserInterface* UserInterface::uiPtr = nullptr;
 
@@ -44,12 +45,25 @@ void UserInterface::SetMenu()
 	ImGui::Spacing();
 	ImGui::Text("Press TAB to switch mouse cursor state");
 	ImGui::Spacing();
+	ImGui::Text("Hold Mouse Right Buttom to activate free camera view");
+	ImGui::Spacing();
+	ImGui::Text("W A S D move the camera, Q E raise or lower the camera");
+	ImGui::Spacing();
 	ImGui::SeparatorText("");
 
 	if (ImGui::CollapsingHeader("Global Settings", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Checkbox("Enable gamma correction", &(renderer->bGammaCorrection));
 		ImGui::SliderFloat("Exposure amount", &(renderer->exposure), 0.0f, 10.0f);
+	}
+
+	ImGui::Spacing();
+	ImGui::SeparatorText("");
+
+	if (ImGui::CollapsingHeader("Assets", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		SetMaterialMenu();
+		SetModelMenu();
 	}
 	
 	ImGui::Spacing();
@@ -59,6 +73,7 @@ void UserInterface::SetMenu()
 	{
 		SetSkyboxMenu();
 		SetLightMenu();
+		SetGameObjectsMenu();
 	}
 
 	ImGui::Spacing();
@@ -85,7 +100,7 @@ void UserInterface::SetSkyboxMenu()
 void UserInterface::SetLightMenu()
 {
 	LightsManager* lightManagers = level.GetLightsManager();
-	if (ImGui::TreeNode("Lights"))
+	if (ImGui::TreeNodeEx("Lights", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		if (ImGui::TreeNode("Directional Lights"))
 		{
@@ -197,6 +212,78 @@ void UserInterface::SetLightMenu()
 		ImGui::TreePop();
 	}
 }
+
+void UserInterface::SetMaterialMenu()
+{
+	std::vector<Material*> materials = level.GetMaterials();
+	if (ImGui::TreeNode("Materials"))
+	{
+		for (size_t i = 0; i < materials.size(); ++i)
+		{
+			std::string name = "Material " + std::to_string(i) + " : " + materials[i]->GetName();
+			ImGui::SeparatorText(name.data());
+
+			ImGui::Text("PBR Render: "); ImGui::SameLine();
+			ImGui::BeginDisabled(true);
+			bool bUsePBR = materials[i]->GetUsePBR();
+			ImGui::Checkbox(("##bUsePBR" + std::to_string(i)).c_str(), &bUsePBR);
+			ImGui::EndDisabled(); 
+
+			ImGui::Text("Height mapping scale: "); ImGui::SameLine();
+			float heightScale = materials[i]->GetHeightScale();
+			if (ImGui::SliderFloat(("##heightScale" + std::to_string(i)).c_str(), &heightScale, 0.0f, 1.0f))
+			{
+				materials[i]->SetHeightScale(heightScale);
+			}
+
+			ImGui::Text("Emissive intensity scale: "); ImGui::SameLine();
+			float emissiveScale = materials[i]->GetEmissiveScale();
+			if (ImGui::SliderFloat(("##emissiveScale" + std::to_string(i)).c_str(), &emissiveScale, 0.0f, 10.0f))
+			{
+				materials[i]->SetEmissiveScale(emissiveScale);
+			}
+
+			if (ImGui::TreeNode("Texture File Path"))
+			{
+				const std::string* files = materials[i]->GetFilePathes();
+				ImGui::BeginDisabled(true);
+
+				if (bUsePBR)
+				{
+					for (int j = TEXTYPE_ALBEDO; j < TEXTYPE_MAX; ++j)
+					{
+						std::string name = Texture::GetTypeString((TextureType)j);
+						ImGui::Text((name + ": ").c_str()); ImGui::SameLine();
+						ImGui::Text(files[j].c_str());
+					}
+				}
+
+				ImGui::EndDisabled();
+				ImGui::TreePop();
+			}
+
+			ImGui::Spacing();
+		}
+		ImGui::TreePop();
+	}
+}
+
+void UserInterface::SetModelMenu()
+{
+	if (ImGui::TreeNodeEx("Models", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+
+
+
+		ImGui::TreePop();
+	}
+}
+
+void UserInterface::SetGameObjectsMenu()
+{
+
+}
+
 
 UserInterface::UserInterface(window* w, glRenderer* renderer, Level& l) : w(w), level(l), renderer(renderer)
 {

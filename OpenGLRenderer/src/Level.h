@@ -15,6 +15,7 @@ class Material;
 class glRenderer;
 class LightsManager;
 class Model;
+class RenderObject;
 
 using GameObjectIterator = std::vector<GameObject*>::const_iterator;
 
@@ -33,6 +34,7 @@ public:
 	bool Raycast(Ray& r, RayCollision& collision, bool closestObject = false, GameObject* ignore = nullptr) const;
 
 	LightsManager* GetLightsManager() { return lightsManager; }
+	std::vector<Material*>& GetMaterials() { return  materials; }
 
 	/** Setting parameter */
 	int selectSkybox = 0;
@@ -50,6 +52,10 @@ protected:
 	void DrawNodes();
 	void DrawNode(SceneNode* n);
 
+	void BuildRenderObjectLists();
+	void SortRenderObjectLists();
+	void ClearRenderObjectLists();
+
 	void CheckSelectSkybox();
 
 	Camera* camera;
@@ -58,9 +64,6 @@ protected:
 
 	int currentSkybox = 0;
 	std::vector<CubeMap*> CubeMaps;
-	
-	CubeMap* skybox;
-	CubeMap* skybox1;
 
 	Mesh* floor;
 	Mesh* cube;
@@ -72,14 +75,18 @@ protected:
 	Mesh* Lava;
 
 	std::vector<Material*> materials;
-
+	std::vector<Model*> models;
 	Model* backpack;
+	Model* F22;
 
 	glRenderer* renderer;
 	Frustum frameFrustum;
 
 	std::vector<SceneNode*> transparentNodeList;
 	std::vector<SceneNode*> nodeList;
+
+	std::vector<RenderObject*> transparentObjectList;
+	std::vector<RenderObject*> objectList;
 
 	std::vector<GameObject*> gameObjects;
 };

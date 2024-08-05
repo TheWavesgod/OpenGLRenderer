@@ -1,5 +1,6 @@
 #include "Frustum.h"
 #include "SceneNode.h"
+#include "RenderObject.h"
 
 Plane::Plane(const glm::vec3& normal, float distance, bool normalise)
 {
@@ -59,6 +60,18 @@ bool Frustum::InsideFrustum(SceneNode& n)
 	for (unsigned int i = 0; i < 6; ++i)
 	{
 		if (!planes[i].ShpereInPlane(n.GetWorldTransform().GetPosition(), n.GetBoundingRadius()))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool Frustum::InsideFrustum(RenderObject* o)
+{
+	for (unsigned int i = 0; i < 6; ++i)
+	{
+		if (!planes[i].ShpereInPlane(o->GetTrasform().GetPosition(), o->GetBoundingSphere()))
 		{
 			return false;
 		}

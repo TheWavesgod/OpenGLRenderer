@@ -17,6 +17,8 @@ public:
 	static float mouseInputY;
 	static float mouseScroll;
 
+	static bool bEnableMouseCursor;
+
 	bool HasInitialized();
 	bool Update(float& deltaT);
 
@@ -42,7 +44,6 @@ protected:
 	GLuint width;
 	GLuint height;
 
-	bool bEnableMouseCursor = true;
 private:
 	static window* windowPtr;
 	

@@ -8,6 +8,7 @@ float window::lastMouseY = 0.0f;
 float window::mouseInputX = 0.0f;
 float window::mouseInputY = 0.0f;
 float window::mouseScroll = 0.0f;
+bool window::bEnableMouseCursor = true;
 
 window* window::CreateGLFWWindow(uint32_t width, uint32_t height, const std::string& title, bool bFullScreen)
 {
@@ -140,7 +141,7 @@ void window::SetMouseCursorState(bool bEnable)
 
 void window::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
-	if (window::GetWindowPointer()->bEnableMouseCursor) return;
+	if (window::bEnableMouseCursor) return;
 
 	float xpos = static_cast<float>(xposIn);
 	float ypos = static_cast<float>(yposIn);

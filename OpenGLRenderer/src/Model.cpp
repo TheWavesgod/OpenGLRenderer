@@ -55,7 +55,8 @@ void Model::LoadModel(const std::string& path)
 		return;
 	}
 	directory = path.substr(0, path.find_last_of('/'));
-
+	
+	materials.resize(scene->mNumMaterials);
 	ProcessNode(scene->mRootNode, scene);
 }
 
@@ -133,6 +134,11 @@ Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 		for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; j++)
 			m->indices.push_back(mesh->mFaces[i].mIndices[j]);
 	}	
+
+	if (mesh->mMaterialIndex >= 0)
+	{
+		m->parentMaterialIndex = mesh->mMaterialIndex;
+	}
 
 	m->SetupMesh();
 

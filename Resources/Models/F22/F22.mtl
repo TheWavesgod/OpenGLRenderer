@@ -1,0 +1,94 @@
+# Blender 4.0.1 MTL File: 'F22_OpenGL.blend11'
+# www.blender.org
+
+newmtl Pilot.001
+Ns 200.000000
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd pilot_diffuse.png
+map_refl pilot_specular.png
+map_Bump -bm 1.000000 pilot_normal.png
+
+newmtl exterior.003
+Ns 200.000000
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd exterior_diffuse.png
+map_refl exterior_specular.png
+map_Bump -bm 1.000000 exterior_normal.png
+
+newmtl exterior.004
+Ns 200.000000
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd exterior_diffuse.png
+map_refl exterior_specular.png
+map_Bump -bm 1.000000 exterior_normal.png
+
+newmtl exterior.005
+Ns 200.000000
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd exterior_diffuse.png
+map_refl exterior_specular.png
+map_Bump -bm 1.000000 exterior_normal.png
+
+newmtl glass.001
+Ns 200.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.407843 0.407843 0.407843
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 0.211765
+illum 9
+
+newmtl heads-up_display.001
+Ns 200.000000
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 0.709804
+illum 9
+map_Kd interior_diffuse.png
+
+newmtl interior.002
+Ns 200.000000
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd interior_diffuse.png
+map_refl interior_specular.png
+map_Bump -bm 1.000000 interior_normal.png
+
+newmtl interior.003
+Ns 200.000000
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd interior_diffuse.png
+map_refl interior_specular.png
+map_Bump -bm 1.000000 interior_normal.png

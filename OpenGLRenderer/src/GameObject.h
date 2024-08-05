@@ -2,13 +2,15 @@
 
 #include "Transform.h"
 
+class RenderObject;
 class PhysicsObject;
 class CollisionVolume;
+class Model;
 
 class GameObject
 {
 public:
-	GameObject(CollisionVolume* newVolumn, PhysicsObject* newPhysicsObject);
+	GameObject(CollisionVolume* newVolumn, Model* newModel, PhysicsObject* newPhysicsObject);
 	~GameObject();
 
 	void UpdateCollisionVolumeAABB();
@@ -16,6 +18,7 @@ public:
 
 	Transform& GetTransform() { return transform; }
 	PhysicsObject* GetPhysicsObject() const { return physicsObject; }
+	RenderObject* GetRenderObject() const { return renderObject; }
 	const CollisionVolume* GetBoundingVolume() const { return volume; }
 
 	float GetBoundingSphere() const { return BoundingSphere; }
@@ -31,7 +34,11 @@ protected:
 	std::string name;
 
 	CollisionVolume* volume = nullptr;
+
+	Model* model;
+
 	PhysicsObject* physicsObject = nullptr;
+	RenderObject* renderObject = nullptr;
 
 	glm::vec3 BoundingAABB;
 	float BoundingSphere = 10.0f;

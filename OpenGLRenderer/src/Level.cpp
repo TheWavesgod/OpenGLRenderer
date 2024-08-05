@@ -9,6 +9,7 @@
 #include "Light.h"
 #include "Shader.h"
 #include "Model.h"
+#include "RenderObject.h"
 
 #include <algorithm>
 
@@ -38,6 +39,7 @@ Level::Level(glRenderer* r)
 		"",
 		"../Resources/Textures/RustedIron/rustediron2_ao.png"
 	);
+	newMaterial->SetName("RustedIron");
 	materials.push_back(newMaterial);
 
 	newMaterial = new Material(
@@ -48,6 +50,7 @@ Level::Level(glRenderer* r)
 		"../Resources/Textures/BrickWall/brick-wall_height.png",
 		"../Resources/Textures/BrickWall/brick-wall_ao.png"
 	);
+	newMaterial->SetName("BrickWall");
 	materials.push_back(newMaterial);
 
 	newMaterial = new Material(
@@ -58,6 +61,7 @@ Level::Level(glRenderer* r)
 		"../Resources/Textures/GrassMeadow/grass-meadow_height.png",
 		"../Resources/Textures/GrassMeadow/grass-meadow_ao.png"
 	);
+	newMaterial->SetName("GrassMeadow");
 	materials.push_back(newMaterial);
 
 	newMaterial = new Material(
@@ -68,6 +72,7 @@ Level::Level(glRenderer* r)
 		"../Resources/Textures/StainlessSteel/used-stainless-steel2_height.png",
 		"../Resources/Textures/StainlessSteel/used-stainless-steel2_ao.png"
 	);
+	newMaterial->SetName("UsedStainlessSteel");
 	materials.push_back(newMaterial);
 
 	newMaterial = new Material(
@@ -78,6 +83,7 @@ Level::Level(glRenderer* r)
 		"../Resources/Textures/WhiteMarble/white-marble_height.png",
 		"../Resources/Textures/WhiteMarble/white-marble_ao.png"
 	);
+	newMaterial->SetName("WhiteMarble");
 	materials.push_back(newMaterial);
 
 	newMaterial = new Material(
@@ -89,6 +95,7 @@ Level::Level(glRenderer* r)
 		"../Resources/Textures/ColumnedLavaRock/columned-lava-rock_ao.png",
 		"../Resources/Textures/ColumnedLavaRock/columned-lava-rock_emissive.png"
 	);
+	newMaterial->SetName("LavaRock");
 	materials.push_back(newMaterial);
 
 	newMaterial = new Material(
@@ -99,6 +106,7 @@ Level::Level(glRenderer* r)
 		"../Resources/Textures/HardwoodPlanks/HardwoodPlanks_height.png",
 		"../Resources/Textures/HardwoodPlanks/HardwoodPlanks_ao.png"
 	);
+	newMaterial->SetName("HardwoodPlanks");
 	materials.push_back(newMaterial);
 
 	floor = Mesh::GenerateFloor();
@@ -142,11 +150,16 @@ Level::Level(glRenderer* r)
 		"",
 		"../Resources/Models/backpack/ao.jpg"
 	);
+	newMaterial->SetName("Backpack");
 	materials.push_back(newMaterial);
 
 	backpack = new Model("../Resources/Models/backpack/backpack.obj");
 	backpack->SetShaderIndex(6);
 	backpack->SetMaterial(materials[7]);
+
+	F22 = new Model("../Resources/Models/F22/F22.obj");
+	F22->SetShaderIndex(6);
+	F22->SetMaterial(materials[4]);
 
 	root = new SceneNode();
 
@@ -159,7 +172,6 @@ Level::~Level()
 {
 	delete camera;
 	delete lightsManager;
-	delete skybox;
 	delete cube;
 	delete RustedIron;
 	delete BrickWall;
@@ -187,6 +199,10 @@ void Level::ConstructScene()
 	SceneNode* backpackModel = new SceneNode(backpack);
 	root->AddChild(backpackModel);
 	backpackModel->GetTransform().SetPosition(glm::vec3(6.0f, 1.5f, -3.0f));
+
+	SceneNode* F22Model = new SceneNode(F22);
+	root->AddChild(F22Model);
+	F22Model->GetTransform().SetPosition(glm::vec3(6.0f, 10.0f, -3.0f));
 
 	SceneNode* PBRcontainer = new SceneNode(RustedIron);
 	root->AddChild(PBRcontainer);
@@ -361,6 +377,35 @@ void Level::DrawNode(SceneNode* n)
 	{
 		n->Draw();
 	}
+}
+
+void Level::BuildRenderObjectLists()
+{
+	for (auto& gameObject : gameObjects)
+	{
+		RenderObject* rObj = gameObject->GetRenderObject();
+		if (rObj == nullptr) continue;
+
+		if (frameFrustum.InsideFrustum(rObj))
+		{
+			glm::vec3 dir = gameObject->GetTransform().GetPosition() - camera->GetCameraTransform().GetPosition();
+			rObj->SetCameraDistance(glm::dot(dir, dir));
+
+			objectList.push_back(rObj);
+		}
+	}
+}
+
+void Level::SortRenderObjectLists()
+{
+	std::sort(transparentObjectList.rbegin(), transparentObjectList.rend(), RenderObject::CompareByCameraDistance);
+	std::sort(objectList.begin(), objectList.end(), RenderObject::CompareByCameraDistance);
+}
+
+void Level::ClearRenderObjectLists()
+{
+	transparentObjectList.clear();
+	objectList.clear();
 }
 
 void Level::CheckSelectSkybox()

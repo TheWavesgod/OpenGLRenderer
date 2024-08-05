@@ -37,6 +37,8 @@ public:
 
 	const std::string GetTypeName() const;
 
+	static std::string GetTypeString(TextureType type);
+
 protected:
 	GLuint textureID;
 

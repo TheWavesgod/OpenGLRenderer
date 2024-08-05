@@ -41,6 +41,7 @@ public:
 	void Draw(Shader& shader);
 	void DrawToLightDepthMap();
 
+	unsigned int parentMaterialIndex;
 	unsigned int shaderIndex;
 
 	friend Model;
