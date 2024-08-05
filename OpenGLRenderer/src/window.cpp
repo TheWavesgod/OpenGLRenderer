@@ -36,6 +36,7 @@ window::window(uint32_t width, uint32_t height, const std::string& title, bool b
 	glfwWindow = w;
 
 	glfwSetCursorPosCallback(w, mouse_callback);
+	glfwSetMouseButtonCallback(w, mousebuttom_callback);
 	glfwSetScrollCallback(w, scroll_callback);
 
 	// Initialize GLAD
@@ -112,14 +113,29 @@ void window::SwitchMouseInput()
 {
 	if (bEnableMouseCursor)
 	{
-		glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		firstMouse = true;
+		glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 	else
 	{
 		glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 	bEnableMouseCursor = !bEnableMouseCursor;
+}
+
+void window::SetMouseCursorState(bool bEnable)
+{
+	if (bEnable)
+	{
+		bEnableMouseCursor = true;
+		glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+	else
+	{
+		firstMouse = true;
+		glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		bEnableMouseCursor = false;
+	}
 }
 
 void window::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
@@ -146,6 +162,21 @@ void window::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 void window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	mouseScroll = yoffset;
+}
+
+void window::mousebuttom_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_RIGHT)
+	{
+		if (action == GLFW_PRESS)
+		{
+			window::GetWindowPointer()->SetMouseCursorState(false);
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			window::GetWindowPointer()->SetMouseCursorState(true);
+		}
+	}
 }
 
 void window::glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam)

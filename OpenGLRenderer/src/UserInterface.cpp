@@ -44,19 +44,24 @@ void UserInterface::SetMenu()
 	ImGui::Spacing();
 	ImGui::Text("Press TAB to switch mouse cursor state");
 	ImGui::Spacing();
+	ImGui::SeparatorText("");
 
-	if (ImGui::CollapsingHeader("Global Settings", 1))
+	if (ImGui::CollapsingHeader("Global Settings", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Checkbox("Enable gamma correction", &(renderer->bGammaCorrection));
 		ImGui::SliderFloat("Exposure amount", &(renderer->exposure), 0.0f, 10.0f);
 	}
 	
-	if (ImGui::CollapsingHeader("Level Settings", 1))
+	ImGui::Spacing();
+	ImGui::SeparatorText("");
+
+	if (ImGui::CollapsingHeader("Level Settings", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		SetSkyboxMenu();
 		SetLightMenu();
 	}
-	
+
+	ImGui::Spacing();
 	ImGui::SeparatorText("");
 	if (ImGui::Button("Close", ImVec2(80.0f, 26.0f)))
 	{
@@ -85,15 +90,107 @@ void UserInterface::SetLightMenu()
 		if (ImGui::TreeNode("Directional Lights"))
 		{
 			std::vector<DirLight*>& dirLights = lightManagers->GetDirlights();
-			for (auto dirLight : dirLights)
+			for (size_t i = 0; i < dirLights.size(); ++i)
 			{
+				std::string name = "Directional light " + std::to_string(i);
+				ImGui::SeparatorText(name.data());
 
+				glm::vec3 pos = dirLights[i]->GetLightPosition();
+				float lPos[3] = { pos.x, pos.y, pos.z };
+				ImGui::InputFloat3("Position", lPos);
+				dirLights[i]->SetLightPosition(glm::vec3(lPos[0], lPos[1], lPos[2]));
+
+				glm::vec3 rot = dirLights[i]->GetLightRotation();
+				float lRot[3] = { rot.x, rot.y, rot.z };
+				ImGui::InputFloat3("Rotation", lRot);
+				dirLights[i]->SetLightRotation(glm::vec3(lRot[0], lRot[1], lRot[2]));
+
+				glm::vec3 col = dirLights[i]->GetLightColor();
+				float lCol[3] = { col.x, col.y, col.z };
+				ImGui::ColorEdit3("Color", lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR);
+				dirLights[i]->SetLightColor(glm::vec3(lCol[0], lCol[1], lCol[2]));
 			}
 			ImGui::TreePop();
 		}
 
 		if (ImGui::TreeNode("Spot Lights"))
 		{
+			std::vector<SpotLight*>& spotLights = lightManagers->GetSpotlights();
+			for (size_t i = 0; i < spotLights.size(); ++i)
+			{
+				std::string name = "Spot light " + std::to_string(i);
+				ImGui::SeparatorText(name.data());
+
+				glm::vec3 pos = spotLights[i]->GetLightPosition();
+				float lPos[3] = { pos.x, pos.y, pos.z };
+				ImGui::InputFloat3("Position", lPos);
+				spotLights[i]->SetLightPosition(glm::vec3(lPos[0], lPos[1], lPos[2]));
+
+				glm::vec3 rot = spotLights[i]->GetLightRotation();
+				float lRot[3] = { rot.x, rot.y, rot.z };
+				ImGui::InputFloat3("Rotation", lRot);
+				spotLights[i]->SetLightRotation(glm::vec3(lRot[0], lRot[1], lRot[2]));
+
+				glm::vec3 col = spotLights[i]->GetLightColor();
+				float lCol[3] = { col.x, col.y, col.z };
+				ImGui::ColorEdit3("Color", lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR);
+				spotLights[i]->SetLightColor(glm::vec3(lCol[0], lCol[1], lCol[2]));
+
+				if (ImGui::TreeNode("Light properties"))
+				{
+					//ImGui::AlignTextToFramePadding();
+					ImGui::Text("Inner cutoff"); ImGui::SameLine();
+					ImGui::SetNextItemWidth(100.0f);
+					ImGui::InputFloat("", &spotLights[i]->innerCutOffInDegree); ImGui::SameLine();
+					ImGui::Text("Outer cutoff"); ImGui::SameLine();
+					ImGui::SetNextItemWidth(100.0f);
+					ImGui::InputFloat("", &spotLights[i]->outerCutOffInDegree);
+					spotLights[i]->innerCutOff = glm::cos(glm::radians(spotLights[i]->innerCutOffInDegree));
+					spotLights[i]->outerCutOff = glm::cos(glm::radians(spotLights[i]->outerCutOffInDegree));
+
+					ImGui::Text("Attenuation: linear"); ImGui::SameLine();
+					ImGui::SetNextItemWidth(100.0f);
+					ImGui::InputFloat("", &spotLights[i]->linear); ImGui::SameLine();
+					ImGui::Text("quadratic"); ImGui::SameLine();
+					ImGui::SetNextItemWidth(100.0f);
+					ImGui::InputFloat("", &spotLights[i]->quadratic);
+
+					ImGui::TreePop();
+				}
+			}
+			ImGui::TreePop();
+		}
+
+		if (ImGui::TreeNode("Point Lights"))
+		{
+			std::vector<PointLight*>& pointLights = lightManagers->GetPointlights();
+			for (size_t i = 0; i < pointLights.size(); ++i)
+			{
+				std::string name = "Point light " + std::to_string(i);
+				ImGui::SeparatorText(name.data());
+
+				glm::vec3 pos = pointLights[i]->GetLightPosition();
+				float lPos[3] = { pos.x, pos.y, pos.z };
+				ImGui::InputFloat3("Position", lPos);
+				pointLights[i]->SetLightPosition(glm::vec3(lPos[0], lPos[1], lPos[2]));
+
+				glm::vec3 col = pointLights[i]->GetLightColor();
+				float lCol[3] = { col.x, col.y, col.z };
+				ImGui::ColorEdit3("Color", lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR);
+				pointLights[i]->SetLightColor(glm::vec3(lCol[0], lCol[1], lCol[2]));
+
+				if (ImGui::TreeNode("Light properties"))
+				{
+					ImGui::Text("Attenuation: linear"); ImGui::SameLine();
+					ImGui::SetNextItemWidth(100.0f);
+					ImGui::InputFloat("", &pointLights[i]->linear); ImGui::SameLine();
+					ImGui::Text("quadratic"); ImGui::SameLine();
+					ImGui::SetNextItemWidth(100.0f);
+					ImGui::InputFloat("", &pointLights[i]->quadratic);
+					ImGui::TreePop();
+				}
+			}
+
 			ImGui::TreePop();
 		}
 

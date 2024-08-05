@@ -29,6 +29,7 @@ public:
 
 	inline const glm::vec3& GetLightPosition() const { return transform.GetPosition(); }
 	inline const glm::vec3& GetLightDirection() const { return transform.GetForwardVector(); }
+	inline const glm::vec3& GetLightRotation() const { return transform.GetRotation(); }
 	inline const glm::vec3& GetLightColor() const { return color; }
 	inline const Transform& GetLightTransform() const { return transform; }
 

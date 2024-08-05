@@ -24,12 +24,14 @@ public:
 	void CloseWindow();
 
 	void SwitchMouseInput();
+	void SetMouseCursorState(bool bEnable);
 
 	window(const window&) = delete;
 	window& operator=(const window&) = delete;
 
 	static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 	static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+	static void mousebuttom_callback(GLFWwindow* window, int button, int action, int mods);
 
 	static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam);
 
