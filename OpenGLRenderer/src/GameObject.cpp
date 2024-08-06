@@ -1,26 +1,22 @@
 #include "GameObject.h"
 #include "RenderObject.h"
 #include "CollisionVolumn.h"
+#include "Model.h"
 
-GameObject::GameObject(CollisionVolume* newVolumn, Model* newModel, PhysicsObject* newPhysicsObject)
+GameObject::GameObject(const std::string& newName, Level* currentLevel, CollisionVolume* newVolumn, Model* newModel, PhysicsObject* newPhysicsObject)
 {
+	name = newName;
+	level = currentLevel;
 	volume = newVolumn;
 	UpdateCollisionVolumeSphere();
 	physicsObject = newPhysicsObject;
-	model = newModel;
-
-	if (model)
-	{
-		renderObject = new RenderObject(model, &transform);
-		renderObject->SetBoundingSphere(BoundingSphere);
-	}
+	SetModel(newModel);
 }
 
 GameObject::~GameObject()
 {
 	delete volume;
 	delete physicsObject;
-	delete renderObject;
 }
 
 void GameObject::UpdateCollisionVolumeAABB()
@@ -64,12 +60,38 @@ void GameObject::UpdateCollisionVolumeSphere()
 	}
 }
 
+void GameObject::SetModel(Model* val)
+{
+	for (RenderObject* object : renderObjects)
+	{
+		delete object;
+	}
+	renderObjects.clear();
+
+	model = val;
+	const std::vector<Mesh*>& meshes = model->GetMeshes();
+	for (auto mesh : meshes)
+	{
+		RenderObject* newObj = new RenderObject(level, mesh, &transform, model->GetMaterialIndices());
+		renderObjects.push_back(newObj);
+	}
+}
+
 bool GameObject::GetBoundingAABB(glm::vec3& size) const
 {
 	if (volume == nullptr) return false;
 
 	size = BoundingAABB;
 	return true;
+}
+
+void GameObject::SetCameraDistance(float val)
+{
+	distanceFromCamera = val;
+	for (auto obj : renderObjects)
+	{
+		obj->SetCameraDistance(val);
+	}
 }
 
 glm::vec3 GameObject::GetBoundingAABBForOBB()

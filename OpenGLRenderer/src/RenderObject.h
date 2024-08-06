@@ -1,30 +1,38 @@
 #pragma once
+#include <vector>
 
 class Transform;
 class CollisionVolume;
-class Model;
+class Mesh;
+class Material;
+class Level;
 
 class RenderObject
 {
 public:
-	RenderObject(Model* newModel, Transform* parentTransform);
+	RenderObject(Level* newLevel, Mesh* newMesh, Transform* parentTransform, std::vector<int>* materials);
 	~RenderObject();
 
-	inline float GetBoundingSphere() const { return boundingSphere; }
-	void SetBoundingSphere(float radius) { boundingSphere = radius; }
+	void Draw();
 
 	inline void SetCameraDistance(float val) { distanceFromCamera = val; }
 	inline float GetCameraDistance() const { return distanceFromCamera; }
 	
 	const Transform& GetTrasform() const { return *transform; }
 
+	void SetLevel(Level* newLevel) { level = newLevel; }
+
+	bool GetIsTransparentObject() const;
+
 	static bool CompareByCameraDistance(const RenderObject* a, const RenderObject* b) { return (a->distanceFromCamera < b->distanceFromCamera) ? true : false; }
 
 protected:
 	Transform* transform = nullptr;
-	Model* model;
+	Mesh* mesh;
+	Material* material;
+	std::vector<int>* parentMaterialIndices;
+	Level* level;
 
-	float boundingSphere = 1.0f;
 	float distanceFromCamera = 0.0f;
 private:
 

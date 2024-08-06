@@ -33,8 +33,17 @@ public:
 
 	bool Raycast(Ray& r, RayCollision& collision, bool closestObject = false, GameObject* ignore = nullptr) const;
 
+	GameObject* AddGameObject(const std::string& name, const glm::vec3& position, CollisionVolume* volume, Model* model);
+
 	LightsManager* GetLightsManager() { return lightsManager; }
 	std::vector<Material*>& GetMaterials() { return  materials; }
+	std::vector<Model*>& GetModels() { return models; }
+
+	Material* GetMaterialByIndex(int i);
+
+	Model* GenerateSphereModel(const std::string& name);
+	Model* GenerateCubeModel(const std::string& name);
+	Model* GenerateFloorModel(const std::string& name);
 
 	/** Setting parameter */
 	int selectSkybox = 0;
@@ -52,9 +61,10 @@ protected:
 	void DrawNodes();
 	void DrawNode(SceneNode* n);
 
-	void BuildRenderObjectLists();
-	void SortRenderObjectLists();
-	void ClearRenderObjectLists();
+	void BuildRenderList();
+	void SortRenderList();
+	void ClearRenderList();
+	void DrawRenderList();
 
 	void CheckSelectSkybox();
 
@@ -65,19 +75,10 @@ protected:
 	int currentSkybox = 0;
 	std::vector<CubeMap*> CubeMaps;
 
-	Mesh* floor;
-	Mesh* cube;
-	Mesh* RustedIron;
-	Mesh* BrickWall;
-	Mesh* GrassMeadow;
-	Mesh* StainlessSteel;
-	Mesh* WhiteMarble;
-	Mesh* Lava;
+	std::vector<Mesh*> meshes;
 
 	std::vector<Material*> materials;
 	std::vector<Model*> models;
-	Model* backpack;
-	Model* F22;
 
 	glRenderer* renderer;
 	Frustum frameFrustum;
@@ -85,8 +86,8 @@ protected:
 	std::vector<SceneNode*> transparentNodeList;
 	std::vector<SceneNode*> nodeList;
 
-	std::vector<RenderObject*> transparentObjectList;
-	std::vector<RenderObject*> objectList;
+	std::vector<RenderObject*> transparentRenderList;
+	std::vector<RenderObject*> opaqueRenderList;
 
 	std::vector<GameObject*> gameObjects;
 };

@@ -13,23 +13,28 @@
 class Shader;
 class Mesh;
 class Material;
+class Transform;
 
 class Model
 {
 public:
-	Model(const std::string& filePath) { LoadModel(filePath); }
+	Model(const std::string& newName);
+	Model(const std::string& newName, const std::string& filePath) : name(newName) { LoadModel(filePath); }
 
-	void Draw(Shader& shader);
 	void DrawToLightDepthMap();
 
-	void SetShaderIndex(unsigned int index);
-	unsigned int shaderIndex;
-
 	void SetMaterial(Material* material);
+	void SetMaterialIndex(int slot, int index);
+
+	std::vector<Mesh*>& GetMeshes() { return meshes; }
+	
+	std::vector<int>* GetMaterialIndices() { return &materialIndices; }
+
+	std::string name;
 
 protected:
 	std::vector<Mesh*> meshes;
-	std::vector<Material*> materials;
+	std::vector<int> materialIndices;
 	std::string directory;
 
 	void LoadModel(const std::string& path);

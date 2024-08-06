@@ -38,16 +38,17 @@ public:
 
 	~Mesh();
 
-	void Draw(Shader& shader);
+	void Draw();
 	void DrawToLightDepthMap();
 
-	unsigned int parentMaterialIndex;
-	unsigned int shaderIndex;
+	unsigned int parentMaterialIndex = 0;
 
 	friend Model;
 
 	void AddTexture(const Texture& tex) { textures.push_back(tex); }
 	void SetMaterial(Material* val) { material = val; }
+
+	inline bool GetIsTransparent() const;
 
 protected:
 	// Mesh attributes

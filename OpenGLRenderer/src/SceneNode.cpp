@@ -46,23 +46,6 @@ void SceneNode::AddChild(SceneNode* child)
 
 void SceneNode::Draw()
 {
-	if (mesh)
-	{
-		Shader* useShader = Shader::GetShaderByIndex(mesh->shaderIndex);
-		useShader->Use();
-		useShader->SetUniformMat4("model", worldTransform.GetTransMatrix());
-
-		mesh->Draw(*useShader);
-	}
-
-	if (model)
-	{
-		Shader* useShader = Shader::GetShaderByIndex(model->shaderIndex);
-		useShader->Use();
-		useShader->SetUniformMat4("model", worldTransform.GetTransMatrix());
-
-		model->Draw(*useShader);
-	}
 }
 
 void SceneNode::Update(float dt)

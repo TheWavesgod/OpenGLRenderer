@@ -4,7 +4,7 @@
 #include <gtc/matrix_transform.hpp>
 
 class SceneNode;
-class RenderObject;
+class GameObject;
 
 class Plane
 {
@@ -34,7 +34,7 @@ public:
 
 	void FromMatrix(const glm::mat4& mat);
 	bool InsideFrustum(SceneNode& n);
-	bool InsideFrustum(RenderObject* object);
+	bool InsideFrustum(GameObject* object);
 
 protected:
 	Plane planes[6];

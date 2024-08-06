@@ -488,10 +488,8 @@ void Mesh::BindTextureSamplerBeforedraw(Shader& shader)
 	shader.SetUniformFloat("material.shininess", 32.0f);
 }
 
-void Mesh::Draw(Shader& shader)
+void Mesh::Draw()
 {
-	if (material) material->Set(shader);
-
 	glBindVertexArray(VAO);
 	if (indices.empty())
 	{
@@ -516,6 +514,11 @@ void Mesh::DrawToLightDepthMap()
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	}
 	glBindVertexArray(0);
+}
+
+inline bool Mesh::GetIsTransparent() const
+{
+	return material->GetTransparent();
 }
 
 void Mesh::SetupMesh()

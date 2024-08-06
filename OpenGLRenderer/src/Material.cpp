@@ -75,13 +75,17 @@ void Material::Set(Shader& shader)
 		shader.SetUniformInt("irradianceMap", 7);
 		shader.SetUniformInt("prefilterMap", 8);
 		shader.SetUniformInt("brdfLUT", 9);
-
-		//shader.SetUniformInt("pointDepth[" + std::to_string(0) + "]", 12);
 	}
 	else
 	{
 		shader.SetUniformFloat("material.shininess", 32.0f);
 	}
+}
+
+int Material::GetUseShaderIndex()
+{
+	if (bUsePBR) return 6;
+	return 6;
 }
 
 void Material::SetShaderSampler(Shader& shader, TextureType type, int index)

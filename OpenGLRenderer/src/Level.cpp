@@ -9,6 +9,7 @@
 #include "Light.h"
 #include "Shader.h"
 #include "Model.h"
+#include "GameObject.h"
 #include "RenderObject.h"
 
 #include <algorithm>
@@ -21,14 +22,6 @@ Level::Level(glRenderer* r)
 
 	lightsManager = new LightsManager();
 
-	/*skybox = new CubeMap(
-		"../Resources/CubeMap/evening_right.jpg",
-		"../Resources/CubeMap/evening_left.jpg",
-		"../Resources/CubeMap/evening_top.jpg",
-		"../Resources/CubeMap/evening_bottom.jpg",
-		"../Resources/CubeMap/evening_front.jpg",
-		"../Resources/CubeMap/evening_back.jpg"
-	);*/
 	ImportCubeMaps();
 
 	Material* newMaterial = new Material(
@@ -109,39 +102,6 @@ Level::Level(glRenderer* r)
 	newMaterial->SetName("HardwoodPlanks");
 	materials.push_back(newMaterial);
 
-	floor = Mesh::GenerateFloor();
-	floor->shaderIndex = 6;
-	floor->SetMaterial(materials[6]);
-
-	cube = Mesh::GenerateCube();
-	cube->shaderIndex = 1;
-	cube->AddTexture(Texture("../Resources/Textures/container2.png"));
-	cube->AddTexture(Texture("../Resources/Textures/container2_specular.png", TEXTYPE_SPECULAR));
-
-	RustedIron = Mesh::GenerateCube();
-	RustedIron->shaderIndex = 6;
-	RustedIron->SetMaterial(materials[0]);
-
-	BrickWall = Mesh::GenerateCube();
-	BrickWall->shaderIndex = 6;
-	BrickWall->SetMaterial(materials[1]);
-	
-	GrassMeadow = Mesh::GenerateCube();
-	GrassMeadow->shaderIndex = 6;
-	GrassMeadow->SetMaterial(materials[2]);
-
-	StainlessSteel = Mesh::GenerateCube();
-	StainlessSteel->shaderIndex = 6;
-	StainlessSteel->SetMaterial(materials[3]);
-
-	WhiteMarble = Mesh::GenerateCube();
-	WhiteMarble->shaderIndex = 6;
-	WhiteMarble->SetMaterial(materials[4]);
-
-	Lava = Mesh::GenerateCube();
-	Lava->shaderIndex = 6;
-	Lava->SetMaterial(materials[5]);
-
 	newMaterial = new Material(
 		"../Resources/Models/backpack/albedo.jpg",
 		"../Resources/Models/backpack/metallic.jpg",
@@ -153,13 +113,59 @@ Level::Level(glRenderer* r)
 	newMaterial->SetName("Backpack");
 	materials.push_back(newMaterial);
 
-	backpack = new Model("../Resources/Models/backpack/backpack.obj");
-	backpack->SetShaderIndex(6);
-	backpack->SetMaterial(materials[7]);
+	newMaterial = new Material(
+		"../Resources/Models/F22/exterior_diffuse.png",
+		"../Resources/Models/F22/exterior_reflection.png",
+		"../Resources/Models/F22/exterior_specular.png",
+		"../Resources/Models/F22/exterior_normal.png",
+		"",
+		""
+	);
+	newMaterial->SetName("F22 exterior");
+	materials.push_back(newMaterial);
 
-	F22 = new Model("../Resources/Models/F22/F22.obj");
-	F22->SetShaderIndex(6);
-	F22->SetMaterial(materials[4]);
+	newMaterial = new Material(
+		"../Resources/Models/F22/interior_diffuse.png",
+		"../Resources/Models/F22/interior_reflection.png",
+		"../Resources/Models/F22/interior_specular.png",
+		"../Resources/Models/F22/interior_normal.png",
+		"",
+		""
+	);
+	newMaterial->SetName("F22 interior");
+	materials.push_back(newMaterial);
+
+	newMaterial = new Material(
+		"../Resources/Models/F22/pilot_diffuse.png",
+		"../Resources/Models/F22/pilot_specular.png",
+		"../Resources/Models/F22/pilot_specular.png",
+		"../Resources/Models/F22/pilot_normal.png",
+		"",
+		""
+	);
+	newMaterial->SetName("F22 pilot");
+	materials.push_back(newMaterial);
+
+
+	meshes.emplace_back(Mesh::GenerateFloor());
+	meshes.emplace_back(Mesh::GenerateCube());
+	meshes.emplace_back(Mesh::GenerateSphere());
+
+	Model* backpack = new Model("backpack", "../Resources/Models/backpack/backpack.obj");
+	models.push_back(backpack);
+	backpack->SetMaterialIndex(0, 7);
+	backpack->SetMaterialIndex(1, 7);
+
+	Model* F22 = new Model("F22", "../Resources/Models/F22/F22.obj");
+	models.push_back(F22);
+	F22->SetMaterialIndex(0, 0);
+	F22->SetMaterialIndex(1, 10);
+	F22->SetMaterialIndex(2, 8);
+	F22->SetMaterialIndex(3, 0);
+	F22->SetMaterialIndex(4, 0);
+
+	Model* seagull = new Model("Seagull", "../Resources/Models/Seagull/Seagull.obj");
+	models.push_back(seagull);
 
 	root = new SceneNode();
 
@@ -172,61 +178,32 @@ Level::~Level()
 {
 	delete camera;
 	delete lightsManager;
-	delete cube;
-	delete RustedIron;
-	delete BrickWall;
-	delete GrassMeadow;
-	delete StainlessSteel;
-	delete WhiteMarble;
-	delete Lava;
-	delete root;
 }
 
 void Level::ConstructScene()
 {
-	//lightsManager->AddDirectionalLight(glm::vec3(-80.0f, 0.0f, 0.0f), glm::vec3(2.0f, 2.0f, 2.0f));
 	lightsManager->AddSpotLight(glm::vec3(3.0f, 5.0f, 0.0f), glm::vec3(-60.0f, 0.0f, 0.0f), glm::vec3(1.2f, 7.0f, 0.0f), 30.0f, 35.0f, 0.07f, 0.017f);
 	lightsManager->AddPointLight(glm::vec3(-3.0f, 4.5f, 1.0f), glm::vec3(3.0f, 0.0f, 1.5f), 0.09f, 0.032f);
 
-	SceneNode* Floor = new SceneNode(floor);
-	root->AddChild(Floor);
-	Floor->GetTransform().SetPosition(glm::vec3(0.0f, -1.0f, 0.0f));
+	GameObject* newObj;
+	newObj = AddGameObject("Floor", glm::vec3(0.0f), new AABBVolume(glm::vec3(5.0f, 5.0f, 5.0f)), GenerateFloorModel("Floor"));
+	newObj->GetModel()->SetMaterialIndex(0, 6);
+	newObj = AddGameObject("RustedIron", glm::vec3(2.0f, 1.5f, -3.0f), new AABBVolume(glm::vec3(1.0f)), GenerateCubeModel("RustedIron"));
+	newObj->GetModel()->SetMaterialIndex(0, 0);
+	newObj = AddGameObject("BrickWall", glm::vec3(0.0f, 1.5f, -3.0f), new AABBVolume(glm::vec3(1.0f)), GenerateCubeModel("BrickWall"));
+	newObj->GetModel()->SetMaterialIndex(0, 1);
+	newObj = AddGameObject("Lava", glm::vec3(-2.0f, 1.5f, -3.0f), new AABBVolume(glm::vec3(1.0f)), GenerateCubeModel("Lava"));
+	newObj->GetModel()->SetMaterialIndex(0, 2);
+	newObj = AddGameObject("StainlessSteel", glm::vec3(-4.0f, 1.5f, -3.0f), new AABBVolume(glm::vec3(1.0f)), GenerateCubeModel("StainlessSteel"));
+	newObj->GetModel()->SetMaterialIndex(0, 3);
+	newObj = AddGameObject("WhiteMarble", glm::vec3(-6.0f, 1.5f, -3.0f), new AABBVolume(glm::vec3(1.0f)), GenerateCubeModel("WhiteMarble"));
+	newObj->GetModel()->SetMaterialIndex(0, 4);
+	newObj = AddGameObject("GrassMeadow", glm::vec3(-8.0f, 1.5f, -3.0f), new AABBVolume(glm::vec3(1.0f)), GenerateCubeModel("GrassMeadow"));
+	newObj->GetModel()->SetMaterialIndex(0, 5);
 
-	/*SceneNode* container = new SceneNode(cube);
-	root->AddChild(container);
-	container->GetTransform().SetPosition(glm::vec3( 4.0f, 1.5f, -3.0f));*/
-
-	SceneNode* backpackModel = new SceneNode(backpack);
-	root->AddChild(backpackModel);
-	backpackModel->GetTransform().SetPosition(glm::vec3(6.0f, 1.5f, -3.0f));
-
-	SceneNode* F22Model = new SceneNode(F22);
-	root->AddChild(F22Model);
-	F22Model->GetTransform().SetPosition(glm::vec3(6.0f, 10.0f, -3.0f));
-
-	SceneNode* PBRcontainer = new SceneNode(RustedIron);
-	root->AddChild(PBRcontainer);
-	PBRcontainer->GetTransform().SetPosition(glm::vec3( 2.0f, 1.5f, -3.0f));
-
-	SceneNode* PBRBrickWall = new SceneNode(BrickWall);
-	root->AddChild(PBRBrickWall);
-	PBRBrickWall->GetTransform().SetPosition(glm::vec3( 0.0f, 1.5f, -3.0f));
-
-	SceneNode* PBRLava = new SceneNode(Lava);
-	root->AddChild(PBRLava);
-	PBRLava->GetTransform().SetPosition(glm::vec3(-2.0f, 1.5f, -3.0f));
-
-	SceneNode* PBRStainlessSteel = new SceneNode(StainlessSteel);
-	root->AddChild(PBRStainlessSteel);
-	PBRStainlessSteel->GetTransform().SetPosition(glm::vec3(-4.0f, 1.5f, -3.0f));
-
-	SceneNode* PBRWhiteMarble = new SceneNode(WhiteMarble);
-	root->AddChild(PBRWhiteMarble);
-	PBRWhiteMarble->GetTransform().SetPosition(glm::vec3(-6.0f, 1.5f, -3.0f));
-
-	SceneNode* PBRGrassMeadow = new SceneNode(GrassMeadow);
-	root->AddChild(PBRGrassMeadow);
-	PBRGrassMeadow->GetTransform().SetPosition(glm::vec3(-8.0f, 1.5f, -3.0f));
+	AddGameObject("Backpack", glm::vec3(6.0f, 1.5f, -3.0f), new AABBVolume(glm::vec3(5.0f, 5.0f, 5.0f)), models[0]);
+	AddGameObject("F22", glm::vec3(6.0f, 10.0f, -3.0f), new AABBVolume(glm::vec3(15.0f, 5.0f, 9.0f)), models[1]);
+	AddGameObject("Seagull", glm::vec3(0.0f, -1.0f, 5.0f), new AABBVolume(glm::vec3(15.0f, 5.0f, 9.0f)), models[2]);
 }
 
 void Level::ImportCubeMaps()
@@ -243,8 +220,6 @@ void Level::Update(float dt)
 	camera->UpdateCamera(dt);
 	camera->UploadViewMatrix(renderer->GetUboCamera());
 	camera->UploadViewPos(renderer->GetUboCamera());
-
- 	root->Update(dt);
 
 	Render();
 }
@@ -298,9 +273,51 @@ bool Level::Raycast(Ray& r, RayCollision& collision, bool closestObject, GameObj
 	return true;
 }
 
+GameObject* Level::AddGameObject(const std::string& name, const glm::vec3& position, CollisionVolume* volume, Model* model)
+{
+	GameObject* newObj = new GameObject(name, this, volume, model, nullptr);
+	newObj->GetTransform().SetPosition(position);
+	gameObjects.push_back(newObj);
+	return newObj;
+}
+
+Material* Level::GetMaterialByIndex(int i)
+{
+	if (i >= materials.size()) return materials[0];
+
+	return materials[i];
+}
+
+Model* Level::GenerateSphereModel(const std::string& name)
+{
+	Model* newModel = new Model(name);
+	newModel->GetMeshes().push_back(meshes[2]);
+
+	models.push_back(newModel);
+	return newModel;
+}
+
+Model* Level::GenerateCubeModel(const std::string& name)
+{
+	Model* newModel = new Model(name);
+	newModel->GetMeshes().push_back(meshes[1]);
+
+	models.push_back(newModel);
+	return newModel;
+}
+
+Model* Level::GenerateFloorModel(const std::string& name)
+{
+	Model* newModel = new Model(name);
+	newModel->GetMeshes().push_back(meshes[0]);
+
+	models.push_back(newModel);
+	return newModel;
+}
+
 void Level::Render()
 {
-	lightsManager->DrawLightDepthMaps(root);
+	//lightsManager->DrawLightDepthMaps(root);
 	lightsManager->Update();
 	renderer->SetSceneBufferReady();	
 	lightsManager->DrawLightCubes();
@@ -312,10 +329,10 @@ void Level::Render()
 
 void Level::DrawScene()
 {
-	BuildNodeLists(root);
-	SortNodeLists();
-	DrawNodes();
-	ClearNodeLists();
+	BuildRenderList();
+	SortRenderList();
+	DrawRenderList();
+	ClearRenderList();
 
 	// Draw skybox last
 	CubeMaps[currentSkybox]->Draw();
@@ -379,33 +396,55 @@ void Level::DrawNode(SceneNode* n)
 	}
 }
 
-void Level::BuildRenderObjectLists()
+void Level::BuildRenderList()
 {
-	for (auto& gameObject : gameObjects)
+	for (auto object : gameObjects)
 	{
-		RenderObject* rObj = gameObject->GetRenderObject();
-		if (rObj == nullptr) continue;
-
-		if (frameFrustum.InsideFrustum(rObj))
+		if (object->GetModel() == nullptr) continue;
+		if (1 /*frameFrustum.InsideFrustum(object)*/)
 		{
-			glm::vec3 dir = gameObject->GetTransform().GetPosition() - camera->GetCameraTransform().GetPosition();
-			rObj->SetCameraDistance(glm::dot(dir, dir));
-
-			objectList.push_back(rObj);
+			glm::vec3 dir = object->GetTransform().GetPosition() - camera->GetCameraTransform().GetPosition();
+			object->SetCameraDistance(glm::dot(dir, dir));
+			
+			auto& renderObjects = object->GetRenderObjects();
+			for (RenderObject* obj : renderObjects)
+			{
+				if (obj->GetIsTransparentObject())
+				{
+					transparentRenderList.push_back(obj);
+				}
+				else
+				{
+					opaqueRenderList.push_back(obj);
+				}
+			}
 		}
 	}
 }
 
-void Level::SortRenderObjectLists()
+void Level::SortRenderList()
 {
-	std::sort(transparentObjectList.rbegin(), transparentObjectList.rend(), RenderObject::CompareByCameraDistance);
-	std::sort(objectList.begin(), objectList.end(), RenderObject::CompareByCameraDistance);
+	std::sort(transparentRenderList.rbegin(), transparentRenderList.rend(), RenderObject::CompareByCameraDistance);
+	std::sort(opaqueRenderList.begin(), opaqueRenderList.end(), RenderObject::CompareByCameraDistance);
 }
 
-void Level::ClearRenderObjectLists()
+void Level::ClearRenderList()
 {
-	transparentObjectList.clear();
-	objectList.clear();
+	transparentRenderList.clear();
+	opaqueRenderList.clear();
+}
+
+void Level::DrawRenderList()
+{
+	for (const auto& i : opaqueRenderList)
+	{
+		i->Draw();
+	}
+
+	for (const auto& i : transparentRenderList)
+	{
+		i->Draw();
+	}
 }
 
 void Level::CheckSelectSkybox()

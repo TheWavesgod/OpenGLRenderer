@@ -7,12 +7,8 @@
 #include <cstring>
 #include <utility>
 
-void Model::Draw(Shader& shader)
+Model::Model(const std::string& newName) : name(newName)
 {
-	for (Mesh* mesh : meshes)
-	{
-		mesh->Draw(shader);
-	}
 }
 
 void Model::DrawToLightDepthMap()
@@ -23,21 +19,19 @@ void Model::DrawToLightDepthMap()
 	}
 }
 
-void Model::SetShaderIndex(unsigned int index)
-{
-	shaderIndex = index;
-	for (auto& i : meshes)
-	{
-		i->shaderIndex = index;
-	}
-}
-
 void Model::SetMaterial(Material* material)
 {
 	for (auto& mesh : meshes)
 	{
 		mesh->material = material;
 	}
+}
+
+void Model::SetMaterialIndex(int slot, int index)
+{
+	if (slot >= materialIndices.size()) materialIndices.resize(slot + 1);
+	
+	materialIndices[slot] = index;
 }
 
 void Model::LoadModel(const std::string& path)
@@ -56,7 +50,7 @@ void Model::LoadModel(const std::string& path)
 	}
 	directory = path.substr(0, path.find_last_of('/'));
 	
-	materials.resize(scene->mNumMaterials);
+	materialIndices.resize(scene->mNumMaterials);
 	ProcessNode(scene->mRootNode, scene);
 }
 

@@ -20,6 +20,9 @@ public:
 	inline void SetUsePBR(bool val) { bUsePBR = val; }
 	inline bool GetUsePBR() const { return bUsePBR; }
 
+	inline void SetTransparent(bool val) { bTransparent = val; }
+	inline bool GetTransparent() const { return bTransparent; }
+
 	void SetName(const std::string& newName) { name = newName; }
 	inline std::string& GetName() { return name; }
 
@@ -28,6 +31,8 @@ public:
 	void SetHeightScale(float val) { heightScale = val; }
 	void SetEmissiveScale(float val) { emissiveScale = val; }
 	const std::string* GetFilePathes() const { return filePathes; }
+
+	int GetUseShaderIndex();
 
 protected:
 	std::string name;
@@ -39,6 +44,7 @@ protected:
 	std::string filePathes[TextureType::TEXTYPE_MAX];
 
 	bool bUsePBR;
+	bool bTransparent;
 
 	void SetShaderSampler(Shader& shader, TextureType type, int index);
 private:

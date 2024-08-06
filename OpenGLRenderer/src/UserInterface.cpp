@@ -4,6 +4,7 @@
 #include "glRenderer.h"
 #include "Light.h"
 #include "Material.h"
+#include "Model.h"
 
 UserInterface* UserInterface::uiPtr = nullptr;
 
@@ -243,7 +244,7 @@ void UserInterface::SetMaterialMenu()
 				materials[i]->SetEmissiveScale(emissiveScale);
 			}
 
-			if (ImGui::TreeNode("Texture File Path"))
+			if (ImGui::TreeNode(("Texture File Path ##file" + std::to_string(i)).c_str()))
 			{
 				const std::string* files = materials[i]->GetFilePathes();
 				ImGui::BeginDisabled(true);
@@ -270,11 +271,25 @@ void UserInterface::SetMaterialMenu()
 
 void UserInterface::SetModelMenu()
 {
-	if (ImGui::TreeNodeEx("Models", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Models"))
 	{
+		std::vector<Model*>& models = level.GetModels();
+		for (size_t i = 0; i < models.size(); ++i)
+		{
+			std::string name = "Model " + std::to_string(i) + " : " + models[i]->name;
+			ImGui::SeparatorText(name.data());
 
+			if (ImGui::TreeNode("Materials Slot"))
+			{
+				std::vector<int>& material = *(models[i]->GetMaterialIndices());
+				for (size_t j = 0; j < material.size(); ++j)
+				{
+					ImGui::Text(("Slot " + std::to_string(j)).c_str());
+				}
 
-
+				ImGui::TreePop();
+			}
+		}
 		ImGui::TreePop();
 	}
 }
