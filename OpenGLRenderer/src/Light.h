@@ -10,6 +10,7 @@ const unsigned int MAXNUM_DIRLIGHT = 5, MAXNUM_SPOTLIGHT = 5, MAXNUM_POINTLIGHT 
 
 class SceneNode;
 class Shader;
+class GameObject;
 
 enum LightType
 {
@@ -92,7 +93,7 @@ public:
 	void Init();
 	void Update();
 
-	void DrawLightDepthMaps(SceneNode* node);
+	void DrawLightDepthMaps(const std::vector<GameObject*> objs);
 	void DrawLightCubes();
 
 	void AddDirectionalLight(glm::vec3 lightRot, glm::vec3 lightColor);

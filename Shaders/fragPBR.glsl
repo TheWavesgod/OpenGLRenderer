@@ -93,10 +93,21 @@ uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;  
 
+uniform bool useAlbedo;
+uniform vec3 baseColor;
+uniform bool useMetallic;
+uniform float matellic;
+uniform bool useRoughness;
+uniform float roughness;
+uniform bool useNormal;
 uniform bool useHeight;
 uniform float heightScale;
 uniform bool useEmissive;
 uniform float emissiveScale;
+uniform bool useAO;
+uniform bool isTransparent;
+uniform float alpha;
+
 uniform mat4 model;
 
 const float PI = 3.14159265359;
@@ -130,17 +141,23 @@ vec3 CalcOutputColor(vec3 radiance, vec3 N, vec3 V, vec3 L, vec3 F0, vec3 albedo
 
 void main()
 {
-    mat3 TBN = CalculateTBN();
+    mat3 normalMatrix = transpose(inverse(mat3(model)));        // Normal Matrix 
+    vec3 sT = normalize(normalMatrix * Tangent);
+    vec3 sB = normalize(normalMatrix * BiTangent);
+    vec3 sN = normalize(normalMatrix * Normal);
+
+    mat3 TBN = mat3(sT, sB, sN);
+
     vec2 texCoord = useHeight ? ParallaxMapping(TBN) : TexCoord;
     // if(texCoord.x > 1.0f || texCoord.y > 1.0f || texCoord.x < 0.0f || texCoord.y < 0.0f)
     //     discard;
 
     // Get the fragment material settings
-    vec3 albedo = texture(material.albedo, texCoord).rgb;
-    vec3 normal = CalNormalFromMap(texCoord, TBN);
-    float metallic = texture(material.metallic, texCoord).r;
-    float roughness = texture(material.roughness, texCoord).r;
-    float ao = texture(material.ao, texCoord).r;
+    vec3 albedo = useAlbedo ? texture(material.albedo, texCoord).rgb : baseColor;
+    vec3 normal = useNormal ? CalNormalFromMap(texCoord, TBN) : sN;
+    float metallic = useMetallic ? texture(material.metallic, texCoord).r : matellic;
+    float roughness = useRoughness ? texture(material.roughness, texCoord).r : roughness;
+    float ao = useAO ? texture(material.ao, texCoord).r : 1.0f;
 
     // Get the genaric variables
     vec3 N = normalize(normal);
@@ -193,12 +210,13 @@ void main()
     vec3 ambient = (kD * diffuse + specular) * ao;
 
     result += ambient;
-    FragColor = vec4(result, 1.0f);
+    float a = isTransparent ? alpha : 1.0f;
+    FragColor = vec4(result, a);
 }
 
 mat3 CalculateTBN()
 {
-    mat3 normalMatrix = transpose(inverse(mat3(model)));
+    mat3 normalMatrix = transpose(inverse(mat3(model)));        // Normal Matrix 
     vec3 T = normalize(normalMatrix * Tangent);
     vec3 B = normalize(normalMatrix * BiTangent);
     vec3 N = normalize(normalMatrix * Normal);

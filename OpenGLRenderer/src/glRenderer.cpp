@@ -46,6 +46,8 @@ void glRenderer::SetSceneBufferReady()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	SetBlendQquation(0);
 }
 
 void glRenderer::MultiSample()
@@ -80,6 +82,16 @@ void glRenderer::PostProcess()
 	glDisable(GL_DEPTH_TEST);
 	glBindTexture(GL_TEXTURE_2D, colorTexPostProcess[0]);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
+void glRenderer::SetBlendQquation(int i)
+{
+	switch (i)
+	{
+	case 0:
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		break;
+	}
 }
 
 bool glRenderer::CreateShaderPrograms()
@@ -122,6 +134,8 @@ bool glRenderer::CreateShaderPrograms()
 
 	s = new Shader("../Shaders/vertPointLight.glsl", "../Shaders/fragPointLight.glsl", "../Shaders/geomPointLight.glsl");
 	if (!s->HasInitialized()) return false;
+
+
 
 	return true;
 }

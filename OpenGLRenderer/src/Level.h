@@ -38,7 +38,8 @@ public:
 	LightsManager* GetLightsManager() { return lightsManager; }
 	std::vector<Material*>& GetMaterials() { return  materials; }
 	std::vector<Model*>& GetModels() { return models; }
-
+	std::vector<GameObject*>& GetGameObjects() { return gameObjects; }
+		
 	Material* GetMaterialByIndex(int i);
 
 	Model* GenerateSphereModel(const std::string& name);
@@ -56,10 +57,6 @@ protected:
 	void DrawScene();
 
 	void BuildNodeLists(SceneNode* from);
-	void SortNodeLists();
-	void ClearNodeLists();
-	void DrawNodes();
-	void DrawNode(SceneNode* n);
 
 	void BuildRenderList();
 	void SortRenderList();
@@ -82,9 +79,6 @@ protected:
 
 	glRenderer* renderer;
 	Frustum frameFrustum;
-
-	std::vector<SceneNode*> transparentNodeList;
-	std::vector<SceneNode*> nodeList;
 
 	std::vector<RenderObject*> transparentRenderList;
 	std::vector<RenderObject*> opaqueRenderList;

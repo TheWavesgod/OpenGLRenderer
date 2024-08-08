@@ -34,7 +34,7 @@ void Model::SetMaterialIndex(int slot, int index)
 	materialIndices[slot] = index;
 }
 
-void Model::LoadModel(const std::string& path)
+void Model::LoadModel(const std::string& path, bool flipVertical)
 {
 	/**
 	 *  aiProcess_Triangulate: if the model does not (entirely) consist of triangles, it should transform all the model's primitive shapes to triangles first.
@@ -51,26 +51,26 @@ void Model::LoadModel(const std::string& path)
 	directory = path.substr(0, path.find_last_of('/'));
 	
 	materialIndices.resize(scene->mNumMaterials);
-	ProcessNode(scene->mRootNode, scene);
+	ProcessNode(scene->mRootNode, scene, flipVertical);
 }
 
-void Model::ProcessNode(aiNode* node, const aiScene* scene)
+void Model::ProcessNode(aiNode* node, const aiScene* scene, bool flip)
 {
 	// Process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; ++i)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.emplace_back(ProcessMesh(mesh, scene));
+		meshes.emplace_back(ProcessMesh(mesh, scene, flip));
 	}
 
 	// then do the same for each of its children
 	for (unsigned int i = 0; i < node->mNumChildren; ++i)
 	{
-		ProcessNode(node->mChildren[i], scene);
+		ProcessNode(node->mChildren[i], scene, flip);
 	}
 }
 
-Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, bool flip)
 {
 	Mesh* m = new Mesh();
 
@@ -91,7 +91,7 @@ Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 		{
 			// Assimp allows a model to have up to 8 different texture coordinates per vertex. We're not going to use 8, we only care about the first set of texture coordinates.
 			m->texCoords[i].x = mesh->mTextureCoords[0][i].x; 
-			m->texCoords[i].y = mesh->mTextureCoords[0][i].y;
+			m->texCoords[i].y = flip ? 1- mesh->mTextureCoords[0][i].y : mesh->mTextureCoords[0][i].y;
 		}
 	}
 

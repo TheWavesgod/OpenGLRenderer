@@ -259,10 +259,10 @@ Mesh* Mesh::GenerateFloor()
 	Mesh* m = new Mesh();
 	
 	m->vertices = {
-		glm::vec3(-10.0f, 0.0f, -10.0f),
-		glm::vec3( 10.0f, 0.0f, -10.0f),
-		glm::vec3( 10.0f, 0.0f,  10.0f),
-		glm::vec3(-10.0f, 0.0f,  10.0f),
+		glm::vec3(-100.0f, 0.0f, -100.0f),
+		glm::vec3( 100.0f, 0.0f, -100.0f),
+		glm::vec3( 100.0f, 0.0f,  100.0f),
+		glm::vec3(-100.0f, 0.0f,  100.0f),
 	};
 
 	m->normals = {
@@ -274,9 +274,9 @@ Mesh* Mesh::GenerateFloor()
 
 	m->texCoords = {
 		glm::vec2(0.0f, 0.0f),
-		glm::vec2(5.0f, 0.0f),
-		glm::vec2(5.0f, 5.0f),
-		glm::vec2(0.0f, 5.0f)
+		glm::vec2(50.0f, 0.0f),
+		glm::vec2(50.0f, 50.0f),
+		glm::vec2(0.0f, 50.0f)
 	};
 
 	m->indices = {

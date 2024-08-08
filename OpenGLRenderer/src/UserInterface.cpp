@@ -111,19 +111,14 @@ void UserInterface::SetLightMenu()
 				std::string name = "Directional light " + std::to_string(i);
 				ImGui::SeparatorText(name.data());
 
-				glm::vec3 pos = dirLights[i]->GetLightPosition();
-				float lPos[3] = { pos.x, pos.y, pos.z };
-				ImGui::InputFloat3("Position", lPos);
-				dirLights[i]->SetLightPosition(glm::vec3(lPos[0], lPos[1], lPos[2]));
-
 				glm::vec3 rot = dirLights[i]->GetLightRotation();
 				float lRot[3] = { rot.x, rot.y, rot.z };
-				ImGui::InputFloat3("Rotation", lRot);
+				ImGui::InputFloat3(("Rotation ##dirLight" + std::to_string(i)).c_str(), lRot);
 				dirLights[i]->SetLightRotation(glm::vec3(lRot[0], lRot[1], lRot[2]));
 
 				glm::vec3 col = dirLights[i]->GetLightColor();
 				float lCol[3] = { col.x, col.y, col.z };
-				ImGui::ColorEdit3("Color", lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR);
+				ImGui::ColorEdit3(("Color ##dirLight" + std::to_string(i)).c_str(), lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR);
 				dirLights[i]->SetLightColor(glm::vec3(lCol[0], lCol[1], lCol[2]));
 			}
 			ImGui::TreePop();
@@ -139,37 +134,37 @@ void UserInterface::SetLightMenu()
 
 				glm::vec3 pos = spotLights[i]->GetLightPosition();
 				float lPos[3] = { pos.x, pos.y, pos.z };
-				ImGui::InputFloat3("Position", lPos);
+				ImGui::InputFloat3(("Position ##spotLight" + std::to_string(i)).c_str(), lPos);
 				spotLights[i]->SetLightPosition(glm::vec3(lPos[0], lPos[1], lPos[2]));
 
 				glm::vec3 rot = spotLights[i]->GetLightRotation();
 				float lRot[3] = { rot.x, rot.y, rot.z };
-				ImGui::InputFloat3("Rotation", lRot);
+				ImGui::InputFloat3(("Rotation ##spotLight" + std::to_string(i)).c_str(), lRot);
 				spotLights[i]->SetLightRotation(glm::vec3(lRot[0], lRot[1], lRot[2]));
 
 				glm::vec3 col = spotLights[i]->GetLightColor();
 				float lCol[3] = { col.x, col.y, col.z };
-				ImGui::ColorEdit3("Color", lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR);
+				ImGui::ColorEdit3(("Color ##spotLight" + std::to_string(i)).c_str(), lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR);
 				spotLights[i]->SetLightColor(glm::vec3(lCol[0], lCol[1], lCol[2]));
 
-				if (ImGui::TreeNode("Light properties"))
+				if (ImGui::TreeNode(("Light properties##spotLight" + std::to_string(i)).c_str()))
 				{
 					//ImGui::AlignTextToFramePadding();
 					ImGui::Text("Inner cutoff"); ImGui::SameLine();
 					ImGui::SetNextItemWidth(100.0f);
-					ImGui::InputFloat("", &spotLights[i]->innerCutOffInDegree); ImGui::SameLine();
+					ImGui::InputFloat(("IC##spotLight" + std::to_string(i)).c_str(), &spotLights[i]->innerCutOffInDegree); ImGui::SameLine();
 					ImGui::Text("Outer cutoff"); ImGui::SameLine();
 					ImGui::SetNextItemWidth(100.0f);
-					ImGui::InputFloat("", &spotLights[i]->outerCutOffInDegree);
+					ImGui::InputFloat(("OC##spotLight" + std::to_string(i)).c_str(), &spotLights[i]->outerCutOffInDegree);
 					spotLights[i]->innerCutOff = glm::cos(glm::radians(spotLights[i]->innerCutOffInDegree));
 					spotLights[i]->outerCutOff = glm::cos(glm::radians(spotLights[i]->outerCutOffInDegree));
 
 					ImGui::Text("Attenuation: linear"); ImGui::SameLine();
 					ImGui::SetNextItemWidth(100.0f);
-					ImGui::InputFloat("", &spotLights[i]->linear); ImGui::SameLine();
+					ImGui::InputFloat(("AL##spotLight" + std::to_string(i)).c_str(), &spotLights[i]->linear); ImGui::SameLine();
 					ImGui::Text("quadratic"); ImGui::SameLine();
 					ImGui::SetNextItemWidth(100.0f);
-					ImGui::InputFloat("", &spotLights[i]->quadratic);
+					ImGui::InputFloat(("AQ##spotLight" + std::to_string(i)).c_str(), &spotLights[i]->quadratic);
 
 					ImGui::TreePop();
 				}
@@ -187,22 +182,22 @@ void UserInterface::SetLightMenu()
 
 				glm::vec3 pos = pointLights[i]->GetLightPosition();
 				float lPos[3] = { pos.x, pos.y, pos.z };
-				ImGui::InputFloat3("Position", lPos);
+				ImGui::InputFloat3(("Position ##pointLight" + std::to_string(i)).c_str(), lPos);
 				pointLights[i]->SetLightPosition(glm::vec3(lPos[0], lPos[1], lPos[2]));
 
 				glm::vec3 col = pointLights[i]->GetLightColor();
 				float lCol[3] = { col.x, col.y, col.z };
-				ImGui::ColorEdit3("Color", lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR);
+				ImGui::ColorEdit3(("Color ##pointLight" + std::to_string(i)).c_str(), lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR);
 				pointLights[i]->SetLightColor(glm::vec3(lCol[0], lCol[1], lCol[2]));
 
-				if (ImGui::TreeNode("Light properties"))
+				if (ImGui::TreeNode(("Light properties##pointLight" + std::to_string(i)).c_str()))
 				{
 					ImGui::Text("Attenuation: linear"); ImGui::SameLine();
 					ImGui::SetNextItemWidth(100.0f);
-					ImGui::InputFloat("", &pointLights[i]->linear); ImGui::SameLine();
+					ImGui::InputFloat(("AL##pointLight" + std::to_string(i)).c_str(), &pointLights[i]->linear); ImGui::SameLine();
 					ImGui::Text("quadratic"); ImGui::SameLine();
 					ImGui::SetNextItemWidth(100.0f);
-					ImGui::InputFloat("", &pointLights[i]->quadratic);
+					ImGui::InputFloat(("AQ##pointLight" + std::to_string(i)).c_str(), &pointLights[i]->quadratic);
 					ImGui::TreePop();
 				}
 			}
@@ -230,18 +225,66 @@ void UserInterface::SetMaterialMenu()
 			ImGui::Checkbox(("##bUsePBR" + std::to_string(i)).c_str(), &bUsePBR);
 			ImGui::EndDisabled(); 
 
-			ImGui::Text("Height mapping scale: "); ImGui::SameLine();
-			float heightScale = materials[i]->GetHeightScale();
-			if (ImGui::SliderFloat(("##heightScale" + std::to_string(i)).c_str(), &heightScale, 0.0f, 1.0f))
+			if (!materials[i]->useAlbedo)
 			{
-				materials[i]->SetHeightScale(heightScale);
+				ImGui::Text("Base Color: "); ImGui::SameLine();
+				glm::vec3 col = materials[i]->baseColor;
+				float lCol[3] = { col.x, col.y, col.z };
+				if (ImGui::ColorEdit3(("##BaseColor" + std::to_string(i)).c_str(), 
+					lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR))
+				{
+					materials[i]->baseColor = glm::vec3(lCol[0], lCol[1], lCol[2]);
+				}
 			}
 
-			ImGui::Text("Emissive intensity scale: "); ImGui::SameLine();
-			float emissiveScale = materials[i]->GetEmissiveScale();
-			if (ImGui::SliderFloat(("##emissiveScale" + std::to_string(i)).c_str(), &emissiveScale, 0.0f, 10.0f))
+			if (!materials[i]->useMetallic)
 			{
-				materials[i]->SetEmissiveScale(emissiveScale);
+				ImGui::Text("Metallic: "); ImGui::SameLine();
+				float met = materials[i]->matellic;
+				if (ImGui::SliderFloat(("##metallic" + std::to_string(i)).c_str(), &met, 0.0f, 1.0f))
+				{
+					materials[i]->matellic = met;
+				}
+			}
+
+			if (!materials[i]->useRoughness)
+			{
+				ImGui::Text("Roughness: "); ImGui::SameLine();
+				float rough = materials[i]->roughness;
+				if (ImGui::SliderFloat(("##Roughness" + std::to_string(i)).c_str(), &rough, 0.0f, 1.0f))
+				{
+					materials[i]->roughness = rough;
+				}
+			}
+
+			if (materials[i]->useHeight)
+			{
+				ImGui::Text("Height mapping scale: "); ImGui::SameLine();
+				float heightScale = materials[i]->GetHeightScale();
+				if (ImGui::SliderFloat(("##heightScale" + std::to_string(i)).c_str(), &heightScale, 0.0f, 1.0f))
+				{
+					materials[i]->SetHeightScale(heightScale);
+				}
+			}
+
+			if (materials[i]->useEmissive)
+			{
+				ImGui::Text("Emissive intensity scale: "); ImGui::SameLine();
+				float emissiveScale = materials[i]->GetEmissiveScale();
+				if (ImGui::SliderFloat(("##emissiveScale" + std::to_string(i)).c_str(), &emissiveScale, 0.0f, 10.0f))
+				{
+					materials[i]->SetEmissiveScale(emissiveScale);
+				}
+			}
+
+			if (materials[i]->GetTransparent())
+			{
+				ImGui::Text("Alpha: "); ImGui::SameLine();
+				float a = materials[i]->alpha;
+				if (ImGui::SliderFloat(("##alpha" + std::to_string(i)).c_str(), &a, 0.0f, 1.0f))
+				{
+					materials[i]->alpha = a;
+				}
 			}
 
 			if (ImGui::TreeNode(("Texture File Path ##file" + std::to_string(i)).c_str()))
@@ -263,6 +306,7 @@ void UserInterface::SetMaterialMenu()
 				ImGui::TreePop();
 			}
 
+			ImGui::SeparatorText("");
 			ImGui::Spacing();
 		}
 		ImGui::TreePop();
@@ -274,17 +318,27 @@ void UserInterface::SetModelMenu()
 	if (ImGui::TreeNodeEx("Models"))
 	{
 		std::vector<Model*>& models = level.GetModels();
+		std::vector<Material*>& materials = level.GetMaterials();
+		std::vector<const char*> materialsName;
+		materialsName.resize(materials.size());
+		for (size_t i = 0; i < materials.size(); ++i)
+		{
+			materialsName[i] = materials[i]->GetName().c_str();
+		}
+
 		for (size_t i = 0; i < models.size(); ++i)
 		{
 			std::string name = "Model " + std::to_string(i) + " : " + models[i]->name;
 			ImGui::SeparatorText(name.data());
 
-			if (ImGui::TreeNode("Materials Slot"))
+			if (ImGui::TreeNode(("Materials Slot##MaterialSlot" + std::to_string(i)).c_str()))
 			{
 				std::vector<int>& material = *(models[i]->GetMaterialIndices());
 				for (size_t j = 0; j < material.size(); ++j)
 				{
-					ImGui::Text(("Slot " + std::to_string(j)).c_str());
+					ImGui::Text(("Slot " + std::to_string(j)).c_str()); ImGui::SameLine();
+					ImGui::Combo(("##Model" + std::to_string(i) + "slot" + std::to_string(j)).c_str(),
+						&material[j], materialsName.data(), materialsName.size());
 				}
 
 				ImGui::TreePop();
@@ -296,7 +350,20 @@ void UserInterface::SetModelMenu()
 
 void UserInterface::SetGameObjectsMenu()
 {
+	if (ImGui::TreeNodeEx("Game Objects", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		std::vector<GameObject*>& objs = level.GetGameObjects();
+		for (size_t i = 0; i < objs.size(); ++i)
+		{
+			if (ImGui::TreeNode((objs[i]->GetName() + "##GameObject" + std::to_string(i)).c_str()))
+			{
+				
 
+				ImGui::TreePop();
+			}
+		}
+		ImGui::TreePop();
+	}
 }
 
 

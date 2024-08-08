@@ -22,6 +22,7 @@ public:
 	/** Setting parameter */
 	bool bGammaCorrection = true;
 	float exposure = 1.0f;
+	int blendEquation;
 
 protected:
 	void InitializeRenderer();
@@ -31,6 +32,8 @@ protected:
 	void GenerateScreenQuad();
 	void CreateFrameBuffer();
 	void CreateUniformBuffer();
+
+	void SetBlendQquation(int i);
 
 private:
 	window* currentWindow;

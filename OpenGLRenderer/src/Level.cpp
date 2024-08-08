@@ -146,6 +146,104 @@ Level::Level(glRenderer* r)
 	newMaterial->SetName("F22 pilot");
 	materials.push_back(newMaterial);
 
+	newMaterial = new Material(
+		"../Resources/Models/Seagull/Seagull_cockpit_BaseColor.jpg",
+		"",
+		"../Resources/Models/Seagull/Seagull_cockpit_Roughness.jpg",
+		"../Resources/Models/Seagull/Seagull_cockpit_Normal.jpg",
+		"",
+		""
+	);
+	newMaterial->SetName("Seagull cockpit");
+	materials.push_back(newMaterial);
+
+	newMaterial = new Material(
+		"../Resources/Models/Seagull/Seagull_control_panel_BaseColor.jpg",
+		"",
+		"../Resources/Models/Seagull/Seagull_control_panel_Roughness.jpg",
+		"../Resources/Models/Seagull/Seagull_control_panel_Normal.jpg",
+		"",
+		"",
+		"../Resources/Models/Seagull/Seagull_control_panel_Emissive.jpg"
+	);
+	newMaterial->SetName("Seagull control panel");
+	materials.push_back(newMaterial);
+
+	newMaterial = new Material(
+		"../Resources/Models/Seagull/Seagull_Hanger_BaseColor.jpg",
+		"",
+		"../Resources/Models/Seagull/Seagull_Hanger_Roughness.jpg",
+		"../Resources/Models/Seagull/Seagull_Hanger_Normal.jpg",
+		"",
+		""
+	);
+	newMaterial->SetName("Seagull Hanger");
+	materials.push_back(newMaterial);
+
+	newMaterial = new Material(
+		"../Resources/Models/Seagull/Seagull_Ladder_BaseColor.jpg",
+		"",
+		"../Resources/Models/Seagull/Seagull_Ladder_Roughness.jpg",
+		"../Resources/Models/Seagull/Seagull_Ladder_Normal.jpg",
+		"",
+		""
+	);
+	newMaterial->SetName("Seagull Ladder");
+	materials.push_back(newMaterial);
+
+	newMaterial = new Material(
+		"../Resources/Models/Seagull/Seagull_mainbody_BaseColor.jpg",
+		"",
+		"../Resources/Models/Seagull/Seagull_mainbody_Roughness.jpg",
+		"../Resources/Models/Seagull/Seagull_mainbody_Normal.jpg",
+		"",
+		""
+	);
+	newMaterial->SetName("Seagull MainBody");
+	materials.push_back(newMaterial);
+
+	newMaterial = new Material(
+		"../Resources/Models/Seagull/Seagull_Missile_BaseColor.jpg",
+		"",
+		"../Resources/Models/Seagull/Seagull_Missile_Roughness.jpg",
+		"../Resources/Models/Seagull/Seagull_Missile_Normal.jpg",
+		"",
+		""
+	);
+	newMaterial->SetName("Seagull Missile");
+	materials.push_back(newMaterial);
+
+	newMaterial = new Material(
+		"../Resources/Models/Seagull/Seagull_Pilot_seat_BaseColor.jpg",
+		"",
+		"../Resources/Models/Seagull/Seagull_Pilot_seat_Roughness.jpg",
+		"../Resources/Models/Seagull/Seagull_Pilot_seat_Normal.jpg",
+		"",
+		""
+	);
+	newMaterial->SetName("Seagull Seat");
+	materials.push_back(newMaterial);
+
+	newMaterial = new Material(
+		"../Resources/Models/Seagull/Seagull_Wings_BaseColor.jpg",
+		"",
+		"../Resources/Models/Seagull/Seagull_Wings_Roughness.jpg",
+		"../Resources/Models/Seagull/Seagull_Wings_Normal.jpg",
+		"",
+		""
+	);
+	newMaterial->SetName("Seagull Wings");
+	materials.push_back(newMaterial);
+
+	newMaterial = Material::CreateGlassMaterial("F22 Glass", glm::vec3(1.0f, 0.324, 0.0f), 0.5f, 0.043f, 0.0f);
+	materials.push_back(newMaterial);
+
+	newMaterial = Material::CreateGlassMaterial("Seagull Glass", glm::vec3(0.006f, 0.035f, 0.103f), 0.5f, 0.703f, 0.338f);
+	materials.push_back(newMaterial);
+
+	newMaterial = new Material();
+	newMaterial->SetName("PBRExample");
+	materials.push_back(newMaterial);
 
 	meshes.emplace_back(Mesh::GenerateFloor());
 	meshes.emplace_back(Mesh::GenerateCube());
@@ -156,18 +254,27 @@ Level::Level(glRenderer* r)
 	backpack->SetMaterialIndex(0, 7);
 	backpack->SetMaterialIndex(1, 7);
 
-	Model* F22 = new Model("F22", "../Resources/Models/F22/F22.obj");
+	Model* F22 = new Model("F22", "../Resources/Models/F22/F22.obj", true);
 	models.push_back(F22);
 	F22->SetMaterialIndex(0, 0);
 	F22->SetMaterialIndex(1, 10);
 	F22->SetMaterialIndex(2, 8);
-	F22->SetMaterialIndex(3, 0);
-	F22->SetMaterialIndex(4, 0);
+	F22->SetMaterialIndex(3, 19);
+	F22->SetMaterialIndex(4, 9);
 
-	Model* seagull = new Model("Seagull", "../Resources/Models/Seagull/Seagull.obj");
+	Model* seagull = new Model("Seagull", "../Resources/Models/Seagull/Seagull.obj", true);
 	models.push_back(seagull);
-
-	root = new SceneNode();
+	seagull->SetMaterialIndex(0, 0);
+	seagull->SetMaterialIndex(1, 0);
+	seagull->SetMaterialIndex(2, 20);
+	seagull->SetMaterialIndex(3, 13);
+	seagull->SetMaterialIndex(4, 15);
+	seagull->SetMaterialIndex(5, 16);
+	seagull->SetMaterialIndex(6, 17);
+	seagull->SetMaterialIndex(7, 11);
+	seagull->SetMaterialIndex(8, 12);
+	seagull->SetMaterialIndex(9, 14);
+	seagull->SetMaterialIndex(10, 18);
 
 	ConstructScene();
 
@@ -182,7 +289,10 @@ Level::~Level()
 
 void Level::ConstructScene()
 {
+	lightsManager->AddDirectionalLight(glm::vec3(-80.0f, 0.0f, 0.0f), glm::vec3(5.0f));
 	lightsManager->AddSpotLight(glm::vec3(3.0f, 5.0f, 0.0f), glm::vec3(-60.0f, 0.0f, 0.0f), glm::vec3(1.2f, 7.0f, 0.0f), 30.0f, 35.0f, 0.07f, 0.017f);
+	lightsManager->AddSpotLight(glm::vec3(6.0f, 5.0f, 28.0f), glm::vec3(-30.0f, 45.0f, 0.0f), glm::vec3(9.2f, 8.9f, 4.2f), 30.0f, 35.0f, 0.07f, 0.017f);
+	lightsManager->AddSpotLight(glm::vec3(-6.0f, 5.0f, 28.0f), glm::vec3(-30.0f, -45.0f, 0.0f), glm::vec3(9.2f, 8.9f, 4.2f), 30.0f, 35.0f, 0.07f, 0.017f);
 	lightsManager->AddPointLight(glm::vec3(-3.0f, 4.5f, 1.0f), glm::vec3(3.0f, 0.0f, 1.5f), 0.09f, 0.032f);
 
 	GameObject* newObj;
@@ -200,10 +310,13 @@ void Level::ConstructScene()
 	newObj->GetModel()->SetMaterialIndex(0, 4);
 	newObj = AddGameObject("GrassMeadow", glm::vec3(-8.0f, 1.5f, -3.0f), new AABBVolume(glm::vec3(1.0f)), GenerateCubeModel("GrassMeadow"));
 	newObj->GetModel()->SetMaterialIndex(0, 5);
+	newObj = AddGameObject("PBRExample", glm::vec3( 0.0f, 5.0f, 5.0f), new SphereVolume(1.0f), GenerateSphereModel("PBRExample"));
+	newObj->GetModel()->SetMaterialIndex(0, 21);
 
-	AddGameObject("Backpack", glm::vec3(6.0f, 1.5f, -3.0f), new AABBVolume(glm::vec3(5.0f, 5.0f, 5.0f)), models[0]);
+
+	AddGameObject("Backpack", glm::vec3(6.0f, 3.0f, -3.0f), new AABBVolume(glm::vec3(5.0f, 5.0f, 5.0f)), models[0]);
 	AddGameObject("F22", glm::vec3(6.0f, 10.0f, -3.0f), new AABBVolume(glm::vec3(15.0f, 5.0f, 9.0f)), models[1]);
-	AddGameObject("Seagull", glm::vec3(0.0f, -1.0f, 5.0f), new AABBVolume(glm::vec3(15.0f, 5.0f, 9.0f)), models[2]);
+	AddGameObject("Seagull", glm::vec3(0.0f, 0.05f, 20.0f), new AABBVolume(glm::vec3(15.0f, 5.0f, 9.0f)), models[2]);
 }
 
 void Level::ImportCubeMaps()
@@ -317,7 +430,7 @@ Model* Level::GenerateFloorModel(const std::string& name)
 
 void Level::Render()
 {
-	//lightsManager->DrawLightDepthMaps(root);
+	lightsManager->DrawLightDepthMaps(gameObjects);
 	lightsManager->Update();
 	renderer->SetSceneBufferReady();	
 	lightsManager->DrawLightCubes();
@@ -349,50 +462,17 @@ void Level::BuildNodeLists(SceneNode* from)
 
 		if (from->GetIsTransparent())
 		{
-			transparentNodeList.push_back(from);
+			
 		}
 		else
 		{
-			nodeList.push_back(from);
+			
 		}
 	}
 
 	for (std::vector<SceneNode*>::const_iterator i = from->GetChildIteratorStart(); i != from->GetChildIteratorEnd(); ++i)
 	{
 		BuildNodeLists(*i);
-	}
-}
-
-void Level::SortNodeLists()
-{
-	std::sort(transparentNodeList.rbegin(), transparentNodeList.rend(), SceneNode::CompareByCameraDistance);
-	std::sort(nodeList.begin(), nodeList.end(), SceneNode::CompareByCameraDistance);
-}
-
-void Level::ClearNodeLists()
-{
-	transparentNodeList.clear();
-	nodeList.clear();
-}
-
-void Level::DrawNodes()
-{
-	for (const auto& i : nodeList)
-	{
-		DrawNode(i);
-	}
-
-	for (const auto& i : transparentNodeList)
-	{
-		DrawNode(i);
-	}
-}
-
-void Level::DrawNode(SceneNode* n)
-{
-	if (n->GetMesh() || n->GetModel())
-	{
-		n->Draw();
 	}
 }
 

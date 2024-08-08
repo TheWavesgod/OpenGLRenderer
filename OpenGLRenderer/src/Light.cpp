@@ -2,6 +2,8 @@
 #include "Shader.h"
 #include "Window.h"
 #include "SceneNode.h"
+#include "GameObject.h"
+#include "Model.h"
 
 const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
@@ -72,7 +74,7 @@ void LightsManager::Update()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void LightsManager::DrawLightDepthMaps(SceneNode* node)
+void LightsManager::DrawLightDepthMaps(const std::vector<GameObject*> objs)
 {
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 	glEnable(GL_DEPTH_TEST);
@@ -89,7 +91,14 @@ void LightsManager::DrawLightDepthMaps(SceneNode* node)
 		usingShader->SetUniformMat4("lightView", view);
 		glBindFramebuffer(GL_FRAMEBUFFER, FBOsLightsDepth[i]);
 		glClear(GL_DEPTH_BUFFER_BIT);	
-		node->DrawToLightDepthMap(usingShader);
+		for (auto obj : objs)
+		{
+			if (obj->GetModel())
+			{
+				usingShader->SetUniformMat4("model", obj->GetTransform().GetTransMatrix());
+				obj->GetModel()->DrawToLightDepthMap();
+			}
+		}
 	}
 
 	for (size_t i = 0; i < spotLights.size(); ++i)
@@ -100,7 +109,14 @@ void LightsManager::DrawLightDepthMaps(SceneNode* node)
 		usingShader->SetUniformMat4("lightView", view);
 		glBindFramebuffer(GL_FRAMEBUFFER, FBOsLightsDepth[dirLights.size() + i]);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		node->DrawToLightDepthMap(usingShader);
+		for (auto obj : objs)
+		{
+			if (obj->GetModel())
+			{
+				usingShader->SetUniformMat4("model", obj->GetTransform().GetTransMatrix());
+				obj->GetModel()->DrawToLightDepthMap();
+			}
+		}
 	}
 
 	usingShader = Shader::GetShaderByIndex(12);
@@ -114,7 +130,14 @@ void LightsManager::DrawLightDepthMaps(SceneNode* node)
 			usingShader->SetUniformMat4("shadowMatrices[" + std::to_string(x) + "]", pointLights[i]->BuildShadowMatrix(x));
 		glBindFramebuffer(GL_FRAMEBUFFER, FBOsLightsDepth[dirLights.size() + spotLights.size() + i]);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		node->DrawToLightDepthMap(usingShader);
+		for (auto obj : objs)
+		{
+			if (obj->GetModel())
+			{
+				usingShader->SetUniformMat4("model", obj->GetTransform().GetTransMatrix());
+				obj->GetModel()->DrawToLightDepthMap();
+			}
+		}
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

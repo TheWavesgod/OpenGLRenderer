@@ -1,10 +1,8 @@
 #include "Material.h"
+
+#include "stb_image.h"
+
 #include "Shader.h"
-
-Material::Material()
-{
-
-}
 
 Material::Material(const std::string& albedo, const std::string& mettalic, const std::string& roughness, const std::string& normal, const std::string& height, const std::string& ao, const std::string& emissive)
 {
@@ -46,12 +44,48 @@ Material::Material(const std::string& albedo, const std::string& mettalic, const
 		filePathes[TEXTYPE_EMISSIVE] = emissive;
 	}
 
+	useAlbedo = textures[TEXTYPE_ALBEDO] != nullptr;
+	useMetallic = textures[TEXTYPE_METALLIC] != nullptr;
+	useRoughness = textures[TEXTYPE_ROUGHNESS] != nullptr;
+	useNormal = textures[TEXTYPE_NORMAL] != nullptr;
+	useHeight = textures[TEXTYPE_HEIGHT] != nullptr;
+	useAO = textures[TEXTYPE_AO] != nullptr;
+	useEmissive = textures[TEXTYPE_EMISSIVE] != nullptr;
+
 	bUsePBR = true;
+}
+
+Material::Material(bool transparent)
+{
+	for (auto& i : textures) i = nullptr;
+
+	bTransparent = transparent;
+	bUsePBR = true;
+
+	useAlbedo = false;
+	useMetallic = false;
+	useRoughness = false; 
+	useNormal = false;
+	useHeight = false;
+	useAO = false;
+	useEmissive = false;
 }
 
 Material::~Material()
 {
 
+}
+
+Material* Material::CreateGlassMaterial(const std::string& name, const glm::vec3& baseColor, float alpha, float metallic, float roughness)
+{
+	Material* m = new Material(true);
+	m->SetName(name);
+	m->baseColor = baseColor;
+	m->alpha = alpha;
+	m->matellic = metallic;
+	m->roughness = roughness;
+
+	return m;
 }
 
 void Material::Set(Shader& shader)
@@ -66,11 +100,22 @@ void Material::Set(Shader& shader)
 		SetShaderSampler(shader, TEXTYPE_AO, 5);
 		SetShaderSampler(shader, TEXTYPE_EMISSIVE, 6);
 
-		shader.SetUniformInt("useEmissive", textures[TEXTYPE_EMISSIVE] != nullptr);
-		shader.SetUniformInt("useHeight", textures[TEXTYPE_HEIGHT] != nullptr);
+		shader.SetUniformInt("useAlbedo", useAlbedo);
+		shader.SetUniformInt("useMetallic", useMetallic);
+		shader.SetUniformInt("useRoughness", useRoughness);
+		shader.SetUniformInt("useNormal", useNormal);
+		shader.SetUniformInt("useHeight", useHeight);
+		shader.SetUniformInt("useAO", useAO);
+		shader.SetUniformInt("useEmissive", useEmissive);
+		shader.SetUniformInt("isTransparent", bTransparent);
 
-		shader.SetUniformFloat("heightScale", heightScale);
-		shader.SetUniformFloat("emissiveScale", emissiveScale);
+		if (!useAlbedo) shader.SetUniformVec3("baseColor", baseColor);
+		if (!useMetallic) shader.SetUniformFloat("matellic", matellic);
+		if (!useRoughness) shader.SetUniformFloat("roughness", roughness);
+
+		if (useHeight) shader.SetUniformFloat("heightScale", heightScale);
+		if (useEmissive)shader.SetUniformFloat("emissiveScale", emissiveScale);
+		if (bTransparent)shader.SetUniformFloat("alpha", alpha);
 
 		shader.SetUniformInt("irradianceMap", 7);
 		shader.SetUniformInt("prefilterMap", 8);

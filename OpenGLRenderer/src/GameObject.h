@@ -31,6 +31,8 @@ public:
 	void SetCameraDistance(float val);
 	inline float GetCameraDistance() const { return distanceFromCamera; }
 
+	inline std::string GetName() const { return name; }
+
 	inline const std::vector<RenderObject*>& GetRenderObjects() const { return renderObjects; }
 
 	static bool CompareByCameraDistance(const GameObject* a, const GameObject* b) { return (a->distanceFromCamera < b->distanceFromCamera) ? true : false; }
