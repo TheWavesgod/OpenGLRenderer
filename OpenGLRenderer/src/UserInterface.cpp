@@ -366,7 +366,6 @@ void UserInterface::SetGameObjectsMenu()
 	}
 }
 
-
 UserInterface::UserInterface(window* w, glRenderer* renderer, Level& l) : w(w), level(l), renderer(renderer)
 {
 	IMGUI_CHECKVERSION();
