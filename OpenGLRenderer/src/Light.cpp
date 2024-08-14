@@ -33,7 +33,7 @@ void LightsManager::Update()
 	for (size_t i = 0; i < dirLights.size(); ++i)
 	{
 		dirLightsData[i].direction = dirLights[i]->GetLightDirection();
-		dirLightsData[i].color = dirLights[i]->GetLightColor();
+		dirLightsData[i].color = dirLights[i]->GetLightColor() * dirLights[i]->GetLightIntensity();
 		dirLightsData[i].lightSpaceMat = dirLights[i]->BuildLightSpaceMatrix();
 	}
 
@@ -42,7 +42,7 @@ void LightsManager::Update()
 	{
 		spotLightsData[i].position = spotLights[i]->GetLightPosition();
 		spotLightsData[i].direction = spotLights[i]->GetLightDirection();
-		spotLightsData[i].color = spotLights[i]->GetLightColor();
+		spotLightsData[i].color = spotLights[i]->GetLightColor() * spotLights[i]->GetLightIntensity();
 		spotLightsData[i].innerCutOff = spotLights[i]->innerCutOff;
 		spotLightsData[i].outerCutOff = spotLights[i]->outerCutOff;
 		spotLightsData[i].constant = spotLights[i]->constant;
@@ -55,7 +55,7 @@ void LightsManager::Update()
 	for (size_t i = 0; i < pointLights.size(); ++i)
 	{
 		pointLightsData[i].position = pointLights[i]->GetLightPosition();
-		pointLightsData[i].color = pointLights[i]->GetLightColor();
+		pointLightsData[i].color = pointLights[i]->GetLightColor() * pointLights[i]->GetLightIntensity();
 		pointLightsData[i].constant = pointLights[i]->constant;
 		pointLightsData[i].linear = pointLights[i]->linear;
 		pointLightsData[i].quadratic = pointLights[i]->quadratic;
@@ -153,12 +153,12 @@ void LightsManager::DrawLightCubes()
 	for (size_t i = 0; i < spotLights.size(); ++i)
 	{
 		usingShader->SetUniformMat4("models[" + std::to_string(i) + "]", spotLights[i]->GetLightTransform().GetTransMatrix());
-		usingShader->SetUniformVec3("colors[" + std::to_string(i) + "]", spotLights[i]->GetLightColor());
+		usingShader->SetUniformVec3("colors[" + std::to_string(i) + "]", spotLights[i]->GetLightColor() * spotLights[i]->GetLightIntensity());
 	}
 	for (size_t i = 0; i < pointLights.size(); ++i)
 	{
 		usingShader->SetUniformMat4("models[" + std::to_string(i + spotLights.size()) + "]", pointLights[i]->GetLightTransform().GetTransMatrix());
-		usingShader->SetUniformVec3("colors[" + std::to_string(i + spotLights.size()) + "]", pointLights[i]->GetLightColor());
+		usingShader->SetUniformVec3("colors[" + std::to_string(i + spotLights.size()) + "]", pointLights[i]->GetLightColor() * pointLights[i]->GetLightIntensity());
 	}
 
 	glBindVertexArray(lightCubeVAO);

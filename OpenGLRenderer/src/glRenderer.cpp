@@ -60,27 +60,46 @@ void glRenderer::MultiSample()
 void glRenderer::PostProcess()
 {
 	// Gaussian Blur for Bloom
-	//bool horizontal = true, first_iteration = true;
-	//int amount = 10;
-	//Shader::GetShaderByIndex(2)->Use();
-	//for (unsigned int i = 0; i < amount; ++i)
-	//{
-	//	glBindFramebuffer(GL_FRAMEBUFFER, FBOpingpong[horizontal]);
-	//	//shaders[2]->SetUniformInt("horizontal", horizontal);
-	//	glBindTexture(GL_TEXTURE_2D, first_iteration ? colorTexPostProcess[1] : colorTexPingpong[!horizontal]); // First iteration bind the bright Texture From last render
-	//	// Draw
-	//	horizontal = !horizontal;
-	//	if (first_iteration) first_iteration = false;
-	//}
+	bool horizontal = true, first_iteration = true;
+	int amount = 10;
+	glDisable(GL_DEPTH_TEST);
+	if (bEnableBloom)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, FBOBloom);
+		Shader::GetShaderByIndex(14)->Use();
+		Shader::GetShaderByIndex(14)->SetUniformInt("image", 0);
+		glBindVertexArray(screenQuadVAO);
+		glBindTexture(GL_TEXTURE_2D, colorTexPostProcess);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+		Shader::GetShaderByIndex(13)->Use();
+		glBindVertexArray(screenQuadVAO);
+		for (unsigned int i = 0; i < amount; ++i)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, FBOpingpong[horizontal]);
+			Shader::GetShaderByIndex(13)->SetUniformInt("horizontal", horizontal);
+			glBindTexture(GL_TEXTURE_2D, first_iteration ? colorTexBloom : colorTexPingpong[!horizontal]); // First iteration bind the bright Texture From last render
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			horizontal = !horizontal;
+			if (first_iteration) first_iteration = false;
+		}
+	}
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	Shader::GetShaderByIndex(2)->Use();
 	Shader::GetShaderByIndex(2)->SetUniformInt("screenTexture", 0);
 	Shader::GetShaderByIndex(2)->SetUniformInt("gammaCorrection", bGammaCorrection);
+	Shader::GetShaderByIndex(2)->SetUniformInt("useBloom", bEnableBloom);
 	Shader::GetShaderByIndex(2)->SetUniformFloat("exposure", exposure);
 	glBindVertexArray(screenQuadVAO);
-	glDisable(GL_DEPTH_TEST);
-	glBindTexture(GL_TEXTURE_2D, colorTexPostProcess[0]);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, colorTexPostProcess);
+	if (bEnableBloom)
+	{
+		Shader::GetShaderByIndex(2)->SetUniformInt("bloomBlur", 1);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, colorTexPingpong[!horizontal]);
+	}
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
@@ -135,31 +154,50 @@ bool glRenderer::CreateShaderPrograms()
 	s = new Shader("../Shaders/vertPointLight.glsl", "../Shaders/fragPointLight.glsl", "../Shaders/geomPointLight.glsl");
 	if (!s->HasInitialized()) return false;
 
+	s = new Shader("../Shaders/vertPostProcessing.glsl", "../Shaders/fragBlur.glsl");
+	if (!s->HasInitialized()) return false;
 
+	s = new Shader("../Shaders/vertPostProcessing.glsl", "../Shaders/fragBloom.glsl");
+	if (!s->HasInitialized()) return false;
 
 	return true;
 }
 
 void glRenderer::CreateFrameBuffer()
 {
+	glGenFramebuffers(1, &FBOBloom);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBOBloom);
+
+	glGenTextures(1, &colorTexBloom);
+	glBindTexture(GL_TEXTURE_2D, colorTexBloom);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, currentWindow->GetWidth(), currentWindow->GetHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexBloom, 0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout << "ERROR::FRAMEBUFFER::Bloom Framebuffer is not complete!" << std::endl;
+	}
+
 	glGenFramebuffers(1, &FBOPostProcess);
 	glBindFramebuffer(GL_FRAMEBUFFER, FBOPostProcess);
 
 	// Generate texture
-	glGenTextures(2, colorTexPostProcess);
-	for(int i = 0; i < 2; ++i)
-	{
-		// Create texture for color buffer and bright color buffer of bloom
-		glBindTexture(GL_TEXTURE_2D, colorTexPostProcess[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, currentWindow->GetWidth(), currentWindow->GetHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		// Attach it to currently bound framebuffer object
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorTexPostProcess[i], 0);
-	}
+	glGenTextures(1, &colorTexPostProcess);
+	// Create texture for color buffer 
+	glBindTexture(GL_TEXTURE_2D, colorTexPostProcess);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, currentWindow->GetWidth(), currentWindow->GetHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	// Attach it to currently bound framebuffer object
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexPostProcess, 0);
 
 	GLuint rbo;
 	glGenRenderbuffers(1, &rbo);
@@ -217,6 +255,11 @@ void glRenderer::CreateFrameBuffer()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexPingpong[i], 0);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			std::cout << "ERROR::FRAMEBUFFER::Blur Pingpong Framebuffer is not complete!" << std::endl;
+		}
 	}
 }
 

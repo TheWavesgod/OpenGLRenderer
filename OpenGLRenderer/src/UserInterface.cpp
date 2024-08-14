@@ -55,6 +55,7 @@ void UserInterface::SetMenu()
 	if (ImGui::CollapsingHeader("Global Settings", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::Checkbox("Enable gamma correction", &(renderer->bGammaCorrection));
+		ImGui::Checkbox("Enable Bloom", &(renderer->bEnableBloom));
 		ImGui::SliderFloat("Exposure amount", &(renderer->exposure), 0.0f, 10.0f);
 	}
 
@@ -113,13 +114,23 @@ void UserInterface::SetLightMenu()
 
 				glm::vec3 rot = dirLights[i]->GetLightRotation();
 				float lRot[3] = { rot.x, rot.y, rot.z };
-				ImGui::InputFloat3(("Rotation ##dirLight" + std::to_string(i)).c_str(), lRot);
-				dirLights[i]->SetLightRotation(glm::vec3(lRot[0], lRot[1], lRot[2]));
+				if (ImGui::InputFloat3(("Rotation ##dirLight" + std::to_string(i)).c_str(), lRot))
+				{
+					dirLights[i]->SetLightRotation(glm::vec3(lRot[0], lRot[1], lRot[2]));
+				}
 
 				glm::vec3 col = dirLights[i]->GetLightColor();
 				float lCol[3] = { col.x, col.y, col.z };
-				ImGui::ColorEdit3(("Color ##dirLight" + std::to_string(i)).c_str(), lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR);
-				dirLights[i]->SetLightColor(glm::vec3(lCol[0], lCol[1], lCol[2]));
+				if (ImGui::ColorEdit3(("Color ##dirLight" + std::to_string(i)).c_str(), lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR))
+				{
+					dirLights[i]->SetLightColor(glm::vec3(lCol[0], lCol[1], lCol[2]));
+				}
+
+				float lIntensity = dirLights[i]->GetLightIntensity();
+				if (ImGui::InputFloat(("Intensity ##dirLight" + std::to_string(i)).c_str(), &lIntensity))
+				{
+					dirLights[i]->SetLightIntensity(lIntensity);
+				}
 			}
 			ImGui::TreePop();
 		}
@@ -134,18 +145,30 @@ void UserInterface::SetLightMenu()
 
 				glm::vec3 pos = spotLights[i]->GetLightPosition();
 				float lPos[3] = { pos.x, pos.y, pos.z };
-				ImGui::InputFloat3(("Position ##spotLight" + std::to_string(i)).c_str(), lPos);
-				spotLights[i]->SetLightPosition(glm::vec3(lPos[0], lPos[1], lPos[2]));
+				if (ImGui::InputFloat3(("Position ##spotLight" + std::to_string(i)).c_str(), lPos))
+				{
+					spotLights[i]->SetLightPosition(glm::vec3(lPos[0], lPos[1], lPos[2]));
+				}
 
 				glm::vec3 rot = spotLights[i]->GetLightRotation();
 				float lRot[3] = { rot.x, rot.y, rot.z };
-				ImGui::InputFloat3(("Rotation ##spotLight" + std::to_string(i)).c_str(), lRot);
-				spotLights[i]->SetLightRotation(glm::vec3(lRot[0], lRot[1], lRot[2]));
+				if (ImGui::InputFloat3(("Rotation ##spotLight" + std::to_string(i)).c_str(), lRot))
+				{
+					spotLights[i]->SetLightRotation(glm::vec3(lRot[0], lRot[1], lRot[2]));
+				}
 
 				glm::vec3 col = spotLights[i]->GetLightColor();
 				float lCol[3] = { col.x, col.y, col.z };
-				ImGui::ColorEdit3(("Color ##spotLight" + std::to_string(i)).c_str(), lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR);
-				spotLights[i]->SetLightColor(glm::vec3(lCol[0], lCol[1], lCol[2]));
+				if (ImGui::ColorEdit3(("Color ##spotLight" + std::to_string(i)).c_str(), lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR))
+				{
+					spotLights[i]->SetLightColor(glm::vec3(lCol[0], lCol[1], lCol[2]));
+				}
+
+				float lIntensity = spotLights[i]->GetLightIntensity();
+				if (ImGui::InputFloat(("Intensity ##spotLight" + std::to_string(i)).c_str(), &lIntensity))
+				{
+					spotLights[i]->SetLightIntensity(lIntensity);
+				}
 
 				if (ImGui::TreeNode(("Light properties##spotLight" + std::to_string(i)).c_str()))
 				{
@@ -182,13 +205,23 @@ void UserInterface::SetLightMenu()
 
 				glm::vec3 pos = pointLights[i]->GetLightPosition();
 				float lPos[3] = { pos.x, pos.y, pos.z };
-				ImGui::InputFloat3(("Position ##pointLight" + std::to_string(i)).c_str(), lPos);
-				pointLights[i]->SetLightPosition(glm::vec3(lPos[0], lPos[1], lPos[2]));
+				if (ImGui::InputFloat3(("Position ##pointLight" + std::to_string(i)).c_str(), lPos))
+				{
+					pointLights[i]->SetLightPosition(glm::vec3(lPos[0], lPos[1], lPos[2]));
+				}
 
 				glm::vec3 col = pointLights[i]->GetLightColor();
 				float lCol[3] = { col.x, col.y, col.z };
-				ImGui::ColorEdit3(("Color ##pointLight" + std::to_string(i)).c_str(), lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR);
-				pointLights[i]->SetLightColor(glm::vec3(lCol[0], lCol[1], lCol[2]));
+				if (ImGui::ColorEdit3(("Color ##pointLight" + std::to_string(i)).c_str(), lCol, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR))
+				{
+					pointLights[i]->SetLightColor(glm::vec3(lCol[0], lCol[1], lCol[2]));
+				}
+
+				float lIntensity = pointLights[i]->GetLightIntensity();
+				if (ImGui::InputFloat(("Intensity ##pointLight" + std::to_string(i)).c_str(), &lIntensity))
+				{
+					pointLights[i]->SetLightIntensity(lIntensity);
+				}
 
 				if (ImGui::TreeNode(("Light properties##pointLight" + std::to_string(i)).c_str()))
 				{

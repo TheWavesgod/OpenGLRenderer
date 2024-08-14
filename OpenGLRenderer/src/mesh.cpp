@@ -570,4 +570,33 @@ void Mesh::UploadAttribute(GLuint* buffer, int numElements, int dataSize, int at
 	glVertexAttribPointer(attributeID, attributeSize, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
+void Mesh::ClearMesh()
+{
+	vertices.clear();
+	if (!colors.empty())
+	{
+		colors.clear();
+	}
+	if (!texCoords.empty())
+	{
+		texCoords.clear();
+	}
+	if (!normals.empty())
+	{
+		normals.clear();
+	}
+	if (!tangents.empty())
+	{
+		tangents.clear();
+	}
+	if (!biTangents.empty())
+	{
+		biTangents.clear();
+	}
+	if (!indices.empty())
+	{
+		indices.clear();
+	}
+}
+
 

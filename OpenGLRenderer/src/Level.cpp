@@ -100,6 +100,7 @@ Level::Level(glRenderer* r)
 		"../Resources/Textures/HardwoodPlanks/HardwoodPlanks_ao.png"
 	);
 	newMaterial->SetName("HardwoodPlanks");
+	newMaterial->SetHeightScale(0.01f);
 	materials.push_back(newMaterial);
 
 	newMaterial = new Material(
@@ -289,11 +290,11 @@ Level::~Level()
 
 void Level::ConstructScene()
 {
-	lightsManager->AddDirectionalLight(glm::vec3(-80.0f, 0.0f, 0.0f), glm::vec3(5.0f));
+	lightsManager->AddDirectionalLight(glm::vec3(-80.0f, 0.0f, 0.0f), glm::vec3(1.0f));
 	lightsManager->AddSpotLight(glm::vec3(3.0f, 5.0f, 0.0f), glm::vec3(-60.0f, 0.0f, 0.0f), glm::vec3(1.2f, 7.0f, 0.0f), 30.0f, 35.0f, 0.07f, 0.017f);
-	lightsManager->AddSpotLight(glm::vec3(6.0f, 5.0f, 28.0f), glm::vec3(-30.0f, 45.0f, 0.0f), glm::vec3(9.2f, 8.9f, 4.2f), 30.0f, 35.0f, 0.07f, 0.017f);
-	lightsManager->AddSpotLight(glm::vec3(-6.0f, 5.0f, 28.0f), glm::vec3(-30.0f, -45.0f, 0.0f), glm::vec3(9.2f, 8.9f, 4.2f), 30.0f, 35.0f, 0.07f, 0.017f);
-	lightsManager->AddPointLight(glm::vec3(-3.0f, 4.5f, 1.0f), glm::vec3(3.0f, 0.0f, 1.5f), 0.09f, 0.032f);
+	lightsManager->AddSpotLight(glm::vec3(6.0f, 5.0f, 28.0f), glm::vec3(-30.0f, 45.0f, 0.0f), glm::vec3(1.0f, 0.97f, 0.46f), 30.0f, 35.0f, 0.07f, 0.017f);
+	lightsManager->AddSpotLight(glm::vec3(-6.0f, 5.0f, 28.0f), glm::vec3(-30.0f, -45.0f, 0.0f), glm::vec3(1.0f, 0.97f, 0.46f), 30.0f, 35.0f, 0.07f, 0.017f);
+	lightsManager->AddPointLight(glm::vec3(-3.0f, 4.5f, 1.0f), glm::vec3(0.6f, 0.0f, 0.3f), 0.09f, 0.032f);
 
 	GameObject* newObj;
 	newObj = AddGameObject("Floor", glm::vec3(0.0f), new AABBVolume(glm::vec3(5.0f, 5.0f, 5.0f)), GenerateFloorModel("Floor"));

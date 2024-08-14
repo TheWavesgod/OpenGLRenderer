@@ -66,6 +66,8 @@ protected:
 
 	void SetupMesh();
 	void UploadAttribute(GLuint* buffer, int numElements, int dataSize, int attribSize, int attributeID, void* dataPtr);
+	
+	void ClearMesh();
 
 	void GenerateTangentCoordsForArrays();
 	void GenerateTangentCoordsForElements(unsigned int faceType = 3);

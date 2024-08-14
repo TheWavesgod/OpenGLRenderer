@@ -23,6 +23,7 @@ public:
 	bool bGammaCorrection = true;
 	float exposure = 1.0f;
 	int blendEquation;
+	bool bEnableBloom = true;
 
 protected:
 	void InitializeRenderer();
@@ -41,10 +42,13 @@ private:
 	bool bHasInitilized;
 
 	GLuint FBOPostProcess;
-	GLuint colorTexPostProcess[2];
+	GLuint colorTexPostProcess;
 	
 	GLuint FBOMultiSample;
 	GLuint colorTexMultiSample;
+
+	GLuint FBOBloom;
+	GLuint colorTexBloom;
 
 	GLuint FBOpingpong[2];
 	GLuint colorTexPingpong[2];
