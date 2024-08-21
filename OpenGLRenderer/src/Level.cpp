@@ -22,9 +22,27 @@ Level::Level(glRenderer* r)
 
 	lightsManager = new LightsManager();
 
+	meshes.emplace_back(Mesh::GenerateFloor());
+	meshes.emplace_back(Mesh::GenerateCube());
+	meshes.emplace_back(Mesh::GenerateSphere());
+
+	ConstructScene();
+
+	LevelBeginPlay();
+}
+
+Level::~Level()
+{
+	delete camera;
+	delete lightsManager;
+}
+
+void Level::ConstructScene()
+{
 	ImportCubeMaps();
 
-	Material* newMaterial = new Material(
+	Material* newMaterial;
+	newMaterial = new Material(
 		"../Resources/Textures/RustedIron/rustediron2_basecolor.png",
 		"../Resources/Textures/RustedIron/rustediron2_metallic.png",
 		"../Resources/Textures/RustedIron/rustediron2_roughness.png",
@@ -117,7 +135,7 @@ Level::Level(glRenderer* r)
 	newMaterial = new Material(
 		"../Resources/Models/F22/exterior_diffuse.png",
 		"../Resources/Models/F22/exterior_reflection.png",
-		"../Resources/Models/F22/exterior_specular.png",
+		""/*"../Resources/Models/F22/exterior_specular.png"*/,
 		"../Resources/Models/F22/exterior_normal.png",
 		"",
 		""
@@ -128,7 +146,7 @@ Level::Level(glRenderer* r)
 	newMaterial = new Material(
 		"../Resources/Models/F22/interior_diffuse.png",
 		"../Resources/Models/F22/interior_reflection.png",
-		"../Resources/Models/F22/interior_specular.png",
+		""/*"../Resources/Models/F22/interior_specular.png"*/,
 		"../Resources/Models/F22/interior_normal.png",
 		"",
 		""
@@ -139,7 +157,7 @@ Level::Level(glRenderer* r)
 	newMaterial = new Material(
 		"../Resources/Models/F22/pilot_diffuse.png",
 		"../Resources/Models/F22/pilot_specular.png",
-		"../Resources/Models/F22/pilot_specular.png",
+		""/*"../Resources/Models/F22/pilot_specular.png"*/,
 		"../Resources/Models/F22/pilot_normal.png",
 		"",
 		""
@@ -246,10 +264,6 @@ Level::Level(glRenderer* r)
 	newMaterial->SetName("PBRExample");
 	materials.push_back(newMaterial);
 
-	meshes.emplace_back(Mesh::GenerateFloor());
-	meshes.emplace_back(Mesh::GenerateCube());
-	meshes.emplace_back(Mesh::GenerateSphere());
-
 	Model* backpack = new Model("backpack", "../Resources/Models/backpack/backpack.obj");
 	models.push_back(backpack);
 	backpack->SetMaterialIndex(0, 7);
@@ -277,19 +291,6 @@ Level::Level(glRenderer* r)
 	seagull->SetMaterialIndex(9, 14);
 	seagull->SetMaterialIndex(10, 18);
 
-	ConstructScene();
-
-	LevelBeginPlay();
-}
-
-Level::~Level()
-{
-	delete camera;
-	delete lightsManager;
-}
-
-void Level::ConstructScene()
-{
 	lightsManager->AddDirectionalLight(glm::vec3(-80.0f, 0.0f, 0.0f), glm::vec3(1.0f));
 	lightsManager->AddSpotLight(glm::vec3(3.0f, 5.0f, 0.0f), glm::vec3(-60.0f, 0.0f, 0.0f), glm::vec3(1.2f, 7.0f, 0.0f), 30.0f, 35.0f, 0.07f, 0.017f);
 	lightsManager->AddSpotLight(glm::vec3(6.0f, 5.0f, 28.0f), glm::vec3(-30.0f, 45.0f, 0.0f), glm::vec3(1.0f, 0.97f, 0.46f), 30.0f, 35.0f, 0.07f, 0.017f);
@@ -314,7 +315,6 @@ void Level::ConstructScene()
 	newObj = AddGameObject("PBRExample", glm::vec3( 0.0f, 5.0f, 5.0f), new SphereVolume(1.0f), GenerateSphereModel("PBRExample"));
 	newObj->GetModel()->SetMaterialIndex(0, 21);
 
-
 	AddGameObject("Backpack", glm::vec3(6.0f, 3.0f, -3.0f), new AABBVolume(glm::vec3(5.0f, 5.0f, 5.0f)), models[0]);
 	AddGameObject("F22", glm::vec3(6.0f, 10.0f, -3.0f), new AABBVolume(glm::vec3(15.0f, 5.0f, 9.0f)), models[1]);
 	AddGameObject("Seagull", glm::vec3(0.0f, 0.05f, 20.0f), new AABBVolume(glm::vec3(15.0f, 5.0f, 9.0f)), models[2]);
@@ -323,10 +323,10 @@ void Level::ConstructScene()
 void Level::ImportCubeMaps()
 {
 	CubeMaps.reserve(4);
-	CubeMaps[0] = new CubeMap("../Resources/HDR/RockHill/RockHill.hdr");
-	CubeMaps[1] = new CubeMap("../Resources/HDR/LivingRoom/LivingRoom.hdr");
-	CubeMaps[2] = new CubeMap("../Resources/HDR/DarkPlace/DarkPlace.hdr");
-	CubeMaps[3] = new CubeMap("../Resources/HDR/Gallery/gallery_hd.hdr");
+	CubeMaps.push_back(new CubeMap("../Resources/HDR/RockHill/RockHill.hdr"));
+	/*CubeMaps.push_back(new CubeMap("../Resources/HDR/LivingRoom/LivingRoom.hdr"));
+	CubeMaps.push_back(new CubeMap("../Resources/HDR/DarkPlace/DarkPlace.hdr"));
+	CubeMaps.push_back(new CubeMap("../Resources/HDR/Gallery/gallery_hd.hdr"));*/
 }
 
 void Level::Update(float dt)
@@ -344,9 +344,12 @@ void Level::LevelBeginPlay()
 
 	camera->UploadProjectionMatrix(renderer->GetUboCamera());
 
-	CubeMaps[currentSkybox]->BindIrradianceMap(7);
-	CubeMaps[currentSkybox]->BindprefilterMap(8);
-	CubeMaps[currentSkybox]->BindBRDFLUT(9);
+	if (!CubeMaps.empty())
+	{
+		CubeMaps[currentSkybox]->BindIrradianceMap(7);
+		CubeMaps[currentSkybox]->BindprefilterMap(8);
+		CubeMaps[currentSkybox]->BindBRDFLUT(9);
+	}
 }
 
 void Level::GetGameObjectsIterators(GameObjectIterator& cbegin, GameObjectIterator& cend) const
@@ -449,7 +452,7 @@ void Level::DrawScene()
 	ClearRenderList();
 
 	// Draw skybox last
-	CubeMaps[currentSkybox]->Draw();
+	if (!CubeMaps.empty()) CubeMaps[currentSkybox]->Draw();
 }
 
 void Level::BuildNodeLists(SceneNode* from)

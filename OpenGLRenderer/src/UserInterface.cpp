@@ -6,6 +6,11 @@
 #include "Material.h"
 #include "Model.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#include <commdlg.h>
+#endif
+
 UserInterface* UserInterface::uiPtr = nullptr;
 
 UserInterface* UserInterface::CreateUserInterface(window* w, glRenderer* renderer, Level& l)
@@ -42,7 +47,9 @@ void UserInterface::SetMenu()
 
 	ImGui::Begin("OpenGL Render Engine");
 
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+	ImGui::Text("Application average %.5f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+	ImGui::Spacing();
+	ImGui::Text("Application launch time %.5f s", renderer->launch_time);
 	ImGui::Spacing();
 	ImGui::Text("Press TAB to switch mouse cursor state");
 	ImGui::Spacing();
@@ -56,6 +63,7 @@ void UserInterface::SetMenu()
 	{
 		ImGui::Checkbox("Enable gamma correction", &(renderer->bGammaCorrection));
 		ImGui::Checkbox("Enable Bloom", &(renderer->bEnableBloom));
+		ImGui::Checkbox("Enable VSync", &(renderer->bEnableVSync));
 		ImGui::SliderFloat("Exposure amount", &(renderer->exposure), 0.0f, 10.0f);
 	}
 
@@ -88,6 +96,8 @@ void UserInterface::SetMenu()
 }
 
 const char* skyboxes[] = { "RockHill", "LivingRoom", "DarkPlace", "Gallery" };
+bool bShowAddSkyboxWindow = false;
+static std::string selected_file_path;
 
 void UserInterface::SetSkyboxMenu()
 {
@@ -95,7 +105,57 @@ void UserInterface::SetSkyboxMenu()
 	{
 		ImGui::Combo("Select Skybox", &level.selectSkybox, skyboxes, IM_ARRAYSIZE(skyboxes));
 
+		if (ImGui::Button("Add Skybox")) bShowAddSkyboxWindow = true;
+
 		ImGui::TreePop();
+	}
+
+	if (bShowAddSkyboxWindow)
+	{
+		ImVec2 window_pos = ImVec2(100, 100);
+		ImGui::SetNextWindowPos(window_pos, ImGuiCond_FirstUseEver);
+
+		ImVec2 window_size = ImVec2(400, 300); 
+		ImGui::SetNextWindowSize(window_size, ImGuiCond_FirstUseEver);
+
+		ImGui::Begin("Add New Skybox", &bShowAddSkyboxWindow);
+
+		ImGui::Text("Selected File: "); ImGui::SameLine();
+		ImGui::InputText("##Skybox select file", selected_file_path.data(), IM_ARRAYSIZE(selected_file_path.data()));
+
+		if (ImGui::Button("Browse..."))
+		{
+#ifdef _WIN32
+			char file_name[MAX_PATH] = "";
+
+			OPENFILENAME ofn;
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = NULL;
+			ofn.lpstrFilter = "All Files\0*.*\0Text Files\0*.TXT\0";
+			ofn.lpstrFile = file_name;
+			ofn.nMaxFile = MAX_PATH;
+			ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+			ofn.lpstrDefExt = "";
+
+			if (GetOpenFileName(&ofn))
+			{
+				selected_file_path = file_name;
+				std::cout << "Selected file path: " << selected_file_path << std::endl;
+			}
+#endif
+		}
+
+		if (ImGui::Button("Select"))
+		{
+			bShowAddSkyboxWindow = false; 
+		} ImGui::SameLine();
+		if (ImGui::Button("Cancel"))
+		{
+			bShowAddSkyboxWindow = false;
+		}
+
+		ImGui::End();
 	}
 }
 
@@ -390,7 +450,29 @@ void UserInterface::SetGameObjectsMenu()
 		{
 			if (ImGui::TreeNode((objs[i]->GetName() + "##GameObject" + std::to_string(i)).c_str()))
 			{
-				
+				glm::vec3 pos = objs[i]->GetTransform().GetPosition();
+				float oPos[3] = { pos.x, pos.y, pos.z };
+				ImGui::Text("Position: "); ImGui::SameLine();
+				if (ImGui::InputFloat3(("##object position" + std::to_string(i)).c_str(), oPos))
+				{
+					objs[i]->GetTransform().SetPosition(glm::vec3(oPos[0], oPos[1], oPos[2]));
+				}
+
+				glm::vec3 rot = objs[i]->GetTransform().GetRotation();
+				float oRot[3] = { rot.x, rot.y, rot.z };
+				ImGui::Text("Rotation: "); ImGui::SameLine();
+				if (ImGui::InputFloat3(("##obj rot" + std::to_string(i)).c_str(), oRot))
+				{
+					objs[i]->GetTransform().SetRotation(glm::vec3(oRot[0], oRot[1], oRot[2]));
+				}
+
+				glm::vec3 scale = objs[i]->GetTransform().GetScale();
+				float oScale[3] = {scale.x, scale.y, scale.z};
+				ImGui::Text("Scale:    "); ImGui::SameLine();
+				if (ImGui::InputFloat3(("##obj scale" + std::to_string(i)).c_str(), oScale))
+				{
+					objs[i]->GetTransform().SetScale(glm::vec3(oScale[0], oScale[1], oScale[2]));
+				}
 
 				ImGui::TreePop();
 			}

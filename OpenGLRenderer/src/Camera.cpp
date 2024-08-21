@@ -26,7 +26,7 @@ void Camera::UpdateCamera(float dt)
 	}
 	transform.SetRotation(vec3(pitch, yaw, 0.0f));
 
-	cameraMoveSpeed = std::clamp(cameraMoveSpeed + window::mouseScroll, 3.0f, 50.0f);
+	cameraMoveSpeed = std::clamp(cameraMoveSpeed + window::mouseScroll * 0.05f, 3.0f, 50.0f);
 
 	float displacement = cameraMoveSpeed * dt;
 

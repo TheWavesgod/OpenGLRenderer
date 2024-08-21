@@ -48,6 +48,7 @@ void glRenderer::SetSceneBufferReady()
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	SetBlendQquation(0);
+	glfwSwapInterval(bEnableVSync);
 }
 
 void glRenderer::MultiSample()

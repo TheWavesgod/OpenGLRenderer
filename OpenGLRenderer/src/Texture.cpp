@@ -38,6 +38,11 @@ void Texture::LoadFromFile(const std::string& fileLoc)
 			format = GL_RED;
 			break;
 
+		case 2:
+			internalFormat = GL_RG;
+			format = GL_RG;
+			break;
+
 		case 3:
 			internalFormat = GL_RGB;
 			format = GL_RGB;

@@ -281,12 +281,12 @@ void CubeMap::GeneratePrefilterMap()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-	unsigned int maxMipLevels = 5;
+	unsigned int maxMipLevels = 7;
 	for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
 	{
 		// Resize framebuffer according to mip-level size
-		unsigned int mipWidth = 128 * std::pow(0.5, mip);
-		unsigned int mipHeight = 128 * std::pow(0.5, mip);
+		unsigned int mipWidth = static_cast < unsigned int>(128 * std::pow(0.5, mip));
+		unsigned int mipHeight = static_cast < unsigned int>(128 * std::pow(0.5, mip));
 		glBindRenderbuffer(GL_RENDERBUFFER, captureRBO); 
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
 		glViewport(0, 0, mipWidth, mipHeight);

@@ -3,8 +3,13 @@
 #include "glRenderer.h"
 #include "Level.h"
 
+#include <chrono>
+
 int main()
 {
+	// Record launch time
+	auto start_time = std::chrono::high_resolution_clock::now();
+
 	window* w = window::CreateGLFWWindow(2560, 1440, "OpenGL Renderer", false);
 	if (!w->HasInitialized())
 	{
@@ -24,6 +29,11 @@ int main()
 	{
 		return -1;
 	}
+
+	// launch time
+	auto start_loop_time = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> startup_duration = start_loop_time - start_time;
+	renderer->launch_time = startup_duration.count();
 
 	float deltaT;
 	while (w->Update(deltaT))

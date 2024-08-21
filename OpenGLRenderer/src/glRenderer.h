@@ -19,12 +19,14 @@ public:
 	void MultiSample();
 	void PostProcess();
 
+	double launch_time;
+
 	/** Setting parameter */
 	bool bGammaCorrection = true;
 	float exposure = 1.0f;
 	int blendEquation;
 	bool bEnableBloom = true;
-
+	bool bEnableVSync = false;
 protected:
 	void InitializeRenderer();
 
